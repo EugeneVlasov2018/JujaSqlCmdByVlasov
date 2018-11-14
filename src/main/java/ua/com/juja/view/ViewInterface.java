@@ -2,5 +2,11 @@ package ua.com.juja.view;
 
 public interface ViewInterface {
 
-    void write (String message);
+    void write ();
+
+    void writeWithFormat ();
+
+    void setMessage(String message);
+
+    String getMessage();
 }
