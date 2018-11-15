@@ -2,6 +2,7 @@ package ua.com.juja.controller.command.workWithController;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.ModelImplWithPostgre;
+import ua.com.juja.model.newExceptions.SystemExitException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -23,7 +24,7 @@ public class Exit implements Command {
     public void doWork(String[] command, Connection connection) {
         view.setMessage("Всего хорошего, до встречи снова))");
         view.write();
-        System.exit(0);
+        throw new SystemExitException();
     }
 
     @Override

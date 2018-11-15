@@ -6,6 +6,7 @@ import ua.com.juja.controller.command.workWithController.Exit;
 import ua.com.juja.controller.command.workWithController.Help;
 import ua.com.juja.controller.command.workWithController.WrongCommand;
 import ua.com.juja.controller.command.workWithModel.*;
+import ua.com.juja.model.newExceptions.SystemExitException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -60,6 +61,14 @@ public class MainController {
 
     //Служебный метод для определения, какую соманду выполнять (в MVC - какой метод модели запускаем)
     private void decouplingCommand() {
+        try {
+            workWithCommand();
+        } catch (SystemExitException e){
+            //do nothing;
+        }
+    }
+
+    private void workWithCommand() {
         if (command[0].canProcess(commandForWork)) {
             command[0].doWork(commandForWork, null);
             connection = command[0].getConnection();
@@ -70,11 +79,11 @@ public class MainController {
         } else if (command[3].canProcess(commandForWork)) {
             command[3].doWork(commandForWork, connection);
         } else if (command[4].canProcess(commandForWork)) {
-            command[4].doWork(null,null);
+            command[4].doWork(null, null);
         } else if (command[5].canProcess(commandForWork)) {
             command[5].doWork(commandForWork, connection);
         } else if (command[6].canProcess(commandForWork)) {
-            command[6].doWork(null,null);
+            command[6].doWork(null, null);
         } else if (command[7].canProcess(commandForWork)) {
             command[7].doWork(commandForWork, connection);
         } else if (command[8].canProcess(commandForWork)) {
@@ -83,10 +92,9 @@ public class MainController {
             command[9].doWork(commandForWork, connection);
         } else if (command[10].canProcess(commandForWork)) {
             command[10].doWork(commandForWork, connection);
-        } else if (command[11].canProcess(commandForWork)){
+        } else if (command[11].canProcess(commandForWork)) {
             command[11].doWork(commandForWork, connection);
-        }
-        else {
+        } else {
             command[12].doWork(null, null);
         }
     }
