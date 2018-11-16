@@ -6,6 +6,7 @@ import ua.com.juja.controller.command.workWithController.Exit;
 import ua.com.juja.controller.command.workWithController.Help;
 import ua.com.juja.controller.command.workWithController.WrongCommand;
 import ua.com.juja.controller.command.workWithModel.*;
+import ua.com.juja.model.newExceptions.FirstParamNullException;
 import ua.com.juja.model.newExceptions.SystemExitException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
@@ -36,36 +37,43 @@ public class MainController {
         System.out.println("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
                 "Для подключения к базе данных введи команду в формате:\n" +
                 "connect|database|username|password");
+        try{
         while (true) {
             //Запускаем метод, получающий строку (команду к выполнению)
             commandForWork = splitCommandOnArray();
             //определяем, какая именно команда была введена.
-            //если вошла команда 'exit', флаг поменяется на фолс и цикл будет прерван, -
+            //выход из цикла будет тогда, когда вызовем команду exit, которая выбросит екзепшн
             //корректное завершение программы
             decouplingCommand();
+        }
+        } catch (SystemExitException e){
+            //do nothing
+        } catch (FirstParamNullException e){
+            //do nothing
         }
     }
 
     //Служебный метод приема строки и разбивки на массив строк
-    private String[] splitCommandOnArray() {
+    private String[] splitCommandOnArray() throws FirstParamNullException{
         Scanner scan = new Scanner(System.in);
         String inputedInfo = scan.nextLine();
         //кусок метода, обрезающий пробелы в блоке команд
         String[] preResult = inputedInfo.split("\\|");
-        String[] result = new String[preResult.length];
-        for (int index = 0;index<preResult.length;index++) {
-            result[index] = preResult[index].trim();
+        if(preResult[0].length()==0){
+            throw  new FirstParamNullException();
         }
-        return result;
+        else {
+            String[] result = new String[preResult.length];
+            for (int index = 0; index < preResult.length; index++) {
+                result[index] = preResult[index].trim();
+            }
+            return result;
+        }
     }
 
     //Служебный метод для определения, какую соманду выполнять (в MVC - какой метод модели запускаем)
-    private void decouplingCommand() {
-        try {
+    private void decouplingCommand() throws SystemExitException{
             workWithCommand();
-        } catch (SystemExitException e){
-            //do nothing;
-        }
     }
 
     private void workWithCommand() {

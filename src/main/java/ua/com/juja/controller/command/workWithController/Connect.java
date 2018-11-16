@@ -49,8 +49,11 @@ public class Connect implements Command {
             return connectionToDatabase;
         } catch (SQLException e) {
             StringBuilder resultForView = new StringBuilder("Вы ввели: ");
-            if (!(url.equalsIgnoreCase("jdbc:postgresql://localhost:5432/jujasqlcmd")))
+            if (!(url.equalsIgnoreCase("jdbc:postgresql://localhost:5432/jujasqlcmd"))){
+                //этот иф используется для тестов, т.к. именно там предполагается юзание этой БД
+                if(!(url.equalsIgnoreCase("jdbc:postgresql://localhost:5432/testforsql")))
                 resultForView.append("\nНеверную ссылку на базу");
+            }
             if (!(user.equalsIgnoreCase("postgres")))
                 resultForView.append("\nНеверное имя пользователя");
             if (!(password.equalsIgnoreCase("root")))

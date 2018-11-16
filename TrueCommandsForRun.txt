@@ -1,4 +1,4 @@
-Cоnnect   connect|jujasqlcmd|postgres|root
+Cоnnect   connect|testforsql|postgres|root
 Create    create|users|firstname|secondname|password
 Create    create|secondtable|firstcell|secondcell
 Create    create|threedtable|firstcell|secondcell
