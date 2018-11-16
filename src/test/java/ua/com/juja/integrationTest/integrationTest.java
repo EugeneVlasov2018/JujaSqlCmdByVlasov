@@ -146,7 +146,7 @@ public class integrationTest {
         in.setLine("connect|testforsql|postgres|wrongPassword");
         in.setLine("connect|wrongDbName|wrongUserName|wrongPassword");
         //присоединяемся правильно
-        in.setLine("connect|testforsql|postgres|root");
+        in.setLine("connect|jujasqlcmd|postgres|root");
         in.setLine("exit");
         Main.main(new String[0]);
         assertEquals("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
@@ -175,13 +175,13 @@ public class integrationTest {
                 //exit
                 "Всего хорошего, до встречи снова))\n",getData());
     }
-    //защиты от дурака на повторное создание базы нет, - сделать
+    
     @Test
     public void testCreateTable() {
         //создание таблицы без подключения к базе
         in.setLine("create|users|firstname|secondname|password");
         //создаем базу, присоединившись к базе
-        in.setLine("connect|testforsql|postgres|root");
+        in.setLine("connect|jujasqlcmd|postgres|root");
         //теперь все будет норм, база создастся
         in.setLine("create|users|firstname|secondname|password");
         //создаем ее повторно, чтобы сработала защита от дурака - выведется сообщение, что база уже есть
@@ -190,6 +190,16 @@ public class integrationTest {
         in.setLine("drop|users");
         in.setLine("exit");
         Main.main(new String[0]);
-        assertEquals("",getData());
+        assertEquals("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
+                "Для подключения к базе данных введи команду в формате:\n" +
+                "connect|database|username|password\n" +
+                "Вы попытались создать таблицу, не подключившись к базе данных.\n" +
+                "Подключитесь к базе данных командой\n" +
+                "connect|database|username|password\n" +
+                "База успешно подключена\n" +
+                "Таблица 'users' успешно создана\n" +
+                "Таблица с таким именем уже существует. Введите команду 'tables'чтобы увидеть существующие таблицы\n" +
+                "Таблица users успешно удалена\n" +
+                "Всего хорошего, до встречи снова))\r\n",getData());
     }
 }

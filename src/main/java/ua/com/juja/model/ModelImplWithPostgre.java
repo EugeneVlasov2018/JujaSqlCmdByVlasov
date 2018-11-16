@@ -1,5 +1,6 @@
 package ua.com.juja.model;
 
+import org.postgresql.util.PSQLException;
 import ua.com.juja.model.newExceptions.NullableAnswerException;
 import ua.com.juja.model.parentClassesAndInterfaces.AmstractModelWorkWithPostgre;
 import ua.com.juja.view.ViewImpl;
@@ -25,7 +26,7 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             view.write();
         }
         else {
-            StringBuilder sqlRequest = new StringBuilder("CREATE TABLE IF NOT EXISTS " + params[1] + " (id SERIAL, ");
+            StringBuilder sqlRequest = new StringBuilder("CREATE TABLE " + params[1] + " (id SERIAL, ");
             for (int i = 2; i < params.length; i++) {
                 sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
             }
@@ -34,11 +35,15 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
                 view.setMessage("Таблица '" + params[1] + "' успешно создана");
                 view.write();
-            } catch (SQLException e) {
+            } catch (PSQLException c){
+                view.setMessage("Таблица с таким именем уже существует. Введите команду 'tables'" +
+                        "чтобы увидеть существующие таблицы");
+                view.write();
+            } catch (SQLException a) {
                 view.setMessage("Неизвестная ошибка. Обратитесь с возникшей проблемой к разработчику");
                 view.write();
-                e.printStackTrace();
-            } catch (NullPointerException e) {
+                a.printStackTrace();
+            } catch (NullPointerException b) {
                 view.setMessage("Вы попытались создать таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password");
@@ -318,8 +323,5 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             }
         }
     }
-
-
-
 }
 

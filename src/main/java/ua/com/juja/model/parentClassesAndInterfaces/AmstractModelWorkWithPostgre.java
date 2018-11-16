@@ -3,6 +3,7 @@ package ua.com.juja.model.parentClassesAndInterfaces;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
+import org.postgresql.util.PSQLException;
 import ua.com.juja.model.newExceptions.NullableAnswerException;
 
 import java.sql.*;
@@ -13,7 +14,7 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
 
 
     protected void requestWithoutAnswer(Connection connectionToDb, String sqlRequest) throws SQLException,
-            NullPointerException {
+            NullPointerException, PSQLException {
         if (connectionToDb.equals(null)) {
             throw new NullPointerException();
         } else {
