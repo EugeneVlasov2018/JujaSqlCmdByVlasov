@@ -48,27 +48,19 @@ public class MainController {
         }
         } catch (SystemExitException e){
             //do nothing
-        } catch (FirstParamNullException e){
-            //do nothing
         }
     }
 
     //Служебный метод приема строки и разбивки на массив строк
-    private String[] splitCommandOnArray() throws FirstParamNullException{
+    private String[] splitCommandOnArray() {
         Scanner scan = new Scanner(System.in);
         String inputedInfo = scan.nextLine();
-        //кусок метода, обрезающий пробелы в блоке команд
         String[] preResult = inputedInfo.split("\\|");
-        if(preResult[0].length()==0){
-            throw  new FirstParamNullException();
+        String[] result = new String[preResult.length];
+        for (int index = 0; index < preResult.length; index++) {
+            result[index] = preResult[index].trim();
         }
-        else {
-            String[] result = new String[preResult.length];
-            for (int index = 0; index < preResult.length; index++) {
-                result[index] = preResult[index].trim();
-            }
-            return result;
-        }
+        return result;
     }
 
     //Служебный метод для определения, какую соманду выполнять (в MVC - какой метод модели запускаем)

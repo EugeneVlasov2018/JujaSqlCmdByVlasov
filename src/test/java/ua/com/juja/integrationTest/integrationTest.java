@@ -175,7 +175,7 @@ public class integrationTest {
                 //exit
                 "Всего хорошего, до встречи снова))\n",getData());
     }
-    
+
     @Test
     public void testCreateTable() {
         //создание таблицы без подключения к базе
