@@ -1,4 +1,4 @@
-Cоnnect   connect|testforsql|postgres|root
+Cоnnect   connect|jujasqlcmd|postgres|root
 Create    create|users|firstname|secondname|password
 Create    create|secondtable|firstcell|secondcell
 Create    create|threedtable|firstcell|secondcell
@@ -10,5 +10,5 @@ Find      find|users
 Insert    insert|users|firstname|John|secondname|Dou|password|123
 Insert    insert|users|firstname|Mick|secondname|Dick|password|321
 Update    update|users|password|123|firstname|John2|secondname|Dou2|password|123456
-test      test|users|password|123|firstname|John2|secondname|Dou2|password|123456
+
 

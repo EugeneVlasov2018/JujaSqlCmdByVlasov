@@ -25,14 +25,13 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
     }
 
     protected String requestWithAnswer(Connection connectionToDatabase, String sqlRequestForWork,String requestForTable)
-            throws SQLException, NullableAnswerException, NullPointerException {
+            throws PSQLException, NullPointerException, SQLException {
 
         List<String> arrayForTableNames = new ArrayList<>();
         List<String> arrayForTableValues = new ArrayList<>();
 
         Statement statement = connectionToDatabase.createStatement();
         ResultSet resultSet = statement.executeQuery(requestForTable);
-        if(resultSet.isBeforeFirst()){
         ResultSetMetaData rsmd = resultSet.getMetaData();
         int columnCount = rsmd.getColumnCount();
         for (int i = 1; i<=columnCount;i++)
@@ -44,10 +43,10 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
         }
         statement.close();
         resultSet.close();
+
+        requestWithoutAnswer(connectionToDatabase,sqlRequestForWork);
+
         return createTable(arrayForTableNames,arrayForTableValues);
-        } else {
-            throw new NullableAnswerException();
-        }
     }
 
 

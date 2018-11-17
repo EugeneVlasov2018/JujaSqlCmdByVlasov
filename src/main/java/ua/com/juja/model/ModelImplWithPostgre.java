@@ -153,9 +153,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 view.setMessage(requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(),
                         sqlRequestForTable.toString()));
                 view.write();
-            } catch (NullableAnswerException s) {
-                view.setMessage("в данной таблице отсутствует информация");
-                view.write();
             } catch (SQLException e) {
                 view.setMessage("такой таблицы не существует");
                 view.write();
@@ -252,7 +249,7 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         } else {
             //UPDATE table SET column1 = value1, column2 = value2 ,... WHERE condition;
             //Формирование запроса для получения данных для таблицы
-            StringBuilder sqlReqForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
+            StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
                     append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
             StringBuilder sqlRequestForWork = new StringBuilder("UPDATE ").append(params[1]).append(" SET ");
             for (int index = 4; index < params.length; index++) {
@@ -266,20 +263,32 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
             try {
                 view.setMessage("Были изменены следующие строки:\n"
-                        + requestWithAnswer(connectionToDatabase, sqlReqForTable.toString(),
-                        sqlRequestForWork.toString()));
+                        + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
+                        sqlRequestForTable.toString()));
                 view.write();
-            } catch (NullableAnswerException a) {
-                view.setMessage("Операция невыполнима, т.к. в таблице отстутствуют рядки с такими значениями");
+            }  catch (PSQLException b) {
+                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+                b.printStackTrace();
+                if(b.getSQLState().equals("42P01")){
+                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+                } else if (b.getSQLState().equals("02000")){
+                    causeOfError.append("Запрошенных данных не существует");
+                } else if (b.getSQLState().equals("42703")){
+                    causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
+                            "Переформулируйте запрос.");
+                } else {
+                    //do nothing
+                }
+                view.setMessage(causeOfError.toString());
                 view.write();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                view.setMessage("такой таблицы не существует");
-                view.write();
-            } catch (NullPointerException e1) {
-                e1.printStackTrace();
+            } catch (NullPointerException c) {
                 view.setMessage("Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь");
                 view.write();
+            } catch (SQLException d){
+                view.setMessage("Неизвестная ошибка в работе с базой, обратитесь к разработчику\n"+
+                d.getMessage());
+                view.write();
+
             }
         }
     }
@@ -308,9 +317,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 view.setMessage("Были удалены следующие строки:\n"
                         + requestWithAnswer(connectionToDatabase, sqlReqForTable.toString(),
                         sqlForWork.toString()));
-                view.write();
-            } catch (NullableAnswerException a) {
-                view.setMessage("Операция невыполнима, т.к. в таблице отсутствуют рядки с таким значением");
                 view.write();
             } catch (SQLException e) {
                 view.setMessage("такой таблицы не существует");
