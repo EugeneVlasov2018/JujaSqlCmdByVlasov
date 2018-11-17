@@ -268,7 +268,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 view.write();
             }  catch (PSQLException b) {
                 StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-                b.printStackTrace();
                 if(b.getSQLState().equals("42P01")){
                     causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
                 } else if (b.getSQLState().equals("02000")){
