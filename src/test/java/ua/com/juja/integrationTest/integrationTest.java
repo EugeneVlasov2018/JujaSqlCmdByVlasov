@@ -741,7 +741,7 @@ public class integrationTest {
                 //грохаем таблицу, чтобы другие тесты норм работали
                 "Таблица users успешно удалена\n" +
                 //выходим
-                "Всего хорошего, до встречи снова))",getData());
+                "Всего хорошего, до встречи снова))\n",getData());
     }
 
     @Test
@@ -781,9 +781,9 @@ public class integrationTest {
     }
 
 
-    private String getData() {
+    private synchronized String getData() {
         try {
-            return new String(out.toByteArray(),"UTF-8");
+            return new String(out.toByteArray(),"UTF-8").replaceAll(System.lineSeparator(), "\n");
         } catch (UnsupportedEncodingException e) {
             return e.getMessage();
         }
