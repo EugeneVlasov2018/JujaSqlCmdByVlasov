@@ -18,7 +18,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         return view;
     }
 
-    //готово
     @Override
     public void create(String[] params, Connection connectionToDatabase) {
         if(params.length<3){
@@ -52,7 +51,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
-    //готово))
     @Override
     public void tables(Connection connectionToDatabase) {
         List<String> tablenames = new ArrayList<String>();
@@ -82,7 +80,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
-    //готово
     @Override
     public void clear(String[] params, Connection connectionToDatabase) {
         if(params.length<2){
@@ -109,7 +106,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
-    //готово
     @Override
     public void drop(String[] params, Connection connectionToDatabase) {
         if(params.length<2){
@@ -136,7 +132,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
-    //ГОТОВО
     @Override
     public void find(String[] params, Connection connectionToDatabase) {
         if(params.length<2){
@@ -157,14 +152,12 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 view.setMessage("такой таблицы не существует");
                 view.write();
             } catch (NullPointerException e1) {
-                e1.printStackTrace();
                 view.setMessage("Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь");
                 view.write();
             }
         }
     }
 
-    //готово
     @Override
     public void insert(String[] params, Connection connectionToDatabase) {
         if (params.length < 4 && params.length%2!=0) {
@@ -233,7 +226,6 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
-    //ujnjdj
     @Override
     public void update(String[] params, Connection connectionToDatabase) {
         if (params.length < 4 && params.length % 2 != 0) {
@@ -266,33 +258,27 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                         + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
                         sqlRequestForTable.toString()));
                 view.write();
-            }  catch (PSQLException b) {
-                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-                if(b.getSQLState().equals("42P01")){
-                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-                } else if (b.getSQLState().equals("02000")){
-                    causeOfError.append("Запрошенных данных не существует");
-                } else if (b.getSQLState().equals("42703")){
-                    causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                            "Переформулируйте запрос.");
-                } else {
-                    //do nothing
-                }
-                view.setMessage(causeOfError.toString());
-                view.write();
-            } catch (NullPointerException c) {
+            }  catch (NullPointerException c) {
                 view.setMessage("Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь");
                 view.write();
             } catch (SQLException d){
-                view.setMessage("Неизвестная ошибка в работе с базой, обратитесь к разработчику\n"+
-                d.getMessage());
+                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+                if(d.getSQLState().equals("42P01")){
+                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+                } else if (d.getSQLState().equals("02000")){
+                    causeOfError.append("Запрошенных данных не существует");
+                } else if (d.getSQLState().equals("42703")){
+                    causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
+                            "Переформулируйте запрос.");
+                } else {
+                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(d.getSQLState());
+                }
+                view.setMessage(causeOfError.toString());
                 view.write();
-
             }
         }
     }
 
-    //Готово вот ваще
     @Override
     public void delete(String[] params, Connection connectionToDatabase) {
         if (params.length < 4 && params.length % 2 != 0) {
@@ -314,11 +300,22 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                     concat(params[2]).concat(" ='" + params[3] + "'")));
             try {
                 view.setMessage("Были удалены следующие строки:\n"
-                        + requestWithAnswer(connectionToDatabase, sqlReqForTable.toString(),
-                        sqlForWork.toString()));
+                        + requestWithAnswer(connectionToDatabase, sqlForWork.toString(),
+                        sqlReqForTable.toString()));
                 view.write();
-            } catch (SQLException e) {
-                view.setMessage("такой таблицы не существует");
+            } catch (SQLException a) {
+                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+                if(a.getSQLState().equals("42P01")){
+                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+                } else if (a.getSQLState().equals("02000")){
+                    causeOfError.append("Запрошенных данных не существует");
+                } else if (a.getSQLState().equals("42703")){
+                    causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
+                            "Переформулируйте запрос.");
+                } else {
+                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(a.getSQLState());
+                }
+                view.setMessage(causeOfError.toString());
                 view.write();
             } catch (NullPointerException e1) {
                 view.setMessage("Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +

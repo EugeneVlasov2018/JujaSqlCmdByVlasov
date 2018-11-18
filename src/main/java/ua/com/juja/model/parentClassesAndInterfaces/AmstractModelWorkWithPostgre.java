@@ -25,7 +25,7 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
     }
 
     protected String requestWithAnswer(Connection connectionToDatabase, String sqlRequestForWork,String requestForTable)
-            throws PSQLException, NullPointerException, SQLException {
+            throws NullPointerException, SQLException {
 
         List<String> arrayForTableNames = new ArrayList<>();
         List<String> arrayForTableValues = new ArrayList<>();
