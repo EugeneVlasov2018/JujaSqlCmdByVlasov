@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
+public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
     private ViewInterface view = new ViewImpl();
 
 
@@ -66,19 +66,20 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             while (resultSet.next()) {
                 tablenames.add(resultSet.getString("TABLE_NAME"));
             }
+            if(tablenames.size()>0)
             view.setMessage(tablenames.toString());
             view.write();
             resultSet.close();
-        } catch (SQLException e) {
+        } catch (SQLException a) {
             view.setMessage("Возникли проблемы в методе Tables. " +
-                    "Поверьте правильно ли вы подключились к базе");
+                    "Обратитесь к разработчику. Код ошибки: "+a.getSQLState());
             view.write();
-        } catch (NullPointerException e1) {
+        } catch (NullPointerException b) {
             view.setMessage("Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "connect|database|username|password");
             view.write();
-        } catch (IndexOutOfBoundsException e2) {
+        } catch (IndexOutOfBoundsException c) {
             view.setMessage("В базе данныхнет ни одной таблицы");
             view.write();
         }
@@ -121,7 +122,7 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             String sqlRequest = "DROP TABLE ".concat(params[1]);
             try (Statement statement = connectionToDatabase.createStatement()){
                 statement.execute(sqlRequest);
-                view.setMessage("Таблица " + params[1] + " успешно удалена");
+                view.setMessage(String.format("Таблица %s успешно удалена",params[1]));
                 view.write();
             } catch (SQLException e) {
                 view.setMessage("Вы попытались удалить несуществующую таблицу.\n" +
@@ -148,9 +149,20 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
             sqlRequestForTable.append(params[1]);
 
-            try {
-                view.setMessage(requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(),
-                        sqlRequestForTable.toString()));
+            List<String> arrayForTableNames = new ArrayList<>();
+            List<String> arrayForTableValues = new ArrayList<>();
+
+            try (Statement statementForTable = connectionToDatabase.createStatement();
+            ResultSet resultSetForTable = statementForTable.executeQuery(sqlRequestForTable.toString())) {
+                ResultSetMetaData rsmd = resultSetForTable.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+                for (int i = 1; i <= columnCount; i++)
+                    arrayForTableNames.add(rsmd.getColumnName(i));
+                while (resultSetForTable.next()) {
+                    for (int i = 0; i < arrayForTableNames.size(); i++)
+                        arrayForTableValues.add(resultSetForTable.getString(arrayForTableNames.get(i)));
+                }
+                view.setMessage(createTable(arrayForTableNames,arrayForTableValues));
                 view.write();
             } catch (SQLException e) {
                 view.setMessage("такой таблицы не существует");
