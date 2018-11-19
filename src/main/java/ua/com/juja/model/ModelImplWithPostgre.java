@@ -215,16 +215,22 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 //выполняем запрос
                 view.write();
                 //2 варика, - неправильная база, не те параметры
-            } catch (NullPointerException nullPoint1) {
+            } catch (NullPointerException a) {
                 view.setMessage("Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password");
                 view.write();
-            } catch (SQLException sqlExc) {
-                view.setMessage("Проблемно выполнить запрос из за неверного формата данной команды\n" +
-                        "Проверьте правильность введенных:\n" +
-                        "Имени таблицы\n" +
-                        "Названий колонок");
+            } catch (SQLException b) {
+                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+                if(b.getSQLState().equals("42P01")){
+                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+                } else if (b.getSQLState().equals("42703")){
+                    causeOfError.append("Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
+                            "Переформулируйте запрос.");
+                } else {
+                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(b.getSQLState());
+                }
+                view.setMessage(causeOfError.toString());
                 view.write();
             }
         }
