@@ -51,26 +51,30 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
-    //переделать на работу с ресурсами
     @Override
     public void tables(Connection connectionToDatabase) {
         List<String> tablenames = new ArrayList<String>();
         DatabaseMetaData databaseMetaData = null;
+        ResultSet resultSet = null;
         try {
             if (connectionToDatabase == null){
                 throw new NullPointerException();
             }
             databaseMetaData = connectionToDatabase.getMetaData();
-            ResultSet resultSet = databaseMetaData.getTables(null, null, "%",
+            resultSet = databaseMetaData.getTables(null, null, "%",
                     new String[]{"TABLE"});
             while (resultSet.next()) {
                 tablenames.add(resultSet.getString("TABLE_NAME"));
             }
-            if(tablenames.size()>0)
-            view.setMessage(tablenames.toString());
-            view.write();
-            resultSet.close();
+            if(tablenames.size()>0) {
+                view.setMessage(tablenames.toString());
+                view.write();
+            } else {
+                view.setMessage("На данный момент в базе данных нет ни одной таблицы");
+                view.write();
+            }
         } catch (SQLException a) {
+            a.printStackTrace();
             view.setMessage("Возникли проблемы в методе Tables. " +
                     "Обратитесь к разработчику. Код ошибки: "+a.getSQLState());
             view.write();
@@ -79,9 +83,13 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                     "Подключитесь к базе данных командой\n" +
                     "connect|database|username|password");
             view.write();
-        } catch (IndexOutOfBoundsException c) {
-            view.setMessage("В базе данныхнет ни одной таблицы");
-            view.write();
+        } finally {
+            try {
+                if(resultSet!=null)
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
