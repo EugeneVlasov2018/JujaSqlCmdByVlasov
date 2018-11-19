@@ -209,8 +209,8 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             }
             mainSqlRequest.append(")");
 
-            try {
-                requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
+            try (Statement statement = connectionToDatabase.createStatement()){
+                statement.executeUpdate(mainSqlRequest.toString());
                 view.setMessage("Все данные успешно добавлены");
                 //выполняем запрос
                 view.write();
