@@ -1,7 +1,6 @@
 package ua.com.juja.integrationTest;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import ua.com.juja.controller.Main;
 
 import java.io.ByteArrayOutputStream;
@@ -12,11 +11,11 @@ import static org.junit.Assert.assertEquals;
 
 
 public class integrationTest {
-    private static ConfigurableInputStream in;
-    private static ByteArrayOutputStream out;
+    private ConfigurableInputStream in;
+    private ByteArrayOutputStream out;
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         in = new ConfigurableInputStream();
         out = new ByteArrayOutputStream();
         System.setIn(in);
@@ -781,7 +780,7 @@ public class integrationTest {
     }
 
 
-    private synchronized String getData() {
+    private String getData() {
         try {
             return new String(out.toByteArray(),"UTF-8").replaceAll(System.lineSeparator(), "\n");
         } catch (UnsupportedEncodingException e) {

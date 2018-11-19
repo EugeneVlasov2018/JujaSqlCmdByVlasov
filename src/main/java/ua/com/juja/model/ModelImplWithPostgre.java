@@ -30,8 +30,8 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
             }
             sqlRequest = sqlRequest.append("PRIMARY KEY (id))");
-            try {
-                requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
+            try (Statement statement = connectionToDatabase.createStatement()) {
+                statement.execute(sqlRequest.toString());
                 view.setMessage("Таблица '" + params[1] + "' успешно создана");
                 view.write();
             } catch (PSQLException c){
@@ -56,6 +56,9 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         List<String> tablenames = new ArrayList<String>();
         DatabaseMetaData databaseMetaData = null;
         try {
+            if (connectionToDatabase == null){
+                throw new NullPointerException();
+            }
             databaseMetaData = connectionToDatabase.getMetaData();
             ResultSet resultSet = databaseMetaData.getTables(null, null, "%",
                     new String[]{"TABLE"});

@@ -26,27 +26,31 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
 
     protected String requestWithAnswer(Connection connectionToDatabase, String sqlRequestForWork,String requestForTable)
             throws NullPointerException, SQLException {
+        if (connectionToDatabase == null) {
+            throw new NullPointerException();
+        } else {
 
-        List<String> arrayForTableNames = new ArrayList<>();
-        List<String> arrayForTableValues = new ArrayList<>();
+            List<String> arrayForTableNames = new ArrayList<>();
+            List<String> arrayForTableValues = new ArrayList<>();
 
-        Statement statement = connectionToDatabase.createStatement();
-        ResultSet resultSet = statement.executeQuery(requestForTable);
-        ResultSetMetaData rsmd = resultSet.getMetaData();
-        int columnCount = rsmd.getColumnCount();
-        for (int i = 1; i<=columnCount;i++)
-            arrayForTableNames.add(rsmd.getColumnName(i));
+            Statement statement = connectionToDatabase.createStatement();
+            ResultSet resultSet = statement.executeQuery(requestForTable);
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            int columnCount = rsmd.getColumnCount();
+            for (int i = 1; i <= columnCount; i++)
+                arrayForTableNames.add(rsmd.getColumnName(i));
 
-        while(resultSet.next()) {
-            for (int i = 0; i < arrayForTableNames.size(); i++)
-                arrayForTableValues.add(resultSet.getString(arrayForTableNames.get(i)));
+            while (resultSet.next()) {
+                for (int i = 0; i < arrayForTableNames.size(); i++)
+                    arrayForTableValues.add(resultSet.getString(arrayForTableNames.get(i)));
+            }
+            statement.close();
+            resultSet.close();
+
+            requestWithoutAnswer(connectionToDatabase, sqlRequestForWork);
+
+            return createTable(arrayForTableNames, arrayForTableValues);
         }
-        statement.close();
-        resultSet.close();
-
-        requestWithoutAnswer(connectionToDatabase,sqlRequestForWork);
-
-        return createTable(arrayForTableNames,arrayForTableValues);
     }
 
 

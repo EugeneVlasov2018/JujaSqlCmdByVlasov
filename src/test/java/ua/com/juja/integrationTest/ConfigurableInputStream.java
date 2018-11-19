@@ -31,10 +31,4 @@ public class ConfigurableInputStream extends InputStream {
             this.line += "\n" + line;
         }
     }
-
-    @Override
-    public synchronized void reset() throws IOException {
-        line = null;
-        endLine = false;
-    }
 }
