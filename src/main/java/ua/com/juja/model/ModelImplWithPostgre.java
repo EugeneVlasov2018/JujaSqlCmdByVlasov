@@ -51,6 +51,7 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
     }
 
+    //переделать на работу с ресурсами
     @Override
     public void tables(Connection connectionToDatabase) {
         List<String> tablenames = new ArrayList<String>();
@@ -91,8 +92,8 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             view.write();
         } else {
             String sqlRequest = "DELETE FROM " + params[1];
-            try {
-                requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
+            try (Statement statement = connectionToDatabase.createStatement()){
+                statement.execute(sqlRequest);
                 view.setMessage("Все данные из таблицы ".concat(params[1])
                         .concat(" были удалены"));
                 view.write();
