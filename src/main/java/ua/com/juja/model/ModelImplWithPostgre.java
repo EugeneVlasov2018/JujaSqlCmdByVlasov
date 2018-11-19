@@ -119,8 +119,8 @@ public class    ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
         else {
             String sqlRequest = "DROP TABLE ".concat(params[1]);
-            try {
-                requestWithoutAnswer(connectionToDatabase, sqlRequest);
+            try (Statement statement = connectionToDatabase.createStatement()){
+                statement.execute(sqlRequest);
                 view.setMessage("Таблица " + params[1] + " успешно удалена");
                 view.write();
             } catch (SQLException e) {
