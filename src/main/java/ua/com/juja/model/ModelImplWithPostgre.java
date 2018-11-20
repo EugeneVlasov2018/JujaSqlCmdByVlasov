@@ -30,8 +30,8 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
             }
             sqlRequest = sqlRequest.append("PRIMARY KEY (id))");
-            try (Statement statement = connectionToDatabase.createStatement()) {
-                statement.execute(sqlRequest.toString());
+            try {
+                requestWithoutAnswer(connectionToDatabase,sqlRequest.toString());
                 view.setMessage("Таблица '" + params[1] + "' успешно создана");
                 view.write();
             } catch (PSQLException c){
@@ -101,8 +101,8 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             view.write();
         } else {
             String sqlRequest = "DELETE FROM " + params[1];
-            try (Statement statement = connectionToDatabase.createStatement()){
-                statement.execute(sqlRequest);
+            try {
+                requestWithoutAnswer(connectionToDatabase,sqlRequest);
                 view.setMessage("Все данные из таблицы ".concat(params[1])
                         .concat(" были удалены"));
                 view.write();
@@ -128,8 +128,8 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
         else {
             String sqlRequest = "DROP TABLE ".concat(params[1]);
-            try (Statement statement = connectionToDatabase.createStatement()){
-                statement.execute(sqlRequest);
+            try {
+                requestWithoutAnswer(connectionToDatabase,sqlRequest);
                 view.setMessage(String.format("Таблица %s успешно удалена",params[1]));
                 view.write();
             } catch (SQLException e) {
@@ -157,20 +157,9 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
             sqlRequestForTable.append(params[1]);
 
-            List<String> arrayForTableNames = new ArrayList<>();
-            List<String> arrayForTableValues = new ArrayList<>();
-
-            try (Statement statementForTable = connectionToDatabase.createStatement();
-            ResultSet resultSetForTable = statementForTable.executeQuery(sqlRequestForTable.toString())) {
-                ResultSetMetaData rsmd = resultSetForTable.getMetaData();
-                int columnCount = rsmd.getColumnCount();
-                for (int i = 1; i <= columnCount; i++)
-                    arrayForTableNames.add(rsmd.getColumnName(i));
-                while (resultSetForTable.next()) {
-                    for (int i = 0; i < arrayForTableNames.size(); i++)
-                        arrayForTableValues.add(resultSetForTable.getString(arrayForTableNames.get(i)));
-                }
-                view.setMessage(createTable(arrayForTableNames,arrayForTableValues));
+            try {
+                view.setMessage(requestWithAnswer(connectionToDatabase,sqlRequestForTable.toString(),
+                        sqlRequestForTable.toString()));
                 view.write();
             } catch (SQLException e) {
                 view.setMessage("такой таблицы не существует");
@@ -229,10 +218,9 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             }
             mainSqlRequest.append(")");
 
-            try (Statement statement = connectionToDatabase.createStatement()){
-                statement.executeUpdate(mainSqlRequest.toString());
+            try {
+                requestWithoutAnswer(connectionToDatabase,mainSqlRequest.toString());
                 view.setMessage("Все данные успешно добавлены");
-                //выполняем запрос
                 view.write();
                 //2 варика, - неправильная база, не те параметры
             } catch (NullPointerException a) {
@@ -284,17 +272,11 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             //Формирование запроса для работы метода
             sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
 
-            try (Statement statementForTable = connectionToDatabase.createStatement();
-            ResultSet resultSetForTable = statementForTable.executeQuery(sqlRequestForTable.toString())){
-                try(Statement statementForWork = connectionToDatabase.createStatement()){
-                    statementForWork.executeUpdate(sqlRequestForWork.toString());
-                    //ПИСАТЬ ТУТ
-
+            try {
                 view.setMessage("Были изменены следующие строки:\n"
                         + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
                         sqlRequestForTable.toString()));
                 view.write();
-                }
             }  catch (NullPointerException c) {
                 view.setMessage("Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь");
                 view.write();

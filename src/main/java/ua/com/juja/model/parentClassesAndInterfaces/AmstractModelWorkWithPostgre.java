@@ -14,17 +14,17 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
 
 
     protected void requestWithoutAnswer(Connection connectionToDb, String sqlRequest) throws SQLException,
-            NullPointerException, PSQLException {
+            NullPointerException {
         if (connectionToDb.equals(null)) {
             throw new NullPointerException();
         } else {
-            Statement statement = connectionToDb.createStatement();
-            statement.execute(sqlRequest);
-            statement.close();
+            try(Statement statement = connectionToDb.createStatement()) {
+                statement.execute(sqlRequest);
+            }
         }
     }
 
-    protected String requestWithAnswer(Connection connectionToDatabase, String sqlRequestForWork,String requestForTable)
+    protected String requestWithAnswer(Connection connectionToDatabase, String sqlRequestForWork, String requestForTable)
             throws NullPointerException, SQLException {
         if (connectionToDatabase == null) {
             throw new NullPointerException();
@@ -33,23 +33,22 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
             List<String> arrayForTableNames = new ArrayList<>();
             List<String> arrayForTableValues = new ArrayList<>();
 
-            Statement statement = connectionToDatabase.createStatement();
-            ResultSet resultSet = statement.executeQuery(requestForTable);
-            ResultSetMetaData rsmd = resultSet.getMetaData();
-            int columnCount = rsmd.getColumnCount();
-            for (int i = 1; i <= columnCount; i++)
-                arrayForTableNames.add(rsmd.getColumnName(i));
+            try (Statement statement = connectionToDatabase.createStatement();
+                 ResultSet resultSet = statement.executeQuery(requestForTable)) {
+                ResultSetMetaData rsmd = resultSet.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+                for (int i = 1; i <= columnCount; i++)
+                    arrayForTableNames.add(rsmd.getColumnName(i));
 
-            while (resultSet.next()) {
-                for (int i = 0; i < arrayForTableNames.size(); i++)
-                    arrayForTableValues.add(resultSet.getString(arrayForTableNames.get(i)));
+                while (resultSet.next()) {
+                    for (int i = 0; i < arrayForTableNames.size(); i++)
+                        arrayForTableValues.add(resultSet.getString(arrayForTableNames.get(i)));
+                }
+
+                requestWithoutAnswer(connectionToDatabase, sqlRequestForWork);
+
+                return createTable(arrayForTableNames, arrayForTableValues);
             }
-            statement.close();
-            resultSet.close();
-
-            requestWithoutAnswer(connectionToDatabase, sqlRequestForWork);
-
-            return createTable(arrayForTableNames, arrayForTableValues);
         }
     }
 
@@ -80,21 +79,21 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
 
     protected String buildTableBody(List<String> columnValues, int columnCount, int columnWight) {
         String tableBody = "+";
-        for (int i = 0; i <columnValues.size() ; i=i+columnCount) {
-            for (int j = i; j <i+columnCount; j++) {
-                tableBody = tableBody.format("%-"+columnWight+"s+", columnValues.get(j));
+        for (int i = 0; i < columnValues.size(); i = i + columnCount) {
+            for (int j = i; j < i + columnCount; j++) {
+                tableBody = tableBody.format("%-" + columnWight + "s+", columnValues.get(j));
             }
-            tableBody = tableBody+"\n"+buildBorder(columnCount,columnWight);
+            tableBody = tableBody + "\n" + buildBorder(columnCount, columnWight);
         }
         return tableBody;
     }
 
-    protected String buildTableHead(List<String> columnNames, int columnWight,int columnCount) {
-        String tableHeader = buildBorder(columnCount,columnWight)+"+";
-        for (int i = 0; i <columnNames.size() ; i++) {
-            tableHeader = tableHeader+tableHeader.format("%-"+columnWight+"s+", columnNames.get(i));
+    protected String buildTableHead(List<String> columnNames, int columnWight, int columnCount) {
+        String tableHeader = buildBorder(columnCount, columnWight) + "+";
+        for (int i = 0; i < columnNames.size(); i++) {
+            tableHeader = tableHeader + tableHeader.format("%-" + columnWight + "s+", columnNames.get(i));
         }
-        tableHeader+="\n"+buildBorder(columnCount,columnWight);
+        tableHeader += "\n" + buildBorder(columnCount, columnWight);
         return tableHeader;
     }
 
@@ -103,25 +102,25 @@ public abstract class AmstractModelWorkWithPostgre implements ModelInterface {
         String border = "+";
         for (int i = 0; i < columnCount; i++) {
             for (int j = 0; j < columnWight; j++) {
-                border+="-";
+                border += "-";
             }
-            border+="+";
+            border += "+";
         }
-        border+="\n";
+        border += "\n";
         return border;
     }
 
     protected int whatIsColumnWight(List<String> columnNames, List<String> columnValues) {
         int result = 0;
-        for(String tmp:columnNames){
-            if(result<tmp.length())
+        for (String tmp : columnNames) {
+            if (result < tmp.length())
                 result = tmp.length();
         }
-        for(String tmp:columnValues){
-            if(result<tmp.length())
+        for (String tmp : columnValues) {
+            if (result < tmp.length())
                 result = tmp.length();
         }
-        result = result+2;
+        result = result + 2;
         return result;
     }
 }

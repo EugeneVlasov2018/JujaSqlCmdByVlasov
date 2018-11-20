@@ -24,7 +24,7 @@ public class integrationTest {
 
     @Test
     //тест, который показывает правильное взаимодействие всех комманд (когда все отрабатывает гуд)
-    public void testWhenAllWork(){
+    public void testWhenAllWorkGood(){
         //выводим весь список комманд
         in.setLine("help");
         //подключаемся к БД
