@@ -20,9 +20,4 @@ public class ViewImpl implements ViewInterface {
         System.out.println(message);
     }
 
-    @Override
-    public void writeWithFormat() {
-        System.out.printf(message);
-    }
-
 }
