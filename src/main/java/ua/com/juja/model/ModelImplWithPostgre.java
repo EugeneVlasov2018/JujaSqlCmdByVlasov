@@ -283,11 +283,18 @@ public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
             //Формирование запроса для работы метода
             sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-            try {
+
+            try (Statement statementForTable = connectionToDatabase.createStatement();
+            ResultSet resultSetForTable = statementForTable.executeQuery(sqlRequestForTable.toString())){
+                try(Statement statementForWork = connectionToDatabase.createStatement()){
+                    statementForWork.executeUpdate(sqlRequestForWork.toString());
+                    //ПИСАТЬ ТУТ
+
                 view.setMessage("Были изменены следующие строки:\n"
                         + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
                         sqlRequestForTable.toString()));
                 view.write();
+                }
             }  catch (NullPointerException c) {
                 view.setMessage("Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь");
                 view.write();
