@@ -13,8 +13,7 @@ public class Find implements Command {
     }
 
     @Override
-    public boolean canProcess(String[] command) {
-        return command[0].equalsIgnoreCase("find");
+    public boolean canProcess(String[] command) { return command[0].equalsIgnoreCase("find");
     }
 
     @Override
