@@ -49,21 +49,17 @@ public class Connect implements Command {
             return connectionToDatabase;
         } catch (SQLException e) {
             StringBuilder resultForView = new StringBuilder("Вы ввели: ");
-            if (!(url.equalsIgnoreCase("jdbc:postgresql://localhost:5432/jujasqlcmd"))){
-                //этот иф используется для тестов, т.к. именно там предполагается юзание этой БД
-                if(!(url.equalsIgnoreCase("jdbc:postgresql://localhost:5432/testforsql")))
+            if (e.getSQLState().equalsIgnoreCase("3D000")){
                 resultForView.append("\nНеверную ссылку на базу");
             }
-            if (!(user.equalsIgnoreCase("postgres")))
-                resultForView.append("\nНеверное имя пользователя");
-            if (!(password.equalsIgnoreCase("root")))
-                resultForView.append("\nНеверный пароль");
+            if (e.getSQLState().equalsIgnoreCase("28P01"))
+                resultForView.append("\nНеверное имя пользователя или пароль");
             else {//donothing
             }
             resultForView.append("\nПопробуйте снова:P");
             view.setMessage(resultForView.toString());
             view.write();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException a) {
             view.setMessage("Не найден драйвер подключения к базе\n" +
                     "Передайте разработчику, чтобы добавил либо джарник в либы, либо депенденс в мавен");
             view.write();

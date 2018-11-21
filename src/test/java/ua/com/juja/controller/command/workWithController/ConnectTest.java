@@ -7,7 +7,6 @@ import ua.com.juja.controller.command.Command;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
@@ -55,7 +54,7 @@ public class ConnectTest {
         Command connect = new Connect(view);
         connect.doWork(new String[]{"connect", "testforsql", "wrongUser", "root"}, null);
         Mockito.verify(view).setMessage("Вы ввели: \n"+
-                "Неверное имя пользователя\n"+
+                "Неверное имя пользователя или пароль\n"+
                 "Попробуйте снова:P");
     }
 
@@ -64,9 +63,10 @@ public class ConnectTest {
         Command connect = new Connect(view);
         connect.doWork(new String[]{"connect","testforsql","postgres","wrongPassword"},null);
         Mockito.verify(view).setMessage("Вы ввели: \n"+
-                "Неверный пароль\n"+
+                "Неверное имя пользователя или пароль\n"+
                 "Попробуйте снова:P");
     }
+
 
     @Test
     public void testDoWorkWithNotEnoughparams(){
