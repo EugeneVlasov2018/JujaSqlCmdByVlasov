@@ -28,7 +28,7 @@ public class integrationTest {
         //выводим весь список комманд
         in.setLine("help");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //создаем таблицу, в которую добавим данные
         in.setLine("create|users|firstname|secondname|password");
         //выводим список имен таблиц
@@ -346,7 +346,7 @@ public class integrationTest {
         //создание таблицы без подключения к базе
         in.setLine("create|users|firstname|secondname|password");
         //создаем базу, присоединившись к базе
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //теперь все будет норм, база создастся
         in.setLine("create|users|firstname|secondname|password");
         //создаем ее повторно, чтобы сработала защита от дурака - выведется сообщение, что база уже есть
@@ -373,7 +373,7 @@ public class integrationTest {
         //удаление таблицы без подключения к базе
         in.setLine("drop|users");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //создаем таблицу, которую будем удалять
         in.setLine("create|users|firstname|secondname|password");
         //пробуем удалить несуществующую таблицу (неудача)
@@ -407,7 +407,7 @@ public class integrationTest {
         //добавление данных в таблицу без подключения к базе
         in.setLine("insert|users|firstname|John|secondname|Dou|password|123");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //попытка добавить данные в несуществующую таблицу (неудача)
         in.setLine("insert|users|firstname|John|secondname|Dou|password|123");
         //создаем таблицу, в которую добавим данные
@@ -451,7 +451,7 @@ public class integrationTest {
         //измененние данных в таблице без подключения к базе (неудача)
         in.setLine("update|users|password|123|firstname|John2|secondname|Dou2|password|123456");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //изменение данных в несуществующей таблице (неудача)
         in.setLine("update|users|password|123|firstname|John2|secondname|Dou2|password|123456");
         //создаем таблицу, в которую добавим данные
@@ -512,7 +512,7 @@ public class integrationTest {
         //удаление данных из таблицы без подключения к базе (неудача)
         in.setLine("delete|users|password|123");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //удаление данных из несуществующей таблицы (неудача)
         in.setLine("delete|users|password|123");
         //создаем таблицу, в которую добавим данные
@@ -575,7 +575,7 @@ public class integrationTest {
         //удаление данных из таблицы без подключения к базе (неудача)
         in.setLine("drop|users");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //удаление данных из несуществующей таблицы (неудача)
         in.setLine("drop|users");
         //создаем таблицу, которую потом удалим
@@ -610,7 +610,7 @@ public class integrationTest {
         //очистка таблицы без подключения к базе (неудача)
         in.setLine("clear|users");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //очистка несуществующей таблицы (неудача)
         in.setLine("clear|users");
         //создаем таблицу, в которую добавим данные
@@ -657,7 +657,7 @@ public class integrationTest {
         //отображение данных из таблицы без подключения к базе (неудача)
         in.setLine("find|users");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //отображение данных в несуществующей таблице (неудача)
         in.setLine("find|users");
         //создаем таблицу, в которую добавим данные
@@ -707,7 +707,7 @@ public class integrationTest {
         //отображение имен таблиц без подключения к базе (неудача)
         in.setLine("tables");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //отображение имен таблиц из пустой БД
         in.setLine("tables");
         //создаем таблицу, которую будем отображать
@@ -745,13 +745,13 @@ public class integrationTest {
         //В принципе, оно срабатывает в любом случае, но перевое, - без коннекшена
         in.setLine("wrongCommand");
         //подключаемся к БД
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         //теперь с подключенной БД (пишем белеберду)
         in.setLine("dsaklkjn");
         //теперь просто пустая строка
         in.setLine("");
         //и строка, которая будет разбита на параметры но с неправильной командой
-        in.setLine("ыфлордолр|jujasqlcmd|postgres|root");
+        in.setLine("ыфлордолр|testforsql|postgres|root");
         //выходим
         in.setLine("exit");
         Main.main(new String[0]);
