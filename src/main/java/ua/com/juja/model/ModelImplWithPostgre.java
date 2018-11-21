@@ -13,7 +13,7 @@ import java.util.List;
 public class  ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
     private ViewInterface view = new ViewImpl();
 
-
+    @Override
     public ViewInterface getView() {
         return view;
     }

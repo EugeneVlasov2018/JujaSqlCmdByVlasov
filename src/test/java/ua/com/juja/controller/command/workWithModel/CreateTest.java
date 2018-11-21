@@ -10,37 +10,36 @@ import java.sql.Connection;
 
 import static org.junit.Assert.*;
 
-public class FindTest {
+public class CreateTest {
     private ModelInterface model;
     private Connection connection;
-    private Command find;
+    private Command create;
 
     @Before
-    public void setup(){
+    public void setup() {
 
         model = Mockito.mock(ModelInterface.class);
-        find = new Find(model);
+        create = new Create(model);
     }
 
     @Test
     public void testCanProcess() {
-        boolean canProcess = find.canProcess(new String[]{"find"});
+        boolean canProcess = create.canProcess(new String[]{"create"});
         assertTrue(canProcess);
     }
 
     @Test
     public void testCanProcessFalse() {
-        boolean canProcess = find.canProcess(new String[]{"fdsfds","users"});
+        boolean canProcess = create.canProcess(new String[]{"fdsfds", "users"});
         assertFalse(canProcess);
     }
 
     @Test
     public void testDoWork() {
-        //в принципе, его особо нет смысла тестить,- просто передает параметры в модель, но для покрытия кода гут
         String[] params = new String[]{"fdsfds", "users"};
-        find.doWork(params, connection);
-        Mockito.verify(model).find(params, connection);
+        create.doWork(params, connection);
+        Mockito.verify(model).create(params, connection);
 
     }
-    
+
 }

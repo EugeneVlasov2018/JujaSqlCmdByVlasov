@@ -26,7 +26,7 @@ public class ExitTest {
     }
 
     @Test
-    public void exceptionExpection_throwsException() {
+    public void testDoWork() {
         Command exit = new Exit(view);
         try {
             exit.doWork(new String[]{"exit"}, null);

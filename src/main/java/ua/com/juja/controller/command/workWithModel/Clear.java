@@ -8,6 +8,7 @@ import java.sql.Connection;
 public class Clear implements Command {
     private ModelInterface model;
 
+
     public Clear(ModelInterface model) {
         this.model = model;
     }

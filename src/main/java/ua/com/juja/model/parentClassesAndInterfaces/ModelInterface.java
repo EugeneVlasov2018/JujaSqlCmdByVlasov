@@ -1,8 +1,12 @@
 package ua.com.juja.model.parentClassesAndInterfaces;
 
+import ua.com.juja.view.ViewInterface;
+
 import java.sql.Connection;
 
 public interface ModelInterface {
+
+    ViewInterface getView();
 
     void tables(Connection connection);
 
