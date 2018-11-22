@@ -2,12 +2,14 @@ package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
+import ua.com.juja.view.ViewImpl;
+import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 
 public class Clear implements Command {
     private ModelInterface model;
-
+    private ViewInterface view;
 
     public Clear(ModelInterface model) {
         this.model = model;
@@ -20,7 +22,14 @@ public class Clear implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-       model.clear(command, connection);
+        if(command.length<2){
+            view = new ViewImpl();
+            view.setMessage("Недостаточно данных для запуска команды." +
+                    "Укажите имя таблицы, которое собираетесь очистить");
+            view.write();
+        } else {
+            model.clear(command, connection);
+        }
     }
 
     @Override
