@@ -47,7 +47,7 @@ public class MainController {
             decouplingCommand();
         }
         } catch (SystemExitException e){
-            //do nothing
+            connection = null;
         }
     }
 
