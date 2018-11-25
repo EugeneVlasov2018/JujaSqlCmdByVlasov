@@ -53,7 +53,7 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 tablenames.add(resultSet.getString("TABLE_NAME"));
             }
             if (tablenames.size() > 0) {
-                return (tablenames.toString());
+                return tablenames.toString();
             } else {
                 return "На данный момент в базе данных нет ни одной таблицы";
             }

@@ -21,10 +21,9 @@ public class Tables implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] commandForWork, Connection connection) {
         view.setMessage(model.tables(connection));
         view.write();
-
     }
 
     @Override
