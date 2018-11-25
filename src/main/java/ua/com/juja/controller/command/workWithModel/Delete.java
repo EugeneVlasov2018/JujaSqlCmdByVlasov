@@ -22,9 +22,14 @@ public class Delete implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
+        if (command.length < 4) {
+            view.setMessage("Недостаточно данных для запуска команды." +
+                    "Недостаточно данных для ее выполнения. Попробуйте еще раз.");
 
-        view.setMessage(model.delete(command, connection));
-        view.write();
+        } else {
+            view.setMessage(model.delete(command, connection));
+            view.write();
+        }
     }
 
     @Override

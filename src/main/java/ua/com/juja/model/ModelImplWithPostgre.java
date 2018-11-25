@@ -115,22 +115,16 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String find(String[] params, Connection connectionToDatabase) {
-        if (params.length < 2) {
-            return "Недостаточно данных для запуска команды." +
-                    "Укажите имя таблицы, которую собираетесь вывести на екран";
-        } else {
             //формируем запрос
-            StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
-            sqlRequestForTable.append(params[1]);
-
-            try {
-                return requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(),
-                        sqlRequestForTable.toString());
-            } catch (SQLException e) {
-                return "такой таблицы не существует";
-            } catch (NullPointerException e1) {
-                return "Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь";
-            }
+        StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
+        sqlRequestForTable.append(params[1]);
+        try {
+            return requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(),
+                    sqlRequestForTable.toString());
+        } catch (SQLException e) {
+            return "такой таблицы не существует";
+        } catch (NullPointerException e1) {
+            return "Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь";
         }
     }
 
@@ -252,15 +246,6 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String delete(String[] params, Connection connectionToDatabase) {
-        if (params.length < 4 && params.length % 2 != 0) {
-            if (params.length < 4) {
-                return "Недостаточно данных для запуска команды." +
-                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
-            } else {
-                return "Ошибка в формате команды." +
-                        "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
-            }
-        } else {
             //Готовим запрос для вывода таблицыю
             StringBuilder sqlReqForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
                     append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
@@ -289,7 +274,6 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password";
             }
-        }
     }
 }
 

@@ -2,6 +2,7 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
@@ -14,13 +15,14 @@ import static org.junit.Assert.*;
 public class ClearTest {
 
     private ModelInterface model;
-    private Connection connection;
+    private Connection connectionToDB;
     private Command clear;
     private ViewInterface view;
 
     @Before
     public void setup() {
         model = Mockito.mock(ModelInterface.class);
+        view = Mockito.mock(ViewInterface.class);
         clear = new Clear(model, view);
     }
 
@@ -39,9 +41,22 @@ public class ClearTest {
 
     @Test
     public void testDoWork() {
-        String[] params = new String[]{"fdsfds", "users"};
-        clear.doWork(params, connection);
-        Mockito.verify(model).find(params, connection);
+        String[] commandForWork = new String[]{"clear", "users"};
+        Mockito.when(model.clear(commandForWork, connectionToDB)).thenReturn("Все данные из таблицы users были удалены");
+        clear.doWork(commandForWork, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals("Все данные из таблицы users были удалены", captor.getValue());
 
+    }
+
+    @Test
+    public void testDoWorkWithoutParameters() {
+        String[] commandForWork = new String[]{"clear"};
+        clear.doWork(commandForWork, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals("Недостаточно данных для запуска команды. Укажите имя таблицы, " +
+                "которое собираетесь очистить", captor.getValue());
     }
 }

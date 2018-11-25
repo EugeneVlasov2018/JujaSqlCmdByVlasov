@@ -25,7 +25,7 @@ public class FindTest {
         find = new Find(model, view);
     }
 
-    //@Test
+    @Test
     public void testCanProcess() {
         boolean canProcess = find.canProcess(new String[]{"find"});
         assertTrue(canProcess);
@@ -33,27 +33,32 @@ public class FindTest {
 
     @Test
     public void testCanProcessFalse() {
-        boolean canProcess = find.canProcess(new String[]{"fdsfds","users"});
+        boolean canProcess = find.canProcess(new String[]{"fdsfds"});
         assertFalse(canProcess);
     }
 
     @Test
-    public void testPrintDataFromTable() {
-        String command[] = new String[]{"find", "users"};
-        Mockito.when(model.find(command, connectionToDB)).thenReturn(
+    public void testDoWork() {
+        String expected = "+--+---------+----------+--------+\n" +
+                "|id|firstname|secondname|password|\n" +
                 "+--+---------+----------+--------+\n" +
-                        "|id|firstname|secondname|password|\n" +
-                        "+--+---------+----------+--------+\n" +
-                        "|1 |John     |Dou       |123     |\n" +
-                        "+--+---------+----------+--------+\n");
+                "|1 |John     |Dou       |123     |\n" +
+                "+--+---------+----------+--------+\n";
+        String command[] = new String[]{"find", "users"};
+        Mockito.when(model.find(command, connectionToDB)).thenReturn(expected);
         find.doWork(command, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());
-        assertEquals(
-                "+--+---------+----------+--------+\n" +
-                        "|id|firstname|secondname|password|\n" +
-                        "+--+---------+----------+--------+\n" +
-                        "|1 |John     |Dou       |123     |\n" +
-                        "+--+---------+----------+--------+\n", captor.getValue());
+        assertEquals(expected, captor.getValue());
+    }
+
+    @Test
+    public void testDoWorkWhitoutParameters() {
+        String[] commandWhitoutParameters = new String[]{"find"};
+        find.doWork(commandWhitoutParameters, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals("Недостаточно данных для запуска команды." +
+                "Укажите имя таблицы, которую собираетесь вывести на екран", captor.getValue());
     }
 }

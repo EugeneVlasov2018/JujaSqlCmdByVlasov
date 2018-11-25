@@ -16,13 +16,20 @@ public class Find implements Command {
     }
 
     @Override
-    public boolean canProcess(String[] command) { return command[0].equalsIgnoreCase("find");
+    public boolean canProcess(String[] command) {
+        return command[0].equalsIgnoreCase("find");
     }
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        view.setMessage(model.find(command, connection));
-        view.write();
+        if (command.length < 2) {
+            view.setMessage("Недостаточно данных для запуска команды." +
+                    "Укажите имя таблицы, которую собираетесь вывести на екран");
+            view.write();
+        } else {
+            view.setMessage(model.find(command, connection));
+            view.write();
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
@@ -13,14 +14,14 @@ import static org.junit.Assert.*;
 
 public class DeleteTest {
     private ModelInterface model;
-    private Connection connection;
+    private Connection connectionToDB;
     private Command delete;
     private ViewInterface view;
 
     @Before
     public void setup() {
-
         model = Mockito.mock(ModelInterface.class);
+        view = Mockito.mock(ViewInterface.class);
         delete = new Delete(model, view);
     }
 
@@ -32,16 +33,33 @@ public class DeleteTest {
 
     @Test
     public void testCanProcessFalse() {
-        boolean canProcess = delete.canProcess(new String[]{"fdsfds", "users"});
+        boolean canProcess = delete.canProcess(new String[]{"fdsfds"});
         assertFalse(canProcess);
     }
 
     @Test
     public void testDoWork() {
-        String[] params = new String[]{"fdsfds", "users"};
-        delete.doWork(params, connection);
-        Mockito.verify(model).delete(params, connection);
-
+        String expected = "Были удалены следующие строки:\n" +
+                "+--+---------+----------+--------+\n" +
+                "|id|firstname|secondname|password|\n" +
+                "+--+---------+----------+--------+\n" +
+                "|1 |John     |Dou       |123     |\n" +
+                "+--+---------+----------+--------+\n";
+        String[] params = new String[]{"delete", "users", "password", "123"};
+        Mockito.when(model.delete(params, connectionToDB)).thenReturn(expected);
+        delete.doWork(params, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
     }
 
+    @Test
+    public void testDoWorkWhitoutParameters() {
+        String[] commandWhitoutParameters = new String[]{"delete"};
+        delete.doWork(commandWhitoutParameters, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals("Недостаточно данных для запуска команды." +
+                "Недостаточно данных для ее выполнения. Попробуйте еще раз.", captor.getValue());
+    }
 }

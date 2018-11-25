@@ -24,8 +24,7 @@ public class Clear implements Command {
     @Override
     public void doWork(String[] command, Connection connection) {
         if(command.length<2){
-            view = new ViewImpl();
-            view.setMessage("Недостаточно данных для запуска команды." +
+            view.setMessage("Недостаточно данных для запуска команды. " +
                     "Укажите имя таблицы, которое собираетесь очистить");
             view.write();
         } else {
