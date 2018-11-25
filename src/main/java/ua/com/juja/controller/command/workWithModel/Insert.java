@@ -22,8 +22,20 @@ public class Insert implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        view.setMessage(model.insert(command, connection));
-        view.write();
+        if (command.length < 4 || command.length % 2 != 0) {
+            if (command.length < 4) {
+                view.setMessage("Недостаточно данных для запуска команды." +
+                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.");
+                view.write();
+            } else {
+                view.setMessage("Ошибка в формате команды." +
+                        "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот");
+                view.write();
+            }
+        } else {
+            view.setMessage(model.insert(command, connection));
+            view.write();
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
@@ -21,6 +22,7 @@ public class InsertTest {
     public void setup() {
 
         model = Mockito.mock(ModelInterface.class);
+        view = Mockito.mock(ViewInterface.class);
         insert = new Insert(model, view);
     }
 
@@ -38,10 +40,35 @@ public class InsertTest {
 
     @Test
     public void testDoWork() {
-        String[] params = new String[]{"fdsfds", "users"};
+        String expected = "Все данные успешно добавлены";
+        String[] params = new String[]{"insert", "users"};
+        Mockito.when(model.insert(params, connection)).thenReturn(expected);
         insert.doWork(params, connection);
-        Mockito.verify(model).insert(params, connection);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
+    }
 
+    @Test
+    public void testDoWorkWithoutTableNameAndParams() {
+        String expected = "Недостаточно данных для запуска команды." +
+                "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
+        String[] params = new String[]{"insert"};
+        insert.doWork(params, connection);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
+    }
+
+    @Test
+    public void testDoWorkWithoutParams() {
+        String expected = "Ошибка в формате команды." +
+                "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
+        String[] params = new String[]{"insert", "users", "password", "123", "firstname"};
+        insert.doWork(params, connection);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
     }
 
 }

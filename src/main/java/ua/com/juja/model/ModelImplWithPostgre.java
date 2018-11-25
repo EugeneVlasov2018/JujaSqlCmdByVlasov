@@ -110,7 +110,7 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String find(String[] params, Connection connectionToDatabase) {
-            //формируем запрос
+        //формируем запрос
         StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
         sqlRequestForTable.append(params[1]);
         try {
@@ -125,68 +125,58 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String insert(String[] params, Connection connectionToDatabase) {
-        if (params.length < 4 && params.length % 2 != 0) {
-            if (params.length < 4) {
-                return "Недостаточно данных для запуска команды." +
-                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
+        StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
+        //вбиваем в запрос имя базы
+        mainSqlRequest.append(params[1]).append(" (");
+        List<String> columnNames = new ArrayList<String>();
+        List<String> columnValues = new ArrayList<String>();
+        //остальную часть запроса бросаем в 2 аррая,- для названия колонок
+        //и для параметров
+        for (int index = 2; index < params.length; index++) {
+            if (index % 2 == 0) {
+                columnNames.add(params[index].trim());
             } else {
-                return "Ошибка в формате команды." +
-                        "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
+                columnValues.add(params[index].trim());
             }
-        } else {
-            StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
-            //вбиваем в запрос имя базы
-            mainSqlRequest.append(params[1]).append(" (");
-            List<String> columnNames = new ArrayList<String>();
-            List<String> columnValues = new ArrayList<String>();
-            //остальную часть запроса бросаем в 2 аррая,- для названия колонок
-            //и для параметров
-            for (int index = 2; index < params.length; index++) {
-                if (index % 2 == 0) {
-                    columnNames.add(params[index].trim());
-                } else {
-                    columnValues.add(params[index].trim());
-                }
-            }
-            //добавляем к запросу имена колонок
-            for (int index = 0; index < columnNames.size(); index++) {
-                //ниже идет такой себе костыль. Чтобы отрефракторить, - лучше разобраться с .substring()
-                if (index != columnNames.size() - 1)
-                    mainSqlRequest.append(columnNames.get(index)).append(", ");
-                else
-                    mainSqlRequest.append(columnNames.get(index));
-            }
-            //добавляем к запросу имена параметров
-            mainSqlRequest.append(")VALUES ('");
-            for (int index = 0; index < columnValues.size(); index++) {
-                //ниже идет такой себе костыль. Чтобы отрефракторить, - лучше разобраться с .substring()
-                if (index != columnNames.size() - 1)
-                    mainSqlRequest.append(columnValues.get(index)).append("', '");
-                else
-                    mainSqlRequest.append(columnValues.get(index)).append("'");
-            }
-            mainSqlRequest.append(")");
+        }
+        //добавляем к запросу имена колонок
+        for (int index = 0; index < columnNames.size(); index++) {
+            //ниже идет такой себе костыль. Чтобы отрефракторить, - лучше разобраться с .substring()
+            if (index != columnNames.size() - 1)
+                mainSqlRequest.append(columnNames.get(index)).append(", ");
+            else
+                mainSqlRequest.append(columnNames.get(index));
+        }
+        //добавляем к запросу имена параметров
+        mainSqlRequest.append(")VALUES ('");
+        for (int index = 0; index < columnValues.size(); index++) {
+            //ниже идет такой себе костыль. Чтобы отрефракторить, - лучше разобраться с .substring()
+            if (index != columnNames.size() - 1)
+                mainSqlRequest.append(columnValues.get(index)).append("', '");
+            else
+                mainSqlRequest.append(columnValues.get(index)).append("'");
+        }
+        mainSqlRequest.append(")");
 
-            try {
-                requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
-                return "Все данные успешно добавлены";
-                //2 варика, - неправильная база, не те параметры
-            } catch (NullPointerException a) {
-                return "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
-            } catch (SQLException b) {
-                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-                if (b.getSQLState().equals("42P01")) {
-                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-                } else if (b.getSQLState().equals("42703")) {
-                    causeOfError.append("Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
-                            "Переформулируйте запрос.");
-                } else {
-                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(b.getSQLState());
-                }
-                return causeOfError.toString();
+        try {
+            requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
+            return "Все данные успешно добавлены";
+            //2 варика, - неправильная база, не те параметры
+        } catch (NullPointerException a) {
+            return "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
+                    "Подключитесь к базе данных командой\n" +
+                    "connect|database|username|password";
+        } catch (SQLException b) {
+            StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+            if (b.getSQLState().equals("42P01")) {
+                causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+            } else if (b.getSQLState().equals("42703")) {
+                causeOfError.append("Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
+                        "Переформулируйте запрос.");
+            } else {
+                causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(b.getSQLState());
             }
+            return causeOfError.toString();
         }
     }
 
@@ -241,34 +231,34 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String delete(String[] params, Connection connectionToDatabase) {
-            //Готовим запрос для вывода таблицыю
-            StringBuilder sqlReqForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
-                    append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-            //Готовим запрос для удаления данных, подходящих под условия
-            StringBuilder sqlForWork = new StringBuilder("DELETE FROM ".concat(params[1].concat(" WHERE ").
-                    concat(params[2]).concat(" ='" + params[3] + "'")));
-            try {
-                return "Были удалены следующие строки:\n"
-                        + requestWithAnswer(connectionToDatabase, sqlForWork.toString(),
-                        sqlReqForTable.toString());
-            } catch (SQLException a) {
-                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-                if (a.getSQLState().equals("42P01")) {
-                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-                } else if (a.getSQLState().equals("02000")) {
-                    causeOfError.append("Запрошенных данных не существует");
-                } else if (a.getSQLState().equals("42703")) {
-                    causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                            "Переформулируйте запрос.");
-                } else {
-                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(a.getSQLState());
-                }
-                return causeOfError.toString();
-            } catch (NullPointerException e1) {
-                return "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
+        //Готовим запрос для вывода таблицыю
+        StringBuilder sqlReqForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
+                append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
+        //Готовим запрос для удаления данных, подходящих под условия
+        StringBuilder sqlForWork = new StringBuilder("DELETE FROM ".concat(params[1].concat(" WHERE ").
+                concat(params[2]).concat(" ='" + params[3] + "'")));
+        try {
+            return "Были удалены следующие строки:\n"
+                    + requestWithAnswer(connectionToDatabase, sqlForWork.toString(),
+                    sqlReqForTable.toString());
+        } catch (SQLException a) {
+            StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+            if (a.getSQLState().equals("42P01")) {
+                causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+            } else if (a.getSQLState().equals("02000")) {
+                causeOfError.append("Запрошенных данных не существует");
+            } else if (a.getSQLState().equals("42703")) {
+                causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
+                        "Переформулируйте запрос.");
+            } else {
+                causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(a.getSQLState());
             }
+            return causeOfError.toString();
+        } catch (NullPointerException e1) {
+            return "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
+                    "Подключитесь к базе данных командой\n" +
+                    "connect|database|username|password";
+        }
     }
 }
 
