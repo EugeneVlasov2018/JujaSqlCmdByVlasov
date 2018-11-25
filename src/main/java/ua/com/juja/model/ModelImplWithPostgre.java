@@ -182,51 +182,42 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String update(String[] params, Connection connectionToDatabase) {
-        if (params.length < 4 && params.length % 2 != 0) {
-            if (params.length < 4) {
-                return "Недостаточно данных для запуска команды." +
-                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
-            } else {
-                return "Ошибка в формате команды." +
-                        "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
-            }
-        } else {
-            //UPDATE table SET column1 = value1, column2 = value2 ,... WHERE condition;
-            //Формирование запроса для получения данных для таблицы
-            StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
-                    append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-            StringBuilder sqlRequestForWork = new StringBuilder("UPDATE ").append(params[1]).append(" SET ");
-            for (int index = 4; index < params.length; index++) {
-                if (index % 2 == 0)
-                    sqlRequestForWork.append(params[index] + " = '");
-                else
-                    sqlRequestForWork.append(params[index] + "', ");
-            }
-            sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
-            //Формирование запроса для работы метода
-            sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-
-            try {
-                return "Были изменены следующие строки:\n"
-                        + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
-                        sqlRequestForTable.toString());
-            } catch (NullPointerException c) {
-                return "Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь";
-            } catch (SQLException d) {
-                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-                if (d.getSQLState().equals("42P01")) {
-                    causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-                } else if (d.getSQLState().equals("02000")) {
-                    causeOfError.append("Запрошенных данных не существует");
-                } else if (d.getSQLState().equals("42703")) {
-                    causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                            "Переформулируйте запрос.");
-                } else {
-                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(d.getSQLState());
-                }
-                return causeOfError.toString();
-            }
+        //UPDATE table SET column1 = value1, column2 = value2 ,... WHERE condition;
+        //Формирование запроса для получения данных для таблицы
+        StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
+                append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
+        StringBuilder sqlRequestForWork = new StringBuilder("UPDATE ").append(params[1]).append(" SET ");
+        for (int index = 4; index < params.length; index++) {
+            if (index % 2 == 0)
+                sqlRequestForWork.append(params[index] + " = '");
+            else
+                sqlRequestForWork.append(params[index] + "', ");
         }
+        sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
+        //Формирование запроса для работы метода
+        sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
+
+        try {
+            return "Были изменены следующие строки:\n"
+                    + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
+                    sqlRequestForTable.toString());
+        } catch (NullPointerException c) {
+            return "Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь";
+        } catch (SQLException d) {
+            StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
+            if (d.getSQLState().equals("42P01")) {
+                causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
+            } else if (d.getSQLState().equals("02000")) {
+                causeOfError.append("Запрошенных данных не существует");
+            } else if (d.getSQLState().equals("42703")) {
+                causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
+                        "Переформулируйте запрос.");
+            } else {
+                causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(d.getSQLState());
+            }
+            return causeOfError.toString();
+        }
+
     }
 
     @Override
