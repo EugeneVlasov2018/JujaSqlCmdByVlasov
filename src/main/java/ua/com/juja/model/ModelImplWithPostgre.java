@@ -94,22 +94,17 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
     public String drop(String[] params, Connection connectionToDatabase) {
-        if (params.length < 2) {
-            return "Недостаточно данных для запуска команды." +
-                    "Укажите имя таблицы, которое собираетесь удалить";
-        } else {
-            String sqlRequest = "DROP TABLE ".concat(params[1]);
-            try {
-                requestWithoutAnswer(connectionToDatabase, sqlRequest);
-                return String.format("Таблица %s успешно удалена", params[1]);
-            } catch (SQLException e) {
-                return "Вы попытались удалить несуществующую таблицу.\n" +
-                        "Введите команду 'tables', чтобы увидеть все созданные таблицы";
-            } catch (NullPointerException e) {
-                return "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "'connect|database|username|password'";
-            }
+        String sqlRequest = "DROP TABLE ".concat(params[1]);
+        try {
+            requestWithoutAnswer(connectionToDatabase, sqlRequest);
+            return String.format("Таблица %s успешно удалена", params[1]);
+        } catch (SQLException e) {
+            return "Вы попытались удалить несуществующую таблицу.\n" +
+                    "Введите команду 'tables', чтобы увидеть все созданные таблицы";
+        } catch (NullPointerException e) {
+            return "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
+                    "Подключитесь к базе данных командой\n" +
+                    "'connect|database|username|password'";
         }
     }
 

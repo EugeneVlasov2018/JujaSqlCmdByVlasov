@@ -2,6 +2,7 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
@@ -13,14 +14,14 @@ import static org.junit.Assert.*;
 
 public class DropTest {
     private ModelInterface model;
-    private Connection connection;
+    private Connection connectionToDB;
     private Command drop;
     private ViewInterface view;
 
     @Before
     public void setup() {
-
         model = Mockito.mock(ModelInterface.class);
+        view = Mockito.mock(ViewInterface.class);
         drop = new Drop(model, view);
     }
 
@@ -38,10 +39,24 @@ public class DropTest {
 
     @Test
     public void testDoWork() {
-        String[] params = new String[]{"fdsfds", "users"};
-        drop.doWork(params, connection);
-        Mockito.verify(model).drop(params, connection);
+        String expected = "Таблица users успешно удалена";
+        String[] params = new String[]{"drop", "users"};
+        Mockito.when(model.drop(params, connectionToDB)).thenReturn(expected);
+        drop.doWork(params, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
+    }
 
+    @Test
+    public void testDoWorkWhitoutParams() {
+        String expected = "Недостаточно данных для запуска команды." +
+                "Укажите имя таблицы, которое собираетесь удалить";
+        String[] params = new String[]{"drop"};
+        drop.doWork(params, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
     }
 
 }

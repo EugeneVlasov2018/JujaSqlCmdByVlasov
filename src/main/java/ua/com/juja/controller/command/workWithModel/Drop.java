@@ -22,8 +22,14 @@ public class Drop implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        view.setMessage(model.drop(command, connection));
-        view.write();
+        if (command.length < 2) {
+            view.setMessage("Недостаточно данных для запуска команды." +
+                    "Укажите имя таблицы, которое собираетесь удалить");
+            view.write();
+        } else {
+            view.setMessage(model.drop(command, connection));
+            view.write();
+        }
     }
 
     @Override
