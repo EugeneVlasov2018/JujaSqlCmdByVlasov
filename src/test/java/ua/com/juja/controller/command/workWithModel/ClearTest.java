@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
+import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 
@@ -15,11 +16,12 @@ public class ClearTest {
     private ModelInterface model;
     private Connection connection;
     private Command clear;
+    private ViewInterface view;
 
     @Before
     public void setup() {
         model = Mockito.mock(ModelInterface.class);
-        clear = new Clear(model);
+        clear = new Clear(model, view);
     }
 
 

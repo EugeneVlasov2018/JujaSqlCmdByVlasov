@@ -11,8 +11,9 @@ public class Clear implements Command {
     private ModelInterface model;
     private ViewInterface view;
 
-    public Clear(ModelInterface model) {
+    public Clear(ModelInterface model, ViewInterface view) {
         this.model = model;
+        this.view = view;
     }
 
     @Override
@@ -28,7 +29,8 @@ public class Clear implements Command {
                     "Укажите имя таблицы, которое собираетесь очистить");
             view.write();
         } else {
-            model.clear(command, connection);
+            view.setMessage(model.clear(command, connection));
+            view.write();
         }
     }
 

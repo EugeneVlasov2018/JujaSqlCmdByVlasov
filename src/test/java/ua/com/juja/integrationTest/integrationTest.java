@@ -311,7 +311,7 @@ public class integrationTest {
         in.setLine("connect|testforsql|postgres|wrongPassword");
         in.setLine("connect|wrongDbName|wrongUserName|wrongPassword");
         //присоединяемся правильно
-        in.setLine("connect|jujasqlcmd|postgres|root");
+        in.setLine("connect|testforsql|postgres|root");
         in.setLine("exit");
         Main.main(new String[0]);
         assertEquals("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +

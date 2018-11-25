@@ -27,9 +27,10 @@ public class MainController {
     public MainController(ModelInterface model, ViewInterface view) {
         this.model = model;
         this.view = view;
-        this.command = new Command[] {new Connect(this.view),new Clear(this.model),new Delete(this.model),
-                new Drop(this.model), new Exit(this.view), new Find(this.model),new Help(this.view),
-                new Insert(this.model),new Tables(this.model),new Update(this.model), new Create(this.model),
+        this.command = new Command[]{new Connect(this.view), new Clear(this.model, this.view),
+                new Delete(this.model, this.view), new Drop(this.model, this.view), new Exit(this.view),
+                new Find(this.model, this.view), new Help(this.view), new Insert(this.model, this.view),
+                new Tables(this.model, this.view), new Update(this.model, this.view), new Create(this.model, this.view),
                 new WrongCommand(this.view)};
     }
 

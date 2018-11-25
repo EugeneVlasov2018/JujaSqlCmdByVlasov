@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
+import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 
@@ -14,12 +15,13 @@ public class InsertTest {
     private ModelInterface model;
     private Connection connection;
     private Command insert;
+    private ViewInterface view;
 
     @Before
     public void setup() {
 
         model = Mockito.mock(ModelInterface.class);
-        insert = new Insert(model);
+        insert = new Insert(model, view);
     }
 
     @Test

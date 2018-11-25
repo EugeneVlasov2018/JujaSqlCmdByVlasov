@@ -11,8 +11,9 @@ public class Create implements Command {
     private ModelInterface model;
     private ViewInterface view;
 
-    public Create(ModelInterface model) {
+    public Create(ModelInterface model, ViewInterface view) {
         this.model = model;
+        this.view = view;
     }
     @Override
     public boolean canProcess(String[] command) {
@@ -27,7 +28,8 @@ public class Create implements Command {
             view.write();
         }
         else {
-            model.create(command, connection);
+            view.setMessage(model.create(command, connection));
+            view.write();
         }
     }
 

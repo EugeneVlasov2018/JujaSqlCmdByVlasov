@@ -2,14 +2,17 @@ package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
+import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 
 public class Insert implements Command {
     private ModelInterface model;
+    private ViewInterface view;
 
-    public Insert(ModelInterface model) {
+    public Insert(ModelInterface model, ViewInterface view) {
         this.model = model;
+        this.view = view;
     }
 
     @Override
@@ -19,7 +22,8 @@ public class Insert implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        model.insert(command, connection);
+        view.setMessage(model.insert(command, connection));
+        view.write();
     }
 
     @Override
