@@ -33,7 +33,6 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                     "Подключитесь к базе данных командой\n" +
                     "connect|database|username|password";
         }
-
     }
 
     @Override

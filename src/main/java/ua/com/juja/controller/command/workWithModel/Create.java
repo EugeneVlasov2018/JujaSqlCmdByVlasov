@@ -23,7 +23,6 @@ public class Create implements Command {
     @Override
     public void doWork(String[] command, Connection connection) {
         if(command.length<3){
-            view = new ViewImpl();
             view.setMessage("Недостаточно данных для запуска команды. Попробуйте еще раз");
             view.write();
         }

@@ -69,7 +69,7 @@ public class ConnectTest {
 
 
     @Test
-    public void testDoWorkWithNotEnoughparams(){
+    public void testDoWorkWithNotEnoughParams() {
         Command connect = new Connect(view);
         connect.doWork(new String[]{"connect","testforsql","postgres"},null);
         Mockito.verify(view).setMessage("Недостаточно данных для запуска команды. Попробуйте еще раз");
