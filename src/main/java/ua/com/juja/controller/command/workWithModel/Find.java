@@ -5,6 +5,7 @@ import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Find implements Command {
     private ModelInterface model;
@@ -22,14 +23,21 @@ public class Find implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
+        String answer = "";
         if (command.length < 2) {
-            view.setMessage("Недостаточно данных для запуска команды." +
-                    "Укажите имя таблицы, которую собираетесь вывести на екран");
-            view.write();
+            answer = "Недостаточно данных для запуска команды." +
+                    "Укажите имя таблицы, которую собираетесь вывести на екран";
         } else {
-            view.setMessage(model.find(command, connection));
-            view.write();
+            try {
+                answer = model.find(command, connection);
+            } catch (SQLException e) {
+                answer = "такой таблицы не существует";
+            } catch (NullPointerException e1) {
+                answer = "Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь";
+            }
         }
+        view.setMessage(answer);
+            view.write();
     }
 
     @Override

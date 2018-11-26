@@ -3,22 +3,23 @@ package ua.com.juja.model.parentClassesAndInterfaces;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public interface ModelInterface {
 
-    String tables(Connection connection);
+    String tables(Connection connection) throws SQLException;
 
-    String clear(String[] params, Connection connection);
+    void clear(String[] params, Connection connection) throws SQLException;
 
-    String drop(String[] params, Connection connection);
+    void drop(String[] params, Connection connection) throws SQLException;
 
-    String create(String[] params, Connection connection);
+    void create(String[] params, Connection connection) throws SQLException;
 
-    String find(String[] params, Connection connection);
+    String find(String[] params, Connection connection) throws SQLException;
 
-    String insert(String[] params, Connection connection);
+    void insert(String[] params, Connection connection) throws SQLException;
 
-    String update(String[] params, Connection connection);
+    String update(String[] params, Connection connection) throws SQLException;
 
-    String delete(String[] params, Connection connection);
+    String delete(String[] params, Connection connection) throws SQLException;
 }

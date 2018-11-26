@@ -5,6 +5,7 @@ import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Tables implements Command {
     private ModelInterface model;
@@ -21,8 +22,21 @@ public class Tables implements Command {
     }
 
     @Override
-    public void doWork(String[] commandForWork, Connection connection) {
-        view.setMessage(model.tables(connection));
+    public void doWork(String[] command, Connection connection) {
+        String answer = "";
+        try {
+            answer = model.tables(connection);
+        } catch (SQLException a) {
+            answer = "Возникли проблемы в методе Tables. " +
+                    "Обратитесь к разработчику. Код ошибки: " + a.getSQLState();
+        } catch (NullPointerException b) {
+            answer = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
+                    "Подключитесь к базе данных командой\n" +
+                    "connect|database|username|password";
+        }
+
+
+        view.setMessage(answer);
         view.write();
     }
 

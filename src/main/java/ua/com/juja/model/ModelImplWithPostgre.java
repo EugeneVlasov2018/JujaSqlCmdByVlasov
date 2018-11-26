@@ -13,31 +13,20 @@ import java.util.List;
 public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
-    public String create(String[] params, Connection connectionToDatabase) {
+    public void create(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
 
         StringBuilder sqlRequest = new StringBuilder("CREATE TABLE " + params[1] + " (id SERIAL, ");
         for (int i = 2; i < params.length; i++) {
             sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
         }
         sqlRequest = sqlRequest.append("PRIMARY KEY (id))");
-        try {
-            requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
-            return "Таблица '" + params[1] + "' успешно создана";
-        } catch (PSQLException c) {
-            return "Таблица с таким именем уже существует. Введите команду 'tables'" +
-                    "чтобы увидеть существующие таблицы";
-        } catch (SQLException a) {
-            return "Неизвестная ошибка. Обратитесь с возникшей проблемой к разработчику";
-        } catch (NullPointerException b) {
-            return "Вы попытались создать таблицу, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "connect|database|username|password";
-        }
+        requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
     }
 
     @Override
-    public String tables(Connection connectionToDatabase) {
+    public String tables(Connection connectionToDatabase) throws SQLException, NullPointerException {
         List<String> tablenames = new ArrayList<String>();
+
         DatabaseMetaData databaseMetaData = null;
         ResultSet resultSet = null;
 
@@ -56,14 +45,6 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
             } else {
                 return "На данный момент в базе данных нет ни одной таблицы";
             }
-        } catch (SQLException a) {
-            a.printStackTrace();
-            return "Возникли проблемы в методе Tables. " +
-                    "Обратитесь к разработчику. Код ошибки: " + a.getSQLState();
-        } catch (NullPointerException b) {
-            return "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "connect|database|username|password";
         } finally {
             try {
                 if (resultSet != null)
@@ -75,55 +56,27 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
     }
 
     @Override
-    public String clear(String[] params, Connection connectionToDatabase) {
+    public void clear(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
         String sqlRequest = "DELETE FROM " + params[1];
-        try {
             requestWithoutAnswer(connectionToDatabase, sqlRequest);
-            return "Все данные из таблицы ".concat(params[1])
-                    .concat(" были удалены");
-        } catch (SQLException sqlExc) {
-            return "Вы пытаетесь очистить несуществующую таблицу.\n" +
-                    "Вызовите команду 'tables', чтобы увидеть, какие таблицы есть в базе данных";
-        } catch (NullPointerException nullPointExc) {
-            return "Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "'connect|database|username|password'";
-        }
     }
 
     @Override
-    public String drop(String[] params, Connection connectionToDatabase) {
+    public void drop(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
         String sqlRequest = "DROP TABLE ".concat(params[1]);
-        try {
-            requestWithoutAnswer(connectionToDatabase, sqlRequest);
-            return String.format("Таблица %s успешно удалена", params[1]);
-        } catch (SQLException e) {
-            return "Вы попытались удалить несуществующую таблицу.\n" +
-                    "Введите команду 'tables', чтобы увидеть все созданные таблицы";
-        } catch (NullPointerException e) {
-            return "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "'connect|database|username|password'";
-        }
+        requestWithoutAnswer(connectionToDatabase, sqlRequest);
     }
 
     @Override
-    public String find(String[] params, Connection connectionToDatabase) {
+    public String find(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
         //формируем запрос
         StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
         sqlRequestForTable.append(params[1]);
-        try {
-            return requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(),
-                    sqlRequestForTable.toString());
-        } catch (SQLException e) {
-            return "такой таблицы не существует";
-        } catch (NullPointerException e1) {
-            return "Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь";
-        }
+        return requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(), sqlRequestForTable.toString());
     }
 
     @Override
-    public String insert(String[] params, Connection connectionToDatabase) {
+    public void insert(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
         StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
         //вбиваем в запрос имя базы
         mainSqlRequest.append(params[1]).append(" (");
@@ -157,30 +110,11 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
         mainSqlRequest.append(")");
 
-        try {
-            requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
-            return "Все данные успешно добавлены";
-            //2 варика, - неправильная база, не те параметры
-        } catch (NullPointerException a) {
-            return "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "connect|database|username|password";
-        } catch (SQLException b) {
-            StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-            if (b.getSQLState().equals("42P01")) {
-                causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-            } else if (b.getSQLState().equals("42703")) {
-                causeOfError.append("Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
-                        "Переформулируйте запрос.");
-            } else {
-                causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(b.getSQLState());
-            }
-            return causeOfError.toString();
-        }
+        requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
     }
 
     @Override
-    public String update(String[] params, Connection connectionToDatabase) {
+    public String update(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
         //UPDATE table SET column1 = value1, column2 = value2 ,... WHERE condition;
         //Формирование запроса для получения данных для таблицы
         StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
@@ -195,60 +129,22 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
         //Формирование запроса для работы метода
         sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-
-        try {
-            return "Были изменены следующие строки:\n"
+        return "Были изменены следующие строки:\n"
                     + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
                     sqlRequestForTable.toString());
-        } catch (NullPointerException c) {
-            return "Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь";
-        } catch (SQLException d) {
-            StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-            if (d.getSQLState().equals("42P01")) {
-                causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-            } else if (d.getSQLState().equals("02000")) {
-                causeOfError.append("Запрошенных данных не существует");
-            } else if (d.getSQLState().equals("42703")) {
-                causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                        "Переформулируйте запрос.");
-            } else {
-                causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(d.getSQLState());
-            }
-            return causeOfError.toString();
-        }
-
     }
 
     @Override
-    public String delete(String[] params, Connection connectionToDatabase) {
+    public String delete(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
         //Готовим запрос для вывода таблицыю
         StringBuilder sqlReqForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
                 append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
         //Готовим запрос для удаления данных, подходящих под условия
         StringBuilder sqlForWork = new StringBuilder("DELETE FROM ".concat(params[1].concat(" WHERE ").
                 concat(params[2]).concat(" ='" + params[3] + "'")));
-        try {
             return "Были удалены следующие строки:\n"
                     + requestWithAnswer(connectionToDatabase, sqlForWork.toString(),
                     sqlReqForTable.toString());
-        } catch (SQLException a) {
-            StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-            if (a.getSQLState().equals("42P01")) {
-                causeOfError.append("Таблицы '").append(params[1]).append("' не сущетвует. Переформулируйте запрос");
-            } else if (a.getSQLState().equals("02000")) {
-                causeOfError.append("Запрошенных данных не существует");
-            } else if (a.getSQLState().equals("42703")) {
-                causeOfError.append("Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                        "Переформулируйте запрос.");
-            } else {
-                causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(a.getSQLState());
-            }
-            return causeOfError.toString();
-        } catch (NullPointerException e1) {
-            return "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "connect|database|username|password";
-        }
     }
 }
 

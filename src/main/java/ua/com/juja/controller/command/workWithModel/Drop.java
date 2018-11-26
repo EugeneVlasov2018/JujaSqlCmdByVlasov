@@ -5,6 +5,7 @@ import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Drop implements Command {
     private ModelInterface model;
@@ -22,14 +23,25 @@ public class Drop implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
+        String answer = "";
         if (command.length < 2) {
-            view.setMessage("Недостаточно данных для запуска команды." +
-                    "Укажите имя таблицы, которое собираетесь удалить");
-            view.write();
+            answer = "Недостаточно данных для запуска команды." +
+                    "Укажите имя таблицы, которое собираетесь удалить";
         } else {
-            view.setMessage(model.drop(command, connection));
-            view.write();
+            try {
+                model.drop(command, connection);
+                answer = String.format("Таблица %s успешно удалена", command[1]);
+            } catch (SQLException e) {
+                answer = "Вы попытались удалить несуществующую таблицу.\n" +
+                        "Введите команду 'tables', чтобы увидеть все созданные таблицы";
+            } catch (NullPointerException e) {
+                answer = "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
+                        "Подключитесь к базе данных командой\n" +
+                        "'connect|database|username|password'";
+            }
         }
+        view.setMessage(answer);
+            view.write();
     }
 
     @Override

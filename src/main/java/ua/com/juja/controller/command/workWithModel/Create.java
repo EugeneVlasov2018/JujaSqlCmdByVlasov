@@ -1,11 +1,13 @@
 package ua.com.juja.controller.command.workWithModel;
 
+import org.postgresql.util.PSQLException;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewImpl;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Create implements Command {
     private ModelInterface model;
@@ -22,12 +24,25 @@ public class Create implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
+        String answer = "";
         if(command.length<3){
-            view.setMessage("Недостаточно данных для запуска команды. Попробуйте еще раз");
-            view.write();
+            answer = "Недостаточно данных для запуска команды. Попробуйте еще раз";
         }
         else {
-            view.setMessage(model.create(command, connection));
+            try {
+                model.create(command, connection);
+                answer = "Таблица '" + command[1] + "' успешно создана";
+            } catch (PSQLException c) {
+                answer = "Таблица с таким именем уже существует. Введите команду 'tables'" +
+                        "чтобы увидеть существующие таблицы";
+            } catch (SQLException a) {
+                answer = "Неизвестная ошибка. Обратитесь с возникшей проблемой к разработчику";
+            } catch (NullPointerException b) {
+                answer = "Вы попытались создать таблицу, не подключившись к базе данных.\n" +
+                        "Подключитесь к базе данных командой\n" +
+                        "connect|database|username|password";
+            }
+            view.setMessage(answer);
             view.write();
         }
     }

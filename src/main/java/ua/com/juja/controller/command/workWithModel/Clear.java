@@ -6,6 +6,7 @@ import ua.com.juja.view.ViewImpl;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Clear implements Command {
     private ModelInterface model;
@@ -23,14 +24,25 @@ public class Clear implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
+        String answer = "";
         if(command.length<2){
-            view.setMessage("Недостаточно данных для запуска команды. " +
-                    "Укажите имя таблицы, которое собираетесь очистить");
-            view.write();
+            answer = "Недостаточно данных для запуска команды. " +
+                    "Укажите имя таблицы, которое собираетесь очистить";
         } else {
-            view.setMessage(model.clear(command, connection));
-            view.write();
+            try {
+                model.clear(command, connection);
+                answer = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
+            } catch (SQLException sqlExc) {
+                answer = "Вы пытаетесь очистить несуществующую таблицу.\n" +
+                        "Вызовите команду 'tables', чтобы увидеть, какие таблицы есть в базе данных";
+            } catch (NullPointerException nullPointExc) {
+                answer = "Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
+                        "Подключитесь к базе данных командой\n" +
+                        "'connect|database|username|password'";
+            }
         }
+        view.setMessage(answer);
+        view.write();
     }
 
     @Override
