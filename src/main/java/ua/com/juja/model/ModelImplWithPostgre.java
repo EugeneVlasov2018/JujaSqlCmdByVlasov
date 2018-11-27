@@ -2,6 +2,8 @@ package ua.com.juja.model;
 
 import org.postgresql.util.PSQLException;
 import ua.com.juja.model.newExceptions.NullableAnswerException;
+import ua.com.juja.model.newExceptions.UnknowColumnNameException;
+import ua.com.juja.model.newExceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.AmstractModelWorkWithPostgre;
 import ua.com.juja.view.ViewImpl;
 import ua.com.juja.view.ViewInterface;
@@ -13,14 +15,18 @@ import java.util.List;
 public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
 
     @Override
-    public void create(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public void create(String[] params, Connection connectionToDatabase) throws UnknowTableException, NullPointerException {
 
         StringBuilder sqlRequest = new StringBuilder("CREATE TABLE " + params[1] + " (id SERIAL, ");
         for (int i = 2; i < params.length; i++) {
             sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
         }
         sqlRequest = sqlRequest.append("PRIMARY KEY (id))");
-        requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
+        try {
+            requestWithoutAnswer(connectionToDatabase, sqlRequest.toString());
+        } catch (SQLException e){
+            throw new UnknowTableException();
+        }
     }
 
     @Override
@@ -56,27 +62,42 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
     }
 
     @Override
-    public void clear(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public void clear(String[] params, Connection connectionToDatabase) throws UnknowTableException, NullPointerException {
         String sqlRequest = "DELETE FROM " + params[1];
+        try{
             requestWithoutAnswer(connectionToDatabase, sqlRequest);
+        } catch (SQLException sqlExc){
+            throw new UnknowTableException();
+        }
     }
 
     @Override
-    public void drop(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public void drop(String[] params, Connection connectionToDatabase) throws UnknowTableException, NullPointerException {
         String sqlRequest = "DROP TABLE ".concat(params[1]);
+        try{
         requestWithoutAnswer(connectionToDatabase, sqlRequest);
+        } catch (SQLException e) {
+            throw new UnknowTableException();
+        }
     }
 
     @Override
-    public String find(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public String find(String[] params, Connection connectionToDatabase) throws UnknowTableException, NullPointerException {
         //формируем запрос
         StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ");
         sqlRequestForTable.append(params[1]);
-        return requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(), sqlRequestForTable.toString());
+        String answer = "";
+        try {
+            answer = requestWithAnswer(connectionToDatabase, sqlRequestForTable.toString(), sqlRequestForTable.toString());
+        } catch (SQLException a){
+            throw new UnknowTableException();
+        }
+        return answer;
     }
 
     @Override
-    public void insert(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public void insert(String[] params, Connection connectionToDatabase) throws UnknowTableException,
+            UnknowColumnNameException, NullPointerException {
         StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
         //вбиваем в запрос имя базы
         mainSqlRequest.append(params[1]).append(" (");
@@ -110,11 +131,22 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         }
         mainSqlRequest.append(")");
 
-        requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
+        try{
+            requestWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
+        } catch (SQLException e){
+            if (e.getSQLState().equals("42P01")) {
+                throw new UnknowTableException();
+            } else if (e.getSQLState().equals("42703")) {
+                throw new UnknowColumnNameException();
+            } else {
+                // do nothing
+            }
+        }
     }
 
     @Override
-    public String update(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public String update(String[] params, Connection connectionToDatabase) throws UnknowTableException,
+            UnknowColumnNameException, NullableAnswerException, NullPointerException {
         //UPDATE table SET column1 = value1, column2 = value2 ,... WHERE condition;
         //Формирование запроса для получения данных для таблицы
         StringBuilder sqlRequestForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
@@ -129,22 +161,48 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
         sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
         //Формирование запроса для работы метода
         sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-        return "Были изменены следующие строки:\n"
-                    + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(),
-                    sqlRequestForTable.toString());
+
+        String answer = "";
+        try {
+            answer = "Были изменены следующие строки:\n" + requestWithAnswer(connectionToDatabase, sqlRequestForWork.toString(), sqlRequestForTable.toString());
+        } catch (SQLException e){
+            if (e.getSQLState().equals("42P01")) {
+                throw new UnknowTableException();
+            }
+            else if (e.getSQLState().equals("02000")) {
+                throw new NullableAnswerException();
+            }
+            else if(e.getSQLState().equals("42703")) {
+                throw new UnknowColumnNameException();
+            }
+        }
+        return answer;
     }
 
     @Override
-    public String delete(String[] params, Connection connectionToDatabase) throws SQLException, NullPointerException {
+    public String delete(String[] params, Connection connectionToDatabase) throws UnknowTableException,
+            UnknowColumnNameException, NullableAnswerException,NullPointerException {
         //Готовим запрос для вывода таблицыю
         StringBuilder sqlReqForTable = new StringBuilder("SELECT * FROM ").append(params[1]).
                 append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
         //Готовим запрос для удаления данных, подходящих под условия
         StringBuilder sqlForWork = new StringBuilder("DELETE FROM ".concat(params[1].concat(" WHERE ").
                 concat(params[2]).concat(" ='" + params[3] + "'")));
-            return "Были удалены следующие строки:\n"
+        String answer = "";
+        try {
+            answer =  "Были удалены следующие строки:\n"
                     + requestWithAnswer(connectionToDatabase, sqlForWork.toString(),
                     sqlReqForTable.toString());
+        } catch (SQLException a) {
+            if (a.getSQLState().equals("42P01")) {
+                throw new UnknowTableException();
+            } else if (a.getSQLState().equals("02000")) {
+                throw new NullableAnswerException();
+            } else if (a.getSQLState().equals("42703")) {
+                throw new UnknowColumnNameException();
+            }
+        }
+        return answer;
     }
 }
 

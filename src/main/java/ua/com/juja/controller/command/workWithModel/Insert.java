@@ -1,6 +1,8 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.newExceptions.UnknowColumnNameException;
+import ua.com.juja.model.newExceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -40,17 +42,13 @@ public class Insert implements Command {
                 answer = "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password";
-            } catch (SQLException b) {
-                StringBuilder causeOfError = new StringBuilder("Ошибка в работе с базой данных. Причина:\n");
-                if (b.getSQLState().equals("42P01")) {
-                    causeOfError.append("Таблицы '").append(command[1]).append("' не сущетвует. Переформулируйте запрос");
-                } else if (b.getSQLState().equals("42703")) {
-                    causeOfError.append("Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
-                            "Переформулируйте запрос.");
-                } else {
-                    causeOfError.append("Непредвиденная ошибка. Код ошибки, - ").append(b.getSQLState());
-                }
-                answer = causeOfError.toString();
+            } catch (UnknowTableException b){
+                answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
+                        "Таблицы '%s' не сущетвует. Переформулируйте запрос", command[1]);
+            } catch (UnknowColumnNameException c){
+                answer = "Ошибка в работе с базой данных. Причина:\n" +
+                        "Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
+                        "Переформулируйте запрос.";
             }
             view.setMessage(answer);
             view.write();

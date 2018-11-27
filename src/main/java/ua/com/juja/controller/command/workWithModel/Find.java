@@ -1,6 +1,7 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.newExceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -30,7 +31,7 @@ public class Find implements Command {
         } else {
             try {
                 answer = model.find(command, connection);
-            } catch (SQLException e) {
+            } catch (UnknowTableException e) {
                 answer = "такой таблицы не существует";
             } catch (NullPointerException e1) {
                 answer = "Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь";

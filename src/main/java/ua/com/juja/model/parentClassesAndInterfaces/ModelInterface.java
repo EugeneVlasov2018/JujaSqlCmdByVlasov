@@ -1,5 +1,8 @@
 package ua.com.juja.model.parentClassesAndInterfaces;
 
+import ua.com.juja.model.newExceptions.NullableAnswerException;
+import ua.com.juja.model.newExceptions.UnknowColumnNameException;
+import ua.com.juja.model.newExceptions.UnknowTableException;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
@@ -7,19 +10,22 @@ import java.sql.SQLException;
 
 public interface ModelInterface {
 
-    String tables(Connection connection) throws SQLException;
+    String tables(Connection connection) throws SQLException, NullPointerException;
 
-    void clear(String[] params, Connection connection) throws SQLException;
+    void clear(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
 
-    void drop(String[] params, Connection connection) throws SQLException;
+    void drop(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
 
-    void create(String[] params, Connection connection) throws SQLException;
+    void create(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
 
-    String find(String[] params, Connection connection) throws SQLException;
+    String find(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
 
-    void insert(String[] params, Connection connection) throws SQLException;
+    void insert(String[] params, Connection connection) throws UnknowTableException, UnknowColumnNameException,
+            NullPointerException;
 
-    String update(String[] params, Connection connection) throws SQLException;
+    String update(String[] params, Connection connection) throws UnknowTableException,
+            UnknowColumnNameException, NullableAnswerException, NullPointerException;
 
-    String delete(String[] params, Connection connection) throws SQLException;
+    String delete(String[] params, Connection connection) throws UnknowTableException,
+            UnknowColumnNameException, NullableAnswerException, NullPointerException;
 }
