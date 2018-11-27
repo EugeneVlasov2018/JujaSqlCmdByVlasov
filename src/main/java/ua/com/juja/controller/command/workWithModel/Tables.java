@@ -1,11 +1,14 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.newExceptions.NullableAnswerException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Tables implements Command {
     private ModelInterface model;
@@ -25,7 +28,8 @@ public class Tables implements Command {
     public void doWork(String[] command, Connection connection) {
         String answer = "";
         try {
-            answer = model.tables(connection);
+            List<String> resqponseFromDB = model.tables(connection);
+            answer = resqponseFromDB.toString();
         } catch (SQLException a) {
             answer = "Возникли проблемы в методе Tables. " +
                     "Обратитесь к разработчику. Код ошибки: " + a.getSQLState();
@@ -33,9 +37,9 @@ public class Tables implements Command {
             answer = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "connect|database|username|password";
+        } catch (NullableAnswerException c){
+            answer = "В базе данных нет ни одной таблицы";
         }
-
-
         view.setMessage(answer);
         view.write();
     }

@@ -7,6 +7,8 @@ import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Find implements Command {
     private ModelInterface model;
@@ -30,6 +32,7 @@ public class Find implements Command {
                     "Укажите имя таблицы, которую собираетесь вывести на екран";
         } else {
             try {
+                List<List<String>>responseFromDB=new ArrayList<>();
                 answer = model.find(command, connection);
             } catch (UnknowTableException e) {
                 answer = "такой таблицы не существует";

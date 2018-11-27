@@ -1,12 +1,9 @@
 package ua.com.juja.model;
 
-import org.postgresql.util.PSQLException;
 import ua.com.juja.model.newExceptions.NullableAnswerException;
 import ua.com.juja.model.newExceptions.UnknowColumnNameException;
 import ua.com.juja.model.newExceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.AmstractModelWorkWithPostgre;
-import ua.com.juja.view.ViewImpl;
-import ua.com.juja.view.ViewInterface;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -30,8 +27,9 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
     }
 
     @Override
-    public String tables(Connection connectionToDatabase) throws SQLException, NullPointerException {
-        List<String> tablenames = new ArrayList<String>();
+    public ArrayList<String> tables(Connection connectionToDatabase) throws SQLException, NullPointerException,
+            NullableAnswerException {
+        ArrayList<String> tablenames = new ArrayList<String>();
 
         DatabaseMetaData databaseMetaData = null;
         ResultSet resultSet = null;
@@ -47,9 +45,9 @@ public class ModelImplWithPostgre extends AmstractModelWorkWithPostgre {
                 tablenames.add(resultSet.getString("TABLE_NAME"));
             }
             if (tablenames.size() > 0) {
-                return tablenames.toString();
+                return tablenames;
             } else {
-                return "На данный момент в базе данных нет ни одной таблицы";
+                throw new NullableAnswerException();
             }
         } finally {
             try {
