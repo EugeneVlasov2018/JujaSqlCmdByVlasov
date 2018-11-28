@@ -32,7 +32,6 @@ public class Find implements Command {
                     "Укажите имя таблицы, которую собираетесь вывести на екран";
         } else {
             try {
-                List<List<String>>responseFromDB=new ArrayList<>();
                 answer = model.find(command, connection);
             } catch (UnknowTableException e) {
                 answer = "такой таблицы не существует";

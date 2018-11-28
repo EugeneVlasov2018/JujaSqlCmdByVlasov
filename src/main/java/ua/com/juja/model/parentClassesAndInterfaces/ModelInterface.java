@@ -15,7 +15,7 @@ public interface ModelInterface {
 
     void clear(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
 
-    void drop(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
+    void drop(String[] params, Connection connection) throws UnknowTableException, NullPointerException, SQLException;
 
     void create(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
 
@@ -29,4 +29,9 @@ public interface ModelInterface {
 
     String delete(String[] params, Connection connection) throws UnknowTableException,
             UnknowColumnNameException, NullableAnswerException, NullPointerException;
+
+    ArrayList<String> getColumnName(String[] command, Connection connectionToDatabase)
+            throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException;
+
+    public ArrayList<String> getColumnValues(String[] command, Connection connectionToDatabase);
 }

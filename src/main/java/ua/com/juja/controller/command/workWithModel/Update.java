@@ -9,8 +9,10 @@ import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Update implements Command {
+public class Update extends CommandWithTableInResponce implements Command {
     private ModelInterface model;
     private ViewInterface view;
 
@@ -37,6 +39,8 @@ public class Update implements Command {
             }
         } else {
             try {
+                List<String> ColumnName = new ArrayList(model.getColumnName(command, connection));
+                List<String> ColumnValue = new ArrayList<>(model.getColumnValues(command, connection));
                 answer = "Были изменены следующие строки:\n" + model.update(command, connection);
             } catch (NullPointerException a) {
                 answer = "Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь";

@@ -39,6 +39,9 @@ public class Drop implements Command {
                 answer = "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "'connect|database|username|password'";
+            } catch (SQLException c) {
+                answer = String.format("Неизвестная ошибка при попытке связаться с базой данных.\n" +
+                        "Причина: %s", c.getMessage());
             }
         }
         view.setMessage(answer);
