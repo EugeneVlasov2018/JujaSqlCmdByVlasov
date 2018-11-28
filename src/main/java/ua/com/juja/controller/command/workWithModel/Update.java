@@ -1,9 +1,9 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.NullableAnswerException;
-import ua.com.juja.model.newExceptions.UnknowColumnNameException;
-import ua.com.juja.model.newExceptions.UnknowTableException;
+import ua.com.juja.model.exceptions.NullableAnswerException;
+import ua.com.juja.model.exceptions.UnknowColumnNameException;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -39,21 +39,27 @@ public class Update extends CommandWithTableInResponce implements Command {
             }
         } else {
             try {
-                List<String> ColumnName = new ArrayList(model.getColumnName(command, connection));
-                List<String> ColumnValue = new ArrayList<>(model.getColumnValues(command, connection));
-                answer = "Были изменены следующие строки:\n" + model.update(command, connection);
-            } catch (NullPointerException a) {
-                answer = "Вы попытались обновить данные в таблице, не подключившись к базе данных. Сначала подключитесь";
-            } catch (UnknowTableException b) {
-                answer = "Ошибка в работе с базой данных. Причина:\n" +
-                        "Запрошенных данных не существует";
-            } catch (UnknowColumnNameException c) {
+                List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command, connection));
+                List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command, connection));
+                model.update(command, connection);
+                answer = createTable(columnName, columnValue);
+            } catch (UnknowTableException a) {
+                answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
+                        "Таблицы %s не существует. Переформулируйте запрос", command[1]);
+            } catch (UnknowColumnNameException b) {
                 answer = "Ошибка в работе с базой данных. Причина:\n" +
                         "Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
                         "Переформулируйте запрос.";
-            } catch (NullableAnswerException d) {
+            } catch (NullableAnswerException c) {
                 answer = "Ошибка в работе с базой данных. Причина:\n" +
                         "Запрошенных данных не существует";
+            } catch (NullPointerException d) {
+                answer = "Вы попытались изменить информацию в таблице, не подключившись к базе данных.\n" +
+                        "Подключитесь к базе данных командой\n" +
+                        "connect|database|username|password";
+            } catch (SQLException e) {
+                answer = String.format("Непредвиденная ошибка в работе с базой данных.\n" +
+                        "Причина: %s", e.getMessage());
             }
         }
         view.setMessage(answer);

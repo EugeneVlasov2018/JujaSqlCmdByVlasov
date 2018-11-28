@@ -1,13 +1,12 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.UnknowColumnNameException;
-import ua.com.juja.model.newExceptions.UnknowTableException;
+import ua.com.juja.model.exceptions.UnknowColumnNameException;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class Insert implements Command {
     private ModelInterface model;

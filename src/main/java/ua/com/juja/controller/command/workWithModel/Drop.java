@@ -1,7 +1,7 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.UnknowTableException;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 

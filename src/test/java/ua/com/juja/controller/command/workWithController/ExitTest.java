@@ -3,7 +3,7 @@ package ua.com.juja.controller.command.workWithController;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.SystemExitException;
+import ua.com.juja.controller.command.exceptions.SystemExitException;
 import ua.com.juja.view.ViewInterface;
 
 import static org.junit.Assert.*;

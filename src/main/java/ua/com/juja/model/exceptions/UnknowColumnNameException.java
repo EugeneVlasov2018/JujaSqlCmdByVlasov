@@ -1,4 +1,4 @@
-package ua.com.juja.model.newExceptions;
+package ua.com.juja.model.exceptions;
 
 public class UnknowColumnNameException extends Exception{
 }

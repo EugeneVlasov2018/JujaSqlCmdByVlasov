@@ -6,8 +6,7 @@ import ua.com.juja.controller.command.workWithController.Exit;
 import ua.com.juja.controller.command.workWithController.Help;
 import ua.com.juja.controller.command.workWithController.WrongCommand;
 import ua.com.juja.controller.command.workWithModel.*;
-import ua.com.juja.model.newExceptions.FirstParamNullException;
-import ua.com.juja.model.newExceptions.SystemExitException;
+import ua.com.juja.controller.command.exceptions.SystemExitException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 

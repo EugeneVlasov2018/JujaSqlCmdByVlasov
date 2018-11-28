@@ -42,7 +42,8 @@ public class ClearTest {
     @Test
     public void testDoWork() {
         String[] commandForWork = new String[]{"clear", "users"};
-        Mockito.when(model.clear(commandForWork, connectionToDB)).thenReturn("Все данные из таблицы users были удалены");
+        Mockito.verify(model).clear(commandForWork, null);
+
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());

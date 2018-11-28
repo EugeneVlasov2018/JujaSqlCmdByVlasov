@@ -1,16 +1,18 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.NullableAnswerException;
-import ua.com.juja.model.newExceptions.UnknowColumnNameException;
-import ua.com.juja.model.newExceptions.UnknowTableException;
+import ua.com.juja.model.exceptions.NullableAnswerException;
+import ua.com.juja.model.exceptions.UnknowColumnNameException;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Delete implements Command {
+public class Delete extends CommandWithTableInResponce implements Command {
     private ModelInterface model;
     private ViewInterface view;
 
@@ -33,14 +35,17 @@ public class Delete implements Command {
 
         } else {
             try {
-                answer = model.delete(command, connection);
+                List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command, connection));
+                List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command, connection));
+                model.delete(command, connection);
+                answer = createTable(columnName, columnValue);
             } catch(UnknowTableException a){
-                answer = "Ошибка в работе с базой данных. Причина:\n" +
-                        "Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                        "Переформулируйте запрос.";
-            } catch(UnknowColumnNameException b) {
                 answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
                         "Таблицы %s не существует. Переформулируйте запрос", command[1]);
+            } catch (UnknowColumnNameException b) {
+                answer = "Ошибка в работе с базой данных. Причина:\n" +
+                        "Среди параметров, которые нужно удалить, введено несуществующее имя колонки.\n" +
+                        "Переформулируйте запрос.";
             } catch (NullableAnswerException c) {
                 answer = "Ошибка в работе с базой данных. Причина:\n" +
                         "Запрошенных данных не существует";
@@ -48,6 +53,9 @@ public class Delete implements Command {
                 answer = "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password";
+            } catch (SQLException e) {
+                answer = String.format("Непредвиденная ошибка в работе с базой данных.\n" +
+                        "Причина: %s", e.getMessage());
             }
             view.setMessage(answer);
             view.write();

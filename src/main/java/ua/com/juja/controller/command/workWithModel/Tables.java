@@ -1,13 +1,12 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.NullableAnswerException;
+import ua.com.juja.model.exceptions.NullableAnswerException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Tables implements Command {

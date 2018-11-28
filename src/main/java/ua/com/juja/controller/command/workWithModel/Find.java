@@ -1,7 +1,9 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.newExceptions.UnknowTableException;
+import ua.com.juja.model.exceptions.NullableAnswerException;
+import ua.com.juja.model.exceptions.UnknowColumnNameException;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -10,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Find implements Command {
+public class Find extends CommandWithTableInResponce implements Command {
     private ModelInterface model;
     private ViewInterface view;
 
@@ -32,12 +34,29 @@ public class Find implements Command {
                     "Укажите имя таблицы, которую собираетесь вывести на екран";
         } else {
             try {
-                answer = model.find(command, connection);
-            } catch (UnknowTableException e) {
-                answer = "такой таблицы не существует";
-            } catch (NullPointerException e1) {
-                answer = "Вы попытались найти таблицу, не подключившись к базе данных. Сначала подключитесь";
+                List<String> columnName = new ArrayList(model.getColumnNameForFind(command, connection));
+                List<String> columnValue = new ArrayList<>(model.getColumnValuesForFind(command, connection));
+                answer = createTable(columnName, columnValue);
+            } catch (UnknowTableException a) {
+                answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
+                        "Таблицы %s не существует. Переформулируйте запрос", command[1]);
+            } catch (UnknowColumnNameException b) {
+                answer = "Ошибка в работе с базой данных. Причина:\n" +
+                        "Среди параметров, которые нужно получить, введено несуществующее имя колонки.\n" +
+                        "Переформулируйте запрос.";
+            } catch (NullableAnswerException c) {
+                answer = "Ошибка в работе с базой данных. Причина:\n" +
+                        "Запрошенных данных не существует";
+            } catch (NullPointerException d) {
+                answer = "Вы попытались получить информацию из таблицы, не подключившись к базе данных.\n" +
+                        "Подключитесь к базе данных командой\n" +
+                        "connect|database|username|password";
+            } catch (SQLException e) {
+                answer = String.format("Непредвиденная ошибка в работе с базой данных.\n" +
+                        "Причина: %s", e.getMessage());
             }
+            view.setMessage(answer);
+            view.write();
         }
         view.setMessage(answer);
             view.write();
