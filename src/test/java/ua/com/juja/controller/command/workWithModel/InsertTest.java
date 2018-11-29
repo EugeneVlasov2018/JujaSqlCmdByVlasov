@@ -42,7 +42,6 @@ public class InsertTest {
     public void testDoWork() {
         String expected = "Все данные успешно добавлены";
         String[] params = new String[]{"insert", "users", "password", "123"};
-        Mockito.when(model.insert(params, connection)).thenReturn(expected);
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());

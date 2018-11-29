@@ -3,12 +3,15 @@ package ua.com.juja.controller.command.workWithModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
@@ -42,8 +45,6 @@ public class ClearTest {
     @Test
     public void testDoWork() {
         String[] commandForWork = new String[]{"clear", "users"};
-        Mockito.verify(model).clear(commandForWork, null);
-
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());
@@ -60,4 +61,6 @@ public class ClearTest {
         assertEquals("Недостаточно данных для запуска команды. Укажите имя таблицы, " +
                 "которое собираетесь очистить", captor.getValue());
     }
+
+
 }

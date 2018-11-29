@@ -19,7 +19,7 @@ public interface ModelInterface {
     void delete(String[] params, Connection connection) throws UnknowTableException,
             UnknowColumnNameException, NullableAnswerException, NullPointerException, SQLException;
 
-    void clear(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
+    void clear(String[] params, Connection connection) throws UnknowTableException, NullPointerException, SQLException;
 
     void drop(String[] params, Connection connection) throws UnknowTableException, NullPointerException, SQLException;
 

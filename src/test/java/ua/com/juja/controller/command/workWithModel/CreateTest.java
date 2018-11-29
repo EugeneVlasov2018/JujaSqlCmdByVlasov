@@ -1,6 +1,7 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -41,7 +42,6 @@ public class CreateTest {
     public void testDoWork() {
         String expected = "Таблица 'users' успешно создана\n";
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        Mockito.when(model.create(params, connectionToDB)).thenReturn(expected);
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());

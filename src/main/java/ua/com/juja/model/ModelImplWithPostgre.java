@@ -62,12 +62,16 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public void clear(String[] params, Connection connectionToDatabase)
-            throws UnknowTableException, NullPointerException {
+            throws UnknowTableException, NullPointerException, SQLException {
         String sqlRequest = "DELETE FROM " + params[1];
         try {
             workWithDbWithoutAnswer(connectionToDatabase, sqlRequest);
         } catch (SQLException sqlExc) {
-            throw new UnknowTableException();
+            if (sqlExc.getSQLState().equals("42P01")) {
+                throw new UnknowTableException();
+            } else {
+                throw new SQLException(sqlExc.getMessage());
+            }
         }
     }
 

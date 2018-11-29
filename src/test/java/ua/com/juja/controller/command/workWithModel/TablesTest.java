@@ -1,6 +1,7 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -41,7 +42,6 @@ public class TablesTest {
     @Test
     public void testDoWork() {
         String expected = "[users]";
-        Mockito.when(model.tables(connectionToDB)).thenReturn(expected);
         tables.doWork(new String[]{"tables"}, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());
