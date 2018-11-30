@@ -42,10 +42,10 @@ public class Update extends CommandWithTableInResponce implements Command {
                 List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command, connection));
                 List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command, connection));
                 model.update(command, connection);
-                answer = createTable(columnName, columnValue);
+                answer = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch (UnknowTableException a) {
                 answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
-                        "Таблицы %s не существует. Переформулируйте запрос", command[1]);
+                        "Таблицы '%s' не существует. Переформулируйте запрос", command[1]);
             } catch (UnknowColumnNameException b) {
                 answer = "Ошибка в работе с базой данных. Причина:\n" +
                         "Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +

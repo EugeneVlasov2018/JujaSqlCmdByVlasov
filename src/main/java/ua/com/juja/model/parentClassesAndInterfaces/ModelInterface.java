@@ -50,7 +50,7 @@ public interface ModelInterface {
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 
-    public ArrayList<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
+    ArrayList<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 

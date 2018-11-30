@@ -34,14 +34,16 @@ public class Delete extends CommandWithTableInResponce implements Command {
                     "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
 
         } else {
+            List<String> columnName = new ArrayList();
+            List<String> columnValue = new ArrayList<>();
             try {
-                List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command, connection));
-                List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command, connection));
+                columnValue = model.getColumnValuesForUpdateOrDelete(command, connection);
+                columnName = model.getColumnNameForUpdateOrDelete(command, connection);
                 model.delete(command, connection);
-                answer = createTable(columnName, columnValue);
+                answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch(UnknowTableException a){
                 answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
-                        "Таблицы %s не существует. Переформулируйте запрос", command[1]);
+                        "Таблицы '%s' не существует. Переформулируйте запрос", command[1]);
             } catch (UnknowColumnNameException b) {
                 answer = "Ошибка в работе с базой данных. Причина:\n" +
                         "Среди параметров, которые нужно удалить, введено несуществующее имя колонки.\n" +

@@ -276,7 +276,6 @@ public class ModelImplWithPostgre implements ModelInterface {
                 for (int index = 1; index <= columnCount; index++)
                     responceWithColumnValues.add(resultSet.getString(index));
             }
-
         } catch (SQLException a) {
             if (a.getSQLState().equals("42P01")) {
                 throw new UnknowTableException();

@@ -33,9 +33,11 @@ public class Find extends CommandWithTableInResponce implements Command {
             answer = "Недостаточно данных для запуска команды." +
                     "Укажите имя таблицы, которую собираетесь вывести на екран";
         } else {
+            List<String> columnName = new ArrayList();
+            List<String> columnValue = new ArrayList<>();
             try {
-                List<String> columnName = new ArrayList(model.getColumnNameForFind(command, connection));
-                List<String> columnValue = new ArrayList<>(model.getColumnValuesForFind(command, connection));
+                columnName = model.getColumnNameForFind(command, connection);
+                columnValue = model.getColumnValuesForFind(command, connection);
                 answer = createTable(columnName, columnValue);
             } catch (UnknowTableException a) {
                 answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
@@ -55,11 +57,10 @@ public class Find extends CommandWithTableInResponce implements Command {
                 answer = String.format("Непредвиденная ошибка в работе с базой данных.\n" +
                         "Причина: %s", e.getMessage());
             }
-            view.setMessage(answer);
-            view.write();
+
         }
         view.setMessage(answer);
-            view.write();
+        view.write();
     }
 
     @Override
