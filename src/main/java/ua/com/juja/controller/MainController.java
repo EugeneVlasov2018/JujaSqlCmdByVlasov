@@ -15,8 +15,8 @@ import java.util.Scanner;
 
 public class MainController {
 
+    //переменная команды, которую будем вводить в консоль
     private Command[] command;
-    //Переменная модели
     private ModelInterface model;
     private String[] commandForWork;
     private Connection connection;
@@ -69,6 +69,17 @@ public class MainController {
     }
 
     private void workWithCommand() {
+        //в принципе, можно отрефракторить на for-each или switch-case
+
+        /*for(Command someCommand: command){
+            if(someCommand.canProcess(commandForWork)){
+                someCommand.doWork(commandForWork,connection);
+                if(someCommand instanceof Connect){
+                    connection = someCommand.getConnection();
+                }
+            }
+        }*/
+
         if (command[0].canProcess(commandForWork)) {
             command[0].doWork(commandForWork, null);
             connection = command[0].getConnection();

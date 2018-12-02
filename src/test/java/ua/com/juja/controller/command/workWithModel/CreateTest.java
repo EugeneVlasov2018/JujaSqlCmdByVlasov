@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -49,10 +50,18 @@ public class CreateTest {
     }
 
     @Test
+    /* Вобщем тут у меня затык(((
+    В принципе, я предполагаю, что этот затык будет со всеми тестами пакета "workWithModel"
+    Суть проблемы, - каким образом замокать поведение model так, чтобы он не выбрасывал экзепшены???
+    То есть его нормальное поведение.
+
+    */
     public void testDoWorkWithoutParams() {
         String expected = "Недостаточно данных для запуска команды. Попробуйте еще раз";
         String[] params = new String[]{"create", "users"};
         create.doWork(params, connectionToDB);
+        /*Тут сразу требуется обработка экзепшена
+        Mockito.verify(model).create(params,connectionToDB);*/
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).setMessage(captor.capture());
         assertEquals(expected, captor.getValue());

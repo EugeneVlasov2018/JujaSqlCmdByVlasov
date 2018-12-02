@@ -201,7 +201,7 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public ArrayList<String> getColumnNameForFind(String[] command, Connection connectionToDatabase)
-            throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
+            throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         ArrayList<String> responceWithColumnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
@@ -211,7 +211,7 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public ArrayList<String> getColumnValuesForFind(String[] command, Connection connectionToDatabase)
-            throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
+            throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         ArrayList<String> responceWithColumnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
@@ -221,7 +221,7 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public ArrayList<String> getColumnNameForUpdateOrDelete(String[] command, Connection connectionToDatabase)
-            throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
+            throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
         ArrayList<String> columnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
@@ -239,7 +239,7 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public ArrayList<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
-            throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
+            throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
 
         ArrayList<String> responceWithColumnNames = new ArrayList<>();
@@ -264,7 +264,7 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public ArrayList<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
-            throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
+            throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
 
         ArrayList<String> responceWithColumnValues = new ArrayList<>();
