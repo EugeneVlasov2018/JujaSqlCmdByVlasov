@@ -13,7 +13,7 @@ public class ModelImplWithPostgre implements ModelInterface {
 
     @Override
     public void create(String[] params, Connection connectionToDatabase)
-            throws UnknowTableException, NullPointerException {
+            throws UnknowTableException, NullPointerException, SQLException {
 
         StringBuilder sqlRequest = new StringBuilder("CREATE TABLE " + params[1] + " (id SERIAL, ");
         for (int i = 2; i < params.length; i++) {
@@ -23,7 +23,11 @@ public class ModelImplWithPostgre implements ModelInterface {
         try {
             workWithDbWithoutAnswer(connectionToDatabase, sqlRequest.toString());
         } catch (SQLException e) {
-            throw new UnknowTableException();
+            if (e.getSQLState().equals("42P01")) {
+                throw new UnknowTableException();
+            } else {
+                throw new SQLException(e.getMessage());
+            }
         }
     }
 

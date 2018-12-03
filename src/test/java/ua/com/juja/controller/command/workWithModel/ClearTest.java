@@ -3,8 +3,8 @@ package ua.com.juja.controller.command.workWithModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
@@ -24,8 +24,8 @@ public class ClearTest {
 
     @Before
     public void setup() {
-        model = Mockito.mock(ModelInterface.class);
-        view = Mockito.mock(ViewInterface.class);
+        model = mock(ModelInterface.class);
+        view = mock(ViewInterface.class);
         clear = new Clear(model, view);
     }
 
@@ -42,25 +42,75 @@ public class ClearTest {
         assertFalse(canProcess);
     }
 
+    //When all work good
     @Test
     public void testDoWork() {
         String[] commandForWork = new String[]{"clear", "users"};
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(view).setMessage(captor.capture());
+        verify(view).setMessage(captor.capture());
         assertEquals("Все данные из таблицы users были удалены", captor.getValue());
 
     }
 
+    //When command is not complete
     @Test
     public void testDoWorkWithoutParameters() {
         String[] commandForWork = new String[]{"clear"};
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(view).setMessage(captor.capture());
+        verify(view).setMessage(captor.capture());
         assertEquals("Недостаточно данных для запуска команды. Укажите имя таблицы, " +
                 "которое собираетесь очистить", captor.getValue());
     }
 
+    //When .doWork() receives UnkowTableException
+    @Test
+    public void testDoWorkWithUnknowTableException() throws SQLException {
+        String[] commandForWork = new String[]{"clear", "user"};
+        try {
+            doThrow(new UnknowTableException()).when(model).clear(commandForWork, connectionToDB);
+        } catch (UnknowTableException e) {
+            //do nothing
+        }
+        clear.doWork(commandForWork, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(view).setMessage(captor.capture());
+        assertEquals("Вы пытаетесь очистить несуществующую таблицу.\n" +
+                "Вызовите команду 'tables', чтобы увидеть, какие таблицы есть в базе данных", captor.getValue());
 
+    }
+
+    //When .doWork() receives NullPointerException
+    @Test
+    public void testDoWorkWithNullPointerException() throws SQLException, UnknowTableException {
+        String[] commandForWork = new String[]{"clear", "user"};
+        try {
+            doThrow(new NullPointerException()).when(model).clear(commandForWork, connectionToDB);
+        } catch (NullPointerException e) {
+            //do nothing
+        }
+        clear.doWork(commandForWork, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(view).setMessage(captor.capture());
+        assertEquals("Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
+                "Подключитесь к базе данных командой\n" +
+                "'connect|database|username|password'", captor.getValue());
+
+    }
+
+    @Test
+    public void testDoWorkWithSQLException() throws UnknowTableException {
+        String[] commandForWork = new String[]{"clear", "user"};
+        try {
+            doThrow(new SQLException()).when(model).clear(commandForWork, connectionToDB);
+        } catch (SQLException e) {
+            //do nothing
+        }
+        clear.doWork(commandForWork, connectionToDB);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(view).setMessage(captor.capture());
+        assertEquals("Неизвестная ошибка при работе с базой данных. Причина: null", captor.getValue());
+
+    }
 }

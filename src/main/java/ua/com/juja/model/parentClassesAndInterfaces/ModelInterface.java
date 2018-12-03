@@ -23,7 +23,7 @@ public interface ModelInterface {
 
     void drop(String[] params, Connection connection) throws UnknowTableException, NullPointerException, SQLException;
 
-    void create(String[] params, Connection connection) throws UnknowTableException, NullPointerException;
+    void create(String[] params, Connection connection) throws UnknowTableException, NullPointerException, SQLException;
 
     void workWithDbWithoutAnswer(Connection connectionToDb, String sqlRequest) throws SQLException,
             NullPointerException;
