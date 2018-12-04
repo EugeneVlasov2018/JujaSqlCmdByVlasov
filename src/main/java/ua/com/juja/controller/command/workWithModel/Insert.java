@@ -49,9 +49,9 @@ public class Insert implements Command {
                         "Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
                         "Переформулируйте запрос.";
             }
+        }
             view.setMessage(answer);
             view.write();
-        }
     }
 
     @Override
