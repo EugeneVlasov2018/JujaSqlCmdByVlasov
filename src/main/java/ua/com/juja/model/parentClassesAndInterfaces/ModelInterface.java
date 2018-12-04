@@ -6,7 +6,7 @@ import ua.com.juja.model.exceptions.UnknowTableException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface ModelInterface {
 
@@ -28,29 +28,29 @@ public interface ModelInterface {
     void workWithDbWithoutAnswer(Connection connectionToDb, String sqlRequest) throws SQLException,
             NullPointerException;
 
-    ArrayList<String> tables(Connection connection) throws SQLException, NullPointerException, NullableAnswerException;
+    List<String> tables(Connection connection) throws SQLException, NullPointerException, NullableAnswerException;
 
-    ArrayList<String> getColumnNameForFind(String[] command, Connection connectionToDatabase)
+    List<String> getColumnNameForFind(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 
-    ArrayList<String> getColumnValuesForFind(String[] command, Connection connectionToDatabase)
+    List<String> getColumnValuesForFind(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 
-    ArrayList<String> getColumnNameForUpdateOrDelete(String[] command, Connection connectionToDatabase)
+    List<String> getColumnNameForUpdateOrDelete(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 
-    ArrayList<String> getColumnValuesForUpdateOrDelete(String[] command, Connection connectionToDatabase)
+    List<String> getColumnValuesForUpdateOrDelete(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 
-    ArrayList<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
+    List<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 
-    ArrayList<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
+    List<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException;
 

@@ -32,7 +32,7 @@ public class ModelImplWithPostgre implements ModelInterface {
     }
 
     @Override
-    public ArrayList<String> tables(Connection connectionToDatabase)
+    public List<String> tables(Connection connectionToDatabase)
             throws SQLException, NullPointerException, NullableAnswerException {
         ArrayList<String> tablenames = new ArrayList<String>();
 
@@ -204,45 +204,49 @@ public class ModelImplWithPostgre implements ModelInterface {
     }
 
     @Override
-    public ArrayList<String> getColumnNameForFind(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnNameForFind(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
+        List<String> responceWithColumnNames = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
-        ArrayList<String> responceWithColumnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
+        responceWithColumnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
 
         return responceWithColumnNames;
     }
 
     @Override
-    public ArrayList<String> getColumnValuesForFind(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnValuesForFind(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
+        List<String> responceWithColumnValues = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
-        ArrayList<String> responceWithColumnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
+        responceWithColumnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
 
         return responceWithColumnValues;
     }
 
     @Override
-    public ArrayList<String> getColumnNameForUpdateOrDelete(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnNameForUpdateOrDelete(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
+        List<String> columnNames = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
-        ArrayList<String> columnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
+        columnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
         return columnNames;
     }
 
     @Override
-    public ArrayList<String> getColumnValuesForUpdateOrDelete(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnValuesForUpdateOrDelete(String[] command, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullableAnswerException, NullPointerException,
             SQLException {
+        List<String> columnValues = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
-        ArrayList<String> columnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
+        columnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
         return columnValues;
     }
 
     @Override
-    public ArrayList<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
+    public List<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
 
@@ -267,7 +271,7 @@ public class ModelImplWithPostgre implements ModelInterface {
     }
 
     @Override
-    public ArrayList<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
+    public List<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
             throws UnknowTableException, UnknowColumnNameException, NullPointerException,
             SQLException {
 
