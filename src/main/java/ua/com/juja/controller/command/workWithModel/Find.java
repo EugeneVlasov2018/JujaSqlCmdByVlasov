@@ -41,7 +41,7 @@ public class Find extends CommandWithTableInResponce implements Command {
                 answer = createTable(columnName, columnValue);
             } catch (UnknowTableException a) {
                 answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
-                        "Таблицы %s не существует. Переформулируйте запрос", command[1]);
+                        "Таблицы '%s' не существует. Переформулируйте запрос", command[1]);
             } catch (UnknowColumnNameException b) {
                 answer = "Ошибка в работе с базой данных. Причина:\n" +
                         "Среди параметров, которые нужно получить, введено несуществующее имя колонки.\n" +
