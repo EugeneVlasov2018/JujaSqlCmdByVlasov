@@ -59,9 +59,9 @@ public class Delete extends CommandWithTableInResponce implements Command {
                 answer = String.format("Непредвиденная ошибка в работе с базой данных.\n" +
                         "Причина: %s", e.getMessage());
             }
+        }
             view.setMessage(answer);
             view.write();
-        }
     }
 
     @Override

@@ -3,8 +3,10 @@ package ua.com.juja.controller.command.workWithModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.exceptions.UnknowColumnNameException;
+import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
 import ua.com.juja.view.ViewInterface;
 
@@ -21,8 +23,8 @@ public class InsertTest {
     @Before
     public void setup() {
 
-        model = Mockito.mock(ModelInterface.class);
-        view = Mockito.mock(ViewInterface.class);
+        model = mock(ModelInterface.class);
+        view = mock(ViewInterface.class);
         insert = new Insert(model, view);
     }
 
@@ -44,7 +46,7 @@ public class InsertTest {
         String[] params = new String[]{"insert", "users", "password", "123"};
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(view).setMessage(captor.capture());
+        verify(view).setMessage(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -55,7 +57,7 @@ public class InsertTest {
         String[] params = new String[]{"insert"};
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(view).setMessage(captor.capture());
+        verify(view).setMessage(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -66,8 +68,57 @@ public class InsertTest {
         String[] params = new String[]{"insert", "users", "password", "123", "firstname"};
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(view).setMessage(captor.capture());
+        verify(view).setMessage(captor.capture());
         assertEquals(expected, captor.getValue());
+    }
+
+    @Test
+    public void testDoWorkWithNullPointerException() throws UnknowTableException, UnknowColumnNameException {
+        String expected = "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
+                "Подключитесь к базе данных командой\n" +
+                "connect|database|username|password";
+        String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
+        doThrow(new NullPointerException()).when(model).insert(params,connection);
+        insert.doWork(params, connection);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
+
+    }
+
+    @Test
+    public void testDoWorkWitUnknowTableException() throws UnknowColumnNameException {
+        String expected = "Ошибка в работе с базой данных. Причина:\n" +
+                "Таблицы 'users' не сущетвует. Переформулируйте запрос";
+        String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
+        try {
+            doThrow(new UnknowTableException()).when(model).insert(params,connection);
+        } catch (UnknowTableException e) {
+            //do nothing
+        }
+        insert.doWork(params, connection);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
+
+    }
+
+    @Test
+    public void testDoWorkWithUnknowColumnNameException() throws UnknowTableException {
+        String expected = "Ошибка в работе с базой данных. Причина:\n" +
+                "Среди параметров, которые нужно ввести, введено несуществующее имя колонки.\n" +
+                "Переформулируйте запрос.";
+        String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
+        try {
+            doThrow(new UnknowColumnNameException()).when(model).insert(params,connection);
+        } catch (UnknowColumnNameException e) {
+            e.printStackTrace();
+        }
+        insert.doWork(params, connection);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(view).setMessage(captor.capture());
+        assertEquals(expected, captor.getValue());
+
     }
 
 }
