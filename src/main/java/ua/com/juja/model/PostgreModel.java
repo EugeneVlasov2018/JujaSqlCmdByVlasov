@@ -192,8 +192,7 @@ public class PostgreModel implements Model {
 
     @Override
     public List<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
-            throws NullPointerException,
-            SQLException {
+            throws NullPointerException, UnknowShitException{
 
         ArrayList<String> responceWithColumnNames = new ArrayList<>();
         try (Statement statement = connectionToDatabase.createStatement();
@@ -204,13 +203,7 @@ public class PostgreModel implements Model {
                 responceWithColumnNames.add(rsmd.getColumnName(i));
 
         } catch (SQLException a) {
-            if (a.getSQLState().equals("42P01")) {
-                throw new UnknowTableException();
-            } else if (a.getSQLState().equals("42703")) {
-                throw new UnknowColumnNameException();
-            } else {
-                throw new SQLException(a.getMessage());
-            }
+            throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage()));
         }
         return responceWithColumnNames;
     }
@@ -230,13 +223,7 @@ public class PostgreModel implements Model {
                     responceWithColumnValues.add(resultSet.getString(index));
             }
         } catch (SQLException a) {
-            if (a.getSQLState().equals("42P01")) {
-                throw new UnknowTableException();
-            } else if (a.getSQLState().equals("42703")) {
-                throw new UnknowColumnNameException();
-            } else {
-                throw new UnknowShitException();
-            }
+            throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage()));
         }
         return responceWithColumnValues;
     }

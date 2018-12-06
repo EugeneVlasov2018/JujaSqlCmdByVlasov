@@ -41,7 +41,7 @@ public interface Model {
             throws NullPointerException, UnknowShitException;
 
     List<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
-            throws NullPointerException, SQLException;
+            throws NullPointerException, UnknowShitException;
 
     List<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
             throws NullPointerException, UnknowShitException;
