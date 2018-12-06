@@ -30,15 +30,11 @@ public class Create implements Command {
             try {
                 model.create(command, connection);
                 answer = String.format("Таблица '%s' успешно создана",command[1]);
-            } catch (UnknowTableException a) {
-                answer = "Таблица с таким именем уже существует. Введите команду 'tables'" +
-                        "чтобы увидеть существующие таблицы";
+            } catch (UnknowShitException a) {
+                answer = String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage());
             } catch (NullPointerException b) {
-                answer = "Вы попытались создать таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
-            } catch (UnknowShitException e) {
-                e.printStackTrace();
+                answer = "Вы попытались создать таблицу, не подключившись к БД.\n" +
+                        "Сначала подключитесь командой 'connect' или вызовите команду 'help'";
             }
         }
             view.setMessage(answer);
