@@ -4,16 +4,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.view.View;
 
 import static org.junit.Assert.*;
 
 public class HelpTest {
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup() {
-        view = Mockito.mock(ViewInterface.class);
+        view = Mockito.mock(View.class);
     }
 
     @Test

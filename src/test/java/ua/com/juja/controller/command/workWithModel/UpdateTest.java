@@ -8,8 +8,8 @@ import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.NullableAnswerException;
 import ua.com.juja.model.exceptions.UnknowColumnNameException;
 import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,15 +22,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UpdateTest {
-    private ModelInterface model;
+    private Model model;
     private Connection connectionToDB;
     private Command update;
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup() {
-        model = mock(ModelInterface.class);
-        view = mock(ViewInterface.class);
+        model = mock(Model.class);
+        view = mock(View.class);
         update = new Update(model, view);
     }
 
@@ -56,10 +56,18 @@ public class UpdateTest {
                 "|1 |John     |Dou       |123     |\n" +
                 "+--+---------+----------+--------+";
         String[] params = new String[]{"update", "users", "password", "123"};
-        when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
-                thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
-        when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
-                thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
+        try {
+            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
+                    thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
+        }
+        try {
+            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
+                    thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
+        }
 
         update.doWork(params, connectionToDB);
 
@@ -90,8 +98,8 @@ public class UpdateTest {
             when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
                     thenThrow(new SQLException());
             doThrow(new SQLException()).when(model).delete(params, connectionToDB);
-        } catch (SQLException e) {
-            //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -113,6 +121,8 @@ public class UpdateTest {
             doThrow(new UnknowTableException()).when(model).delete(params, connectionToDB);
         } catch (UnknowTableException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -135,6 +145,8 @@ public class UpdateTest {
             doThrow(new UnknowColumnNameException()).when(model).delete(params, connectionToDB);
         } catch (UnknowColumnNameException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -156,6 +168,8 @@ public class UpdateTest {
             doThrow(new NullableAnswerException()).when(model).delete(params, connectionToDB);
         } catch (NullableAnswerException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -178,6 +192,8 @@ public class UpdateTest {
             doThrow(new NullPointerException()).when(model).delete(params, connectionToDB);
         } catch (NullPointerException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);

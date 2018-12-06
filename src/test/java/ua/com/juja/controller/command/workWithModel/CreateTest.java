@@ -8,8 +8,8 @@ import static org.mockito.Mockito.*;
 import org.mockito.ArgumentCaptor;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,15 +17,15 @@ import java.sql.SQLException;
 import static org.junit.Assert.*;
 
 public class CreateTest {
-    private ModelInterface model;
+    private Model model;
     private Connection connectionToDB;
     private Command create;
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup() {
-        model = mock(ModelInterface.class);
-        view = mock(ViewInterface.class);
+        model = mock(Model.class);
+        view = mock(View.class);
         create = new Create(model, view);
     }
 
@@ -70,6 +70,8 @@ public class CreateTest {
             doThrow(new UnknowTableException()).when(model).create(params, connectionToDB);
         } catch (UnknowTableException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -87,6 +89,8 @@ public class CreateTest {
             doThrow(new NullPointerException()).when(model).create(params, connectionToDB);
         } catch (NullPointerException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -100,8 +104,8 @@ public class CreateTest {
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
         try {
             doThrow(new SQLException()).when(model).create(params, connectionToDB);
-        } catch (SQLException e) {
-            //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);

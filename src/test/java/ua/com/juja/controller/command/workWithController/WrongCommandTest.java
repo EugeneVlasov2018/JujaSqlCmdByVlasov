@@ -4,16 +4,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.view.ViewInterface;
-
-import static org.junit.Assert.*;
+import ua.com.juja.view.View;
 
 public class WrongCommandTest {
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup(){
-        view = Mockito.mock(ViewInterface.class);
+        view = Mockito.mock(View.class);
     }
 
     @Test

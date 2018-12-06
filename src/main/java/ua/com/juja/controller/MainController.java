@@ -7,25 +7,25 @@ import ua.com.juja.controller.command.workWithController.Help;
 import ua.com.juja.controller.command.workWithController.WrongCommand;
 import ua.com.juja.controller.command.workWithModel.*;
 import ua.com.juja.controller.command.exceptions.SystemExitException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 import java.util.Scanner;
 
 public class MainController {
 
-    //переменная команды, которую будем вводить в консоль
     private Command[] command;
-    private ModelInterface model;
+    private Model model;
     private String[] commandForWork;
     private Connection connection;
-    private ViewInterface view;
+    private View view;
 
 
-    public MainController(ModelInterface model, ViewInterface view) {
+    public MainController(Model model, View view) {
         this.model = model;
         this.view = view;
+
         this.command = new Command[]{new Connect(this.view), new Clear(this.model, this.view),
                 new Delete(this.model, this.view), new Drop(this.model, this.view), new Exit(this.view),
                 new Find(this.model, this.view), new Help(this.view), new Insert(this.model, this.view),
@@ -39,11 +39,7 @@ public class MainController {
                 "connect|database|username|password");
         try{
         while (true) {
-            //Запускаем метод, получающий строку (команду к выполнению)
             commandForWork = splitCommandOnArray();
-            //определяем, какая именно команда была введена.
-            //выход из цикла будет тогда, когда вызовем команду exit, которая выбросит екзепшн
-            //корректное завершение программы
             decouplingCommand();
         }
         } catch (SystemExitException e){
@@ -51,7 +47,6 @@ public class MainController {
         }
     }
 
-    //Служебный метод приема строки и разбивки на массив строк
     private String[] splitCommandOnArray() {
         Scanner scan = new Scanner(System.in);
         String inputedInfo = scan.nextLine();
@@ -63,23 +58,11 @@ public class MainController {
         return result;
     }
 
-    //Служебный метод для определения, какую соманду выполнять (в MVC - какой метод модели запускаем)
     private void decouplingCommand() throws SystemExitException{
             workWithCommand();
     }
 
     private void workWithCommand() {
-        //в принципе, можно отрефракторить на for-each или switch-case
-
-        /*for(Command someCommand: command){
-            if(someCommand.canProcess(commandForWork)){
-                someCommand.doWork(commandForWork,connection);
-                if(someCommand instanceof Connect){
-                    connection = someCommand.getConnection();
-                }
-            }
-        }*/
-
         if (command[0].canProcess(commandForWork)) {
             command[0].doWork(commandForWork, null);
             connection = command[0].getConnection();

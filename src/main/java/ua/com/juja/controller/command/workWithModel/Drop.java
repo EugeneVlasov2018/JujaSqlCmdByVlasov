@@ -2,17 +2,16 @@ package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class Drop implements Command {
-    private ModelInterface model;
-    private ViewInterface view;
+    private Model model;
+    private View view;
 
-    public Drop(ModelInterface model, ViewInterface view) {
+    public Drop(Model model, View view) {
         this.model = model;
         this.view = view;
     }
@@ -39,9 +38,8 @@ public class Drop implements Command {
                 answer = "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "'connect|database|username|password'";
-            } catch (SQLException c) {
-                answer = String.format("Неизвестная ошибка при попытке связаться с базой данных.\n" +
-                        "Причина: %s", c.getMessage());
+            } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+                e.printStackTrace();
             }
         }
         view.setMessage(answer);

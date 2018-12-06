@@ -4,12 +4,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.controller.command.exceptions.SystemExitException;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.view.View;
 
 import static org.junit.Assert.*;
 
 public class ExitTest {
-    private ViewInterface view = Mockito.mock(ViewInterface.class);
+    private View view = Mockito.mock(View.class);
 
     @Test
     public void canProcess() {

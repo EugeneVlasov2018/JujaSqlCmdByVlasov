@@ -1,6 +1,6 @@
 package ua.com.juja.view;
 
-public interface ViewInterface {
+public interface View {
 
     void write ();
 

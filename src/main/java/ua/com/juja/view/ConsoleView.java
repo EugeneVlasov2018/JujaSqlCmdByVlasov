@@ -1,11 +1,7 @@
 package ua.com.juja.view;
 
 
-
-import java.util.List;
-import java.util.Scanner;
-
-public class ViewImpl implements ViewInterface {
+public class ConsoleView implements View {
     private String message;
 
     public void setMessage(String message) {

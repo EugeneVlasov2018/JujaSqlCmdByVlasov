@@ -4,19 +4,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 
 import static org.junit.Assert.*;
 
 public class ConnectTest {
-    private ViewInterface view;
+    private View view;
     private Connection connection;
 
     @Before
     public void setup(){
-        view = Mockito.mock(ViewInterface.class);
+        view = Mockito.mock(View.class);
     }
 
     @Test

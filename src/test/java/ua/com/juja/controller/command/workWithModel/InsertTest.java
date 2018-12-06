@@ -7,24 +7,24 @@ import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.UnknowColumnNameException;
 import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 
 import static org.junit.Assert.*;
 
 public class InsertTest {
-    private ModelInterface model;
+    private Model model;
     private Connection connection;
     private Command insert;
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup() {
 
-        model = mock(ModelInterface.class);
-        view = mock(ViewInterface.class);
+        model = mock(Model.class);
+        view = mock(View.class);
         insert = new Insert(model, view);
     }
 

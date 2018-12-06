@@ -4,19 +4,18 @@ import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.NullableAnswerException;
 import ua.com.juja.model.exceptions.UnknowColumnNameException;
 import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Delete extends CommandWithTableInResponce implements Command {
-    private ModelInterface model;
-    private ViewInterface view;
+    private Model model;
+    private View view;
 
-    public Delete(ModelInterface model, ViewInterface view) {
+    public Delete(Model model, View view) {
         this.model = model;
         this.view = view;
     }
@@ -55,9 +54,8 @@ public class Delete extends CommandWithTableInResponce implements Command {
                 answer = "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password";
-            } catch (SQLException e) {
-                answer = String.format("Непредвиденная ошибка в работе с базой данных.\n" +
-                        "Причина: %s", e.getMessage());
+            } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+                e.printStackTrace();
             }
         }
             view.setMessage(answer);

@@ -1,11 +1,10 @@
 package ua.com.juja.controller;
 
-import ua.com.juja.model.ModelImplWithPostgre;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewImpl;
+import ua.com.juja.model.PostgreModel;
+import ua.com.juja.view.ConsoleView;
 
 public class Main {
-    private static final MainController mainController = new MainController(new ModelImplWithPostgre(),new ViewImpl());
+    private static final MainController mainController = new MainController(new PostgreModel(),new ConsoleView());
 
     public static void main(String[] args) {
         mainController.beginWork();

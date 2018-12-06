@@ -1,22 +1,21 @@
 package ua.com.juja.controller.command.workWithController;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Connect implements Command {
-    private ViewInterface view;
+    private View view;
     private Connection connectionToDatabase;
 
     public Connection getConnection() {
         return connectionToDatabase;
     }
 
-    public Connect(ViewInterface view) {
+    public Connect(View view) {
         this.view = view;
     }
     @Override

@@ -1,15 +1,14 @@
 package ua.com.juja.controller.command.workWithController;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 
 public class WrongCommand implements Command {
-    private ViewInterface view;
+    private View view;
 
-    public WrongCommand(ViewInterface view) {
+    public WrongCommand(View view) {
         this.view = view;
     }
 

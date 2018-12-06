@@ -7,8 +7,8 @@ import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,15 +17,15 @@ import static org.junit.Assert.*;
 
 public class ClearTest {
 
-    private ModelInterface model;
+    private Model model;
     private Connection connectionToDB;
     private Command clear;
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup() {
-        model = mock(ModelInterface.class);
-        view = mock(ViewInterface.class);
+        model = mock(Model.class);
+        view = mock(View.class);
         clear = new Clear(model, view);
     }
 
@@ -72,6 +72,8 @@ public class ClearTest {
             doThrow(new UnknowTableException()).when(model).clear(commandForWork, connectionToDB);
         } catch (UnknowTableException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -89,6 +91,8 @@ public class ClearTest {
             doThrow(new NullPointerException()).when(model).clear(commandForWork, connectionToDB);
         } catch (NullPointerException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -104,8 +108,8 @@ public class ClearTest {
         String[] commandForWork = new String[]{"clear", "user"};
         try {
             doThrow(new SQLException()).when(model).clear(commandForWork, connectionToDB);
-        } catch (SQLException e) {
-            //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);

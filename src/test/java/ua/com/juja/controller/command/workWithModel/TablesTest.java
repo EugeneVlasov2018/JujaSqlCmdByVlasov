@@ -1,14 +1,13 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.NullableAnswerException;
-import ua.com.juja.model.parentClassesAndInterfaces.ModelInterface;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -18,16 +17,16 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 public class TablesTest {
-    private ModelInterface model;
+    private Model model;
     private Command tables;
     private Connection connectionToDB;
-    private ViewInterface view;
+    private View view;
 
     @Before
     public void setup() {
 
-        model = mock(ModelInterface.class);
-        view = mock(ViewInterface.class);
+        model = mock(Model.class);
+        view = mock(View.class);
         tables = new Tables(model, view);
     }
 
@@ -49,7 +48,11 @@ public class TablesTest {
         ArrayList<String> expectedFromTables = new ArrayList<>(Arrays.asList("users"));
         String expectedOnWiew = "[users]";
 
-        doReturn(expectedFromTables).when(model).tables(connectionToDB);
+        try {
+            doReturn(expectedFromTables).when(model).tables(connectionToDB);
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
+        }
         tables.doWork(command, connectionToDB);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -64,7 +67,11 @@ public class TablesTest {
                 "Подключитесь к базе данных командой\n" +
                 "connect|database|username|password";
 
-        doThrow(new NullPointerException()).when(model).tables(connectionToDB);
+        try {
+            doThrow(new NullPointerException()).when(model).tables(connectionToDB);
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
+        }
 
         tables.doWork(command, connectionToDB);
 
@@ -80,8 +87,8 @@ public class TablesTest {
 
         try {
             doThrow(new SQLException()).when(model).tables(connectionToDB);
-        } catch (SQLException e) {
-            //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
 
         tables.doWork(command, connectionToDB);
@@ -100,6 +107,8 @@ public class TablesTest {
             doThrow(new NullableAnswerException()).when(model).tables(connectionToDB);
         } catch (NullableAnswerException e) {
             //do nothing
+        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            e.printStackTrace();
         }
 
         tables.doWork(command, connectionToDB);

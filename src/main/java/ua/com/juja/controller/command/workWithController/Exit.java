@@ -2,14 +2,14 @@ package ua.com.juja.controller.command.workWithController;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.controller.command.exceptions.SystemExitException;
-import ua.com.juja.view.ViewInterface;
+import ua.com.juja.view.View;
 
 import java.sql.Connection;
 
 public class Exit implements Command {
-    private ViewInterface view;
+    private View view;
 
-    public Exit(ViewInterface view) {
+    public Exit(View view) {
         this.view = view;
     }
 
