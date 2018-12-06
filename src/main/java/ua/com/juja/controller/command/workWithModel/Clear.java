@@ -37,7 +37,7 @@ public class Clear implements Command {
                         "Подключитесь к базе данных командой\n" +
                         "'connect|database|username|password'";
             } catch (UnknowShitException e) {
-                answer = String.format("Ошибка в работе с Базой данных. Причина: ", e.getMessage());
+                answer = e.getMessage();
             }
         }
         view.setMessage(answer);

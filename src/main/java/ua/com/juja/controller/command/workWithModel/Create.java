@@ -31,7 +31,7 @@ public class Create implements Command {
                 model.create(command, connection);
                 answer = String.format("Таблица '%s' успешно создана",command[1]);
             } catch (UnknowShitException a) {
-                answer = String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage());
+                answer = a.getMessage();
             } catch (NullPointerException b) {
                 answer = "Вы попытались создать таблицу, не подключившись к БД.\n" +
                         "Сначала подключитесь командой 'connect' или вызовите команду 'help'";

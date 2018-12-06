@@ -1,6 +1,7 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.Model;
 import ua.com.juja.view.View;
@@ -31,15 +32,12 @@ public class Drop implements Command {
             try {
                 model.drop(command, connection);
                 answer = String.format("Таблица %s успешно удалена", command[1]);
-            } catch (UnknowTableException a) {
-                answer = "Вы попытались удалить несуществующую таблицу.\n" +
-                        "Введите команду 'tables', чтобы увидеть все созданные таблицы";
+            } catch (UnknowShitException a) {
+                answer = a.getMessage();
             } catch (NullPointerException b) {
                 answer = "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "'connect|database|username|password'";
-            } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-                e.printStackTrace();
             }
         }
         view.setMessage(answer);

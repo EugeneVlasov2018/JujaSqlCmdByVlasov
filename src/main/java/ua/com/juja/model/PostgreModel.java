@@ -159,7 +159,7 @@ public class PostgreModel implements Model {
             try (Statement statement = connectionToDb.createStatement()) {
                 statement.execute(sqlRequest);
             } catch (SQLException e) {
-                throw new UnknowShitException(e.getMessage());
+                throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: ",e.getMessage()));
             }
         }
     }
