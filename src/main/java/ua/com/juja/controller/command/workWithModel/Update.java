@@ -3,6 +3,7 @@ package ua.com.juja.controller.command.workWithModel;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.NullableAnswerException;
 import ua.com.juja.model.exceptions.UnknowColumnNameException;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.Model;
 import ua.com.juja.view.View;
@@ -42,22 +43,12 @@ public class Update extends CommandWithTableInResponce implements Command {
                 List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command, connection));
                 model.update(command, connection);
                 answer = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
-            } catch (UnknowTableException a) {
-                answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
-                        "Таблицы '%s' не существует. Переформулируйте запрос", command[1]);
-            } catch (UnknowColumnNameException b) {
-                answer = "Ошибка в работе с базой данных. Причина:\n" +
-                        "Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                        "Переформулируйте запрос.";
-            } catch (NullableAnswerException c) {
-                answer = "Ошибка в работе с базой данных. Причина:\n" +
-                        "Запрошенных данных не существует";
-            } catch (NullPointerException d) {
+            } catch (NullPointerException a) {
                 answer = "Вы попытались изменить информацию в таблице, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password";
-            } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-                e.printStackTrace();
+            } catch (UnknowShitException b) {
+                answer = b.getMessage();
             }
         }
         view.setMessage(answer);

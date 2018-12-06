@@ -117,7 +117,6 @@ public class PostgreModel implements Model {
     @Override
     public void update(String[] params, Connection connectionToDatabase)
             throws NullPointerException, UnknowShitException {
-        //формирование запроса для изменения таблицы
         StringBuilder sqlRequestForWork = new StringBuilder("UPDATE ").append(params[1]).append(" SET ");
         for (int index = 4; index < params.length; index++) {
             if (index % 2 == 0)
@@ -128,12 +127,7 @@ public class PostgreModel implements Model {
         sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
         sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
 
-
-        try {
-            workWithDbWithoutAnswer(connectionToDatabase, sqlRequestForWork.toString());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        workWithDbWithoutAnswer(connectionToDatabase, sqlRequestForWork.toString());
     }
 
     @Override
@@ -141,11 +135,7 @@ public class PostgreModel implements Model {
             throws NullPointerException, UnknowShitException {
         //Готовим запрос для удаления данных, подходящих под условия
         String sqlForWork = String.format("DELETE FROM %s WHERE %s ='%s'", params[1], params[2], params[3]);
-        try {
-            workWithDbWithoutAnswer(connectionToDatabase, sqlForWork);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        workWithDbWithoutAnswer(connectionToDatabase, sqlForWork);
     }
 
     @Override
