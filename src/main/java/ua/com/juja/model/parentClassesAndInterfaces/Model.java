@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface Model {
 
-    void insert(String[] params, Connection connection) throws NullPointerException;
+    void insert(String[] params, Connection connection) throws NullPointerException, UnknowShitException;
 
     void update(String[] params, Connection connection) throws NullPointerException, UnknowShitException;
 

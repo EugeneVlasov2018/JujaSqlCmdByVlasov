@@ -75,7 +75,8 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void insert(String[] params, Connection connectionToDatabase) throws NullPointerException {
+    public void insert(String[] params, Connection connectionToDatabase) throws NullPointerException,
+            UnknowShitException {
         StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
         //вбиваем в запрос имя базы
         mainSqlRequest.append(params[1]).append(" (");
@@ -109,11 +110,8 @@ public class PostgreModel implements Model {
         }
         mainSqlRequest.append(")");
 
-        try {
-            workWithDbWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        workWithDbWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
+
     }
 
     @Override
