@@ -210,8 +210,7 @@ public class PostgreModel implements Model {
 
     @Override
     public List<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
-            throws NullPointerException,
-            UnknowShitException {
+            throws NullPointerException, UnknowShitException {
 
         ArrayList<String> responceWithColumnValues = new ArrayList<>();
         try (Statement statement = connectionToDatabase.createStatement();
