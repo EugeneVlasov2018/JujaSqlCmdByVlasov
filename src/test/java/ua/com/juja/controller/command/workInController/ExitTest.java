@@ -1,4 +1,4 @@
-package ua.com.juja.controller.command.workWithController;
+package ua.com.juja.controller.command.workInController;
 
 import org.junit.Test;
 import org.mockito.Mockito;

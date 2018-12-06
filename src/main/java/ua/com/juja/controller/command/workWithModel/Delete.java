@@ -1,10 +1,8 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.NullableAnswerException;
-import ua.com.juja.model.exceptions.UnknowColumnNameException;
-import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;
@@ -40,22 +38,12 @@ public class Delete extends CommandWithTableInResponce implements Command {
                 columnName = model.getColumnNameForUpdateOrDelete(command, connection);
                 model.delete(command, connection);
                 answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
-            } catch(UnknowTableException a){
-                answer = String.format("Ошибка в работе с базой данных. Причина:\n" +
-                        "Таблицы '%s' не существует. Переформулируйте запрос", command[1]);
-            } catch (UnknowColumnNameException b) {
-                answer = "Ошибка в работе с базой данных. Причина:\n" +
-                        "Среди параметров, которые нужно удалить, введено несуществующее имя колонки.\n" +
-                        "Переформулируйте запрос.";
-            } catch (NullableAnswerException c) {
-                answer = "Ошибка в работе с базой данных. Причина:\n" +
-                        "Запрошенных данных не существует";
-            } catch (NullPointerException d) {
+            } catch (UnknowShitException a) {
+                answer = a.getMessage();
+            } catch (NullPointerException b) {
                 answer = "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "connect|database|username|password";
-            } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-                e.printStackTrace();
             }
         }
             view.setMessage(answer);

@@ -1,12 +1,8 @@
-package ua.com.juja.model.parentClassesAndInterfaces;
+package ua.com.juja.model;
 
-import ua.com.juja.model.exceptions.NullableAnswerException;
-import ua.com.juja.model.exceptions.UnknowColumnNameException;
 import ua.com.juja.model.exceptions.UnknowShitException;
-import ua.com.juja.model.exceptions.UnknowTableException;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public interface Model {

@@ -6,8 +6,8 @@ import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.Model;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;
@@ -62,27 +62,24 @@ public class DropTest {
     }
 
     @Test
-    public void testDoWorkWithUnknowTableException() throws SQLException {
+    public void testDoWorkWithUnknowTableException() {
         String expected = "Вы попытались удалить несуществующую таблицу.\n" +
                 "Введите команду 'tables', чтобы увидеть все созданные таблицы";
         String[] commandForWork = new String[]{"clear", "user"};
         try {
-            doThrow(new UnknowTableException()).when(model).drop(commandForWork, connectionToDB);
-        } catch (UnknowTableException e) {
+            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).drop(commandForWork, connectionToDB);
+        } catch (UnknowShitException e) {
             //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
         }
         drop.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
-
+        assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 
     //When .doWork() receives NullPointerException
     @Test
-    public void testDoWorkWithNullPointerException() throws SQLException, UnknowTableException {
+    public void testDoWorkWithNullPointerException(){
         String expected = "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
                 "Подключитесь к базе данных командой\n" +
                 "'connect|database|username|password'";
@@ -91,30 +88,12 @@ public class DropTest {
             doThrow(new NullPointerException()).when(model).drop(commandForWork, connectionToDB);
         } catch (NullPointerException e) {
             //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
+        } catch (UnknowShitException a){
+            //do nothing
         }
         drop.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).setMessage(captor.capture());
         assertEquals(expected, captor.getValue());
-
-    }
-
-    @Test
-    public void testDoWorkWithSQLException() throws UnknowTableException {
-        String expected = "Неизвестная ошибка при попытке связаться с базой данных.\n" +
-                "Причина: null";
-        String[] commandForWork = new String[]{"clear", "user"};
-        try {
-            doThrow(new SQLException()).when(model).drop(commandForWork, connectionToDB);
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-        drop.doWork(commandForWork, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
-
     }
 }

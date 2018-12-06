@@ -5,10 +5,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.NullableAnswerException;
-import ua.com.juja.model.exceptions.UnknowColumnNameException;
-import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.Model;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;
@@ -47,8 +45,7 @@ public class UpdateTest {
     }
 
     @Test
-    public void testDoWork() throws SQLException, UnknowColumnNameException, NullableAnswerException,
-            UnknowTableException {
+    public void testDoWork() {
         String expected = "Были изменены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
                 "|id|firstname|secondname|password|\n" +
@@ -59,8 +56,8 @@ public class UpdateTest {
         try {
             when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
                     thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
+        } catch (UnknowShitException e) {
+            //do nothing
         }
         try {
             when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
@@ -87,99 +84,26 @@ public class UpdateTest {
     }
 
     @Test
-    public void testDoWorkWithSQLException() throws UnknowColumnNameException, NullableAnswerException,
-            UnknowTableException {
-        String expected = "Непредвиденная ошибка в работе с базой данных.\n" +
-                "Причина: null";
+    public void testDoWorkWithException() {
         String[] params = new String[]{"update", "users", "password", "123"};
         try {
             when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new SQLException());
+                    thenThrow(new UnknowShitException("ExpectedMessageFromException"));
             when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new SQLException());
-            doThrow(new SQLException()).when(model).delete(params, connectionToDB);
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-        update.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithUnknowTableException() throws SQLException, NullableAnswerException,
-            UnknowColumnNameException {
-        String[] params = new String[]{"update", "users", "password", "123"};
-        String expected = String.format("Ошибка в работе с базой данных. Причина:\n" +
-                "Таблицы '%s' не существует. Переформулируйте запрос", params[1]);
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new UnknowTableException());
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new UnknowTableException());
-            doThrow(new UnknowTableException()).when(model).delete(params, connectionToDB);
-        } catch (UnknowTableException e) {
+                    thenThrow(new UnknowShitException("ExpectedMessageFromException"));
+            doThrow(new UnknowShitException("ExpectedMessageFromException")).
+                    when(model).delete(params, connectionToDB);
+        } catch (UnknowShitException e) {
             //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 
     @Test
-    public void testDoWorkWithColumnNameException() throws SQLException, NullableAnswerException,
-            UnknowTableException {
-        String[] params = new String[]{"update", "users", "password", "123"};
-        String expected = "Ошибка в работе с базой данных. Причина:\n" +
-                "Среди параметров, которые нужно изменить, введено несуществующее имя колонки.\n" +
-                "Переформулируйте запрос.";
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new UnknowColumnNameException());
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new UnknowColumnNameException());
-            doThrow(new UnknowColumnNameException()).when(model).delete(params, connectionToDB);
-        } catch (UnknowColumnNameException e) {
-            //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-        update.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullableAnswerException() throws SQLException, UnknowColumnNameException,
-            UnknowTableException {
-        String[] params = new String[]{"update", "users", "password", "123"};
-        String expected = "Ошибка в работе с базой данных. Причина:\n" +
-                "Запрошенных данных не существует";
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new NullableAnswerException());
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new NullableAnswerException());
-            doThrow(new NullableAnswerException()).when(model).delete(params, connectionToDB);
-        } catch (NullableAnswerException e) {
-            //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-        update.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullPointerException() throws SQLException, UnknowColumnNameException,
-            UnknowTableException, NullableAnswerException {
+    public void testDoWorkWithNullPointerException() {
         String[] params = new String[]{"update", "users", "password", "123"};
         String expected = "Вы попытались изменить информацию в таблице, не подключившись к базе данных.\n" +
                 "Подключитесь к базе данных командой\n" +
@@ -190,10 +114,8 @@ public class UpdateTest {
             when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
                     thenThrow(new NullPointerException());
             doThrow(new NullPointerException()).when(model).delete(params, connectionToDB);
-        } catch (NullPointerException e) {
+        } catch (UnknowShitException e) {
             //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);

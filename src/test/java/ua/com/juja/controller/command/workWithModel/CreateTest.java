@@ -7,8 +7,8 @@ import static org.mockito.Mockito.*;
 
 import org.mockito.ArgumentCaptor;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.Model;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;
@@ -62,34 +62,29 @@ public class CreateTest {
     }
 
     @Test
-    public void testWithUnknowTableException() throws SQLException {
-        String expected = "Таблица с таким именем уже существует. Введите команду 'tables'" +
-                "чтобы увидеть существующие таблицы";
+    public void testWithUnknowTableException() {
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
         try {
-            doThrow(new UnknowTableException()).when(model).create(params, connectionToDB);
-        } catch (UnknowTableException e) {
+            doThrow(new UnknowShitException("MessageFromException")).when(model).create(params, connectionToDB);
+        } catch (UnknowShitException e) {
             //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
         }
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals("MessageFromException", captor.getValue());
     }
 
     @Test
-    public void testWithNullPointerException() throws UnknowTableException, SQLException {
-        String expected = "Вы попытались создать таблицу, не подключившись к базе данных.\n" +
-                "Подключитесь к базе данных командой\n" +
-                "connect|database|username|password";
+    public void testWithNullPointerException() {
+        String expected = "Вы попытались создать таблицу, не подключившись к БД.\n" +
+                "Сначала подключитесь командой 'connect' или вызовите команду 'help'";
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
         try {
             doThrow(new NullPointerException()).when(model).create(params, connectionToDB);
         } catch (NullPointerException e) {
             //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+        } catch (UnknowShitException e) {
             e.printStackTrace();
         }
         create.doWork(params, connectionToDB);
@@ -97,20 +92,4 @@ public class CreateTest {
         verify(view).setMessage(captor.capture());
         assertEquals(expected, captor.getValue());
     }
-
-    @Test
-    public void testWithSQLException() throws UnknowTableException {
-        String expected = "Неизвестная ошибка при работе с базой данных. Причина: null";
-        String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        try {
-            doThrow(new SQLException()).when(model).create(params, connectionToDB);
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-        create.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
-        assertEquals(expected, captor.getValue());
-    }
-
 }

@@ -1,4 +1,4 @@
-package ua.com.juja.controller.command.workWithController;
+package ua.com.juja.controller.command.workInController;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.view.View;
@@ -23,7 +23,7 @@ public class Help implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        try(BufferedReader buffReader = new BufferedReader(new FileReader("Help.txt"))){
+        try(BufferedReader buffReader = new BufferedReader(new FileReader("resourses\\Help.txt"))){
             String message;
             while ((message = buffReader.readLine())!=null) {
                 view.setMessage(message);

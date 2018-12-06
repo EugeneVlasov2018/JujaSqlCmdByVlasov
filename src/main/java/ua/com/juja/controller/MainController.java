@@ -1,13 +1,13 @@
 package ua.com.juja.controller;
 
 import ua.com.juja.controller.command.*;
-import ua.com.juja.controller.command.workWithController.Connect;
-import ua.com.juja.controller.command.workWithController.Exit;
-import ua.com.juja.controller.command.workWithController.Help;
-import ua.com.juja.controller.command.workWithController.WrongCommand;
+import ua.com.juja.controller.command.workInController.Connect;
+import ua.com.juja.controller.command.workInController.Exit;
+import ua.com.juja.controller.command.workInController.Help;
+import ua.com.juja.controller.command.workInController.WrongCommand;
 import ua.com.juja.controller.command.workWithModel.*;
 import ua.com.juja.controller.command.exceptions.SystemExitException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;

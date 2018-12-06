@@ -1,10 +1,8 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowColumnNameException;
 import ua.com.juja.model.exceptions.UnknowShitException;
-import ua.com.juja.model.exceptions.UnknowTableException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;

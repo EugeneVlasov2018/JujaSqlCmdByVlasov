@@ -1,4 +1,4 @@
-package ua.com.juja.controller.command.workWithController;
+package ua.com.juja.controller.command.workInController;
 
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.view.View;

@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.NullableAnswerException;
-import ua.com.juja.model.parentClassesAndInterfaces.Model;
+import ua.com.juja.model.Model;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;
@@ -43,15 +43,15 @@ public class TablesTest {
     }
 
     @Test
-    public void testDoWork() throws SQLException, NullableAnswerException {
+    public void testDoWork() {
         String[] command = new String[]{"tables"};
         ArrayList<String> expectedFromTables = new ArrayList<>(Arrays.asList("users"));
         String expectedOnWiew = "[users]";
 
         try {
             doReturn(expectedFromTables).when(model).tables(connectionToDB);
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
+        } catch (UnknowShitException e) {
+            //do nothing
         }
         tables.doWork(command, connectionToDB);
 
@@ -61,7 +61,7 @@ public class TablesTest {
     }
 
     @Test
-    public void testDoWorkWithNullPointerException() throws SQLException, NullableAnswerException {
+    public void testDoWorkWithNullPointerException() {
         String[] command = new String[]{"tables"};
         String expectedOnWiew = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
                 "Подключитесь к базе данных командой\n" +
@@ -69,8 +69,8 @@ public class TablesTest {
 
         try {
             doThrow(new NullPointerException()).when(model).tables(connectionToDB);
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
+        } catch (UnknowShitException e) {
+            //do nothing
         }
 
         tables.doWork(command, connectionToDB);
@@ -81,13 +81,13 @@ public class TablesTest {
     }
 
     @Test
-    public void testDoWorkWithSQLException() throws NullableAnswerException {
+    public void testDoWorkWithException(){
         String[] command = new String[]{"tables"};
         String expectedOnWiew = "Возникли проблемы в методе Tables. Обратитесь к разработчику. Код ошибки: null";
 
         try {
-            doThrow(new SQLException()).when(model).tables(connectionToDB);
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
+            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).tables(connectionToDB);
+        } catch (UnknowShitException e) {
             e.printStackTrace();
         }
 
@@ -95,26 +95,6 @@ public class TablesTest {
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).setMessage(captor.capture());
-        assertEquals(expectedOnWiew, captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullableAnswerException() throws SQLException {
-        String[] command = new String[]{"tables"};
-        String expectedOnWiew = "В базе данных нет ни одной таблицы";
-
-        try {
-            doThrow(new NullableAnswerException()).when(model).tables(connectionToDB);
-        } catch (NullableAnswerException e) {
-            //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-
-        tables.doWork(command, connectionToDB);
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
-        assertEquals(expectedOnWiew, captor.getValue());
+        assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 }
