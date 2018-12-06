@@ -45,16 +45,16 @@ public class PostgreModel implements Model {
             if (tablenames.size() > 0) {
                 return tablenames;
             } else {
-                throw new NullableAnswerException();
+                throw new UnknowShitException("В базе данных не одной таблицы");
             }
         } catch (SQLException a) {
-            throw new UnknowShitException();
+            throw new UnknowShitException(String.format("ошибка в работе с Базой данныхю причина: %s",a.getMessage()));
         } finally {
             try {
                 if (resultSet != null)
                     resultSet.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                //do nothing
             }
         }
     }

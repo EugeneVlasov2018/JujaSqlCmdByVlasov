@@ -29,14 +29,12 @@ public class Tables implements Command {
         try {
             List<String> resqponseFromDB = model.tables(connection);
             answer = resqponseFromDB.toString();
-        } catch (NullPointerException b) {
+        } catch (NullPointerException a) {
             answer = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "connect|database|username|password";
-        } catch (NullableAnswerException c){
-            answer = "В базе данных нет ни одной таблицы";
-        } catch (UnknowShitException e) {
-            answer = "обратитесь к разработчику с жалобой";
+        } catch (UnknowShitException b) {
+            answer = b.getMessage();
         }
         view.setMessage(answer);
         view.write();
