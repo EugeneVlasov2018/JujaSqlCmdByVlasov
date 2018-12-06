@@ -1,6 +1,7 @@
 package ua.com.juja.controller.command.workWithModel;
 
 import ua.com.juja.controller.command.Command;
+import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.model.exceptions.UnknowTableException;
 import ua.com.juja.model.parentClassesAndInterfaces.Model;
 import ua.com.juja.view.View;
@@ -31,15 +32,12 @@ public class Clear implements Command {
             try {
                 model.clear(command, connection);
                 answer = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
-            } catch (UnknowTableException a) {
-                answer = "Вы пытаетесь очистить несуществующую таблицу.\n" +
-                        "Вызовите команду 'tables', чтобы увидеть, какие таблицы есть в базе данных";
             } catch (NullPointerException b) {
                 answer = "Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
                         "Подключитесь к базе данных командой\n" +
                         "'connect|database|username|password'";
-            } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-                e.printStackTrace();
+            } catch (UnknowShitException e) {
+                answer = String.format("Ошибка в работе с Базой данных. Причина: ", e.getMessage());
             }
         }
         view.setMessage(answer);

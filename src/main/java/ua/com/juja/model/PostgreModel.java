@@ -63,11 +63,7 @@ public class PostgreModel implements Model {
     public void clear(String[] params, Connection connectionToDatabase)
             throws NullPointerException, UnknowShitException {
         String sqlRequest = "DELETE FROM " + params[1];
-        try {
-            workWithDbWithoutAnswer(connectionToDatabase, sqlRequest);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        workWithDbWithoutAnswer(connectionToDatabase, sqlRequest);
     }
 
     @Override
