@@ -29,7 +29,7 @@ public class ExitTest {
     public void testDoWork() {
         Command exit = new Exit(view);
         try {
-            exit.doWork(new String[]{"exit"}, null);
+            exit.doWork(new String[]{"exit"});
             fail("Expected SystemExitException");
         }
         catch (SystemExitException a){

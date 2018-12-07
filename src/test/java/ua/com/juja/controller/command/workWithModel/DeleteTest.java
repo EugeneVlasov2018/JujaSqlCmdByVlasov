@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 
 public class DeleteTest {
     private Model model;
-    private Connection connectionToDB;
     private Command delete;
     private View view;
 
@@ -52,19 +51,19 @@ public class DeleteTest {
                 "+--+---------+----------+--------+";
         String[] params = new String[]{"delete", "users", "password", "123"};
         try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
+            when(model.getColumnNameForUpdateOrDelete(params)).
                     thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
         } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
             e.printStackTrace();
         }
         try {
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
+            when(model.getColumnValuesForUpdateOrDelete(params)).
                     thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
         } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
             e.printStackTrace();
         }
 
-        delete.doWork(params, connectionToDB);
+        delete.doWork(params);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
@@ -74,7 +73,7 @@ public class DeleteTest {
     @Test
     public void testDoWorkWhitoutParameters() {
         String[] commandWhitoutParameters = new String[]{"delete"};
-        delete.doWork(commandWhitoutParameters, connectionToDB);
+        delete.doWork(commandWhitoutParameters);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды." +
@@ -85,32 +84,13 @@ public class DeleteTest {
     public void testDoWorkWithException() {
         String[] params = new String[]{"delete", "users", "password", "123"};
         try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).delete(params, connectionToDB);
+            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).delete(params);
         } catch (UnknowShitException e) {
             e.printStackTrace();
         }
-        delete.doWork(params, connectionToDB);
+        delete.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullPointerException() {
-        String[] params = new String[]{"delete", "users", "password", "123"};
-        String expected = "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
-                "Подключитесь к базе данных командой\n" +
-                "connect|database|username|password";
-        try {
-            doThrow(new NullPointerException()).when(model).delete(params, connectionToDB);
-        } catch (NullPointerException e) {
-            //do nothing
-        } catch (UnknowShitException e) {
-            e.printStackTrace();
-        }
-        delete.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
     }
 }

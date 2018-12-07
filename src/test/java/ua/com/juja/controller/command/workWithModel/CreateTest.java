@@ -18,7 +18,6 @@ import static org.junit.Assert.*;
 
 public class CreateTest {
     private Model model;
-    private Connection connectionToDB;
     private Command create;
     private View view;
 
@@ -45,7 +44,7 @@ public class CreateTest {
     public void testDoWork() {
         String expected = "Таблица 'users' успешно создана";
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        create.doWork(params, connectionToDB);
+        create.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
@@ -55,7 +54,7 @@ public class CreateTest {
     public void testDoWorkWithoutParams() {
         String expected = "Недостаточно данных для запуска команды. Попробуйте еще раз";
         String[] params = new String[]{"create", "users"};
-        create.doWork(params, connectionToDB);
+        create.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
@@ -65,31 +64,13 @@ public class CreateTest {
     public void testWithUnknowTableException() {
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
         try {
-            doThrow(new UnknowShitException("MessageFromException")).when(model).create(params, connectionToDB);
+            doThrow(new UnknowShitException("MessageFromException")).when(model).create(params);
         } catch (UnknowShitException e) {
             //do nothing
         }
-        create.doWork(params, connectionToDB);
+        create.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("MessageFromException", captor.getValue());
-    }
-
-    @Test
-    public void testWithNullPointerException() {
-        String expected = "Вы попытались создать таблицу, не подключившись к БД.\n" +
-                "Сначала подключитесь командой 'connect' или вызовите команду 'help'";
-        String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        try {
-            doThrow(new NullPointerException()).when(model).create(params, connectionToDB);
-        } catch (NullPointerException e) {
-            //do nothing
-        } catch (UnknowShitException e) {
-            e.printStackTrace();
-        }
-        create.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
     }
 }

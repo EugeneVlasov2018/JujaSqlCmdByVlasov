@@ -15,7 +15,6 @@ import static org.junit.Assert.*;
 
 public class InsertTest {
     private Model model;
-    private Connection connection;
     private Command insert;
     private View view;
 
@@ -43,7 +42,7 @@ public class InsertTest {
     public void testDoWork() {
         String expected = "Все данные успешно добавлены";
         String[] params = new String[]{"insert", "users", "password", "123"};
-        insert.doWork(params, connection);
+        insert.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
@@ -54,7 +53,7 @@ public class InsertTest {
         String expected = "Недостаточно данных для запуска команды." +
                 "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
         String[] params = new String[]{"insert"};
-        insert.doWork(params, connection);
+        insert.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
@@ -65,24 +64,7 @@ public class InsertTest {
         String expected = "Ошибка в формате команды." +
                 "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
         String[] params = new String[]{"insert", "users", "password", "123", "firstname"};
-        insert.doWork(params, connection);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullPointerException() {
-        String expected = "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
-                "Подключитесь к базе данных командой\n" +
-                "connect|database|username|password";
-        String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
-        try {
-            doThrow(new NullPointerException()).when(model).insert(params,connection);
-        } catch (UnknowShitException e) {
-            //doNothing
-        }
-        insert.doWork(params, connection);
+        insert.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
@@ -92,11 +74,11 @@ public class InsertTest {
     public void testDoWorkWithException() {
         String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
         try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).insert(params,connection);
+            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).insert(params);
         } catch (UnknowShitException e) {
             //do nothing
         }
-        insert.doWork(params, connection);
+        insert.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());

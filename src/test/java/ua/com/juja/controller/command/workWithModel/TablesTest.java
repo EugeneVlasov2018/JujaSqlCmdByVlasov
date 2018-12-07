@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 public class TablesTest {
     private Model model;
     private Command tables;
-    private Connection connectionToDB;
     private View view;
 
     @Before
@@ -49,31 +48,11 @@ public class TablesTest {
         String expectedOnWiew = "[users]";
 
         try {
-            doReturn(expectedFromTables).when(model).tables(connectionToDB);
+            doReturn(expectedFromTables).when(model).tables();
         } catch (UnknowShitException e) {
             //do nothing
         }
-        tables.doWork(command, connectionToDB);
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expectedOnWiew, captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullPointerException() {
-        String[] command = new String[]{"tables"};
-        String expectedOnWiew = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
-                "Подключитесь к базе данных командой\n" +
-                "connect|database|username|password";
-
-        try {
-            doThrow(new NullPointerException()).when(model).tables(connectionToDB);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-
-        tables.doWork(command, connectionToDB);
+        tables.doWork(command);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
@@ -83,16 +62,12 @@ public class TablesTest {
     @Test
     public void testDoWorkWithException(){
         String[] command = new String[]{"tables"};
-        String expectedOnWiew = "Возникли проблемы в методе Tables. Обратитесь к разработчику. Код ошибки: null";
-
         try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).tables(connectionToDB);
+            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).tables();
         } catch (UnknowShitException e) {
             e.printStackTrace();
         }
-
-        tables.doWork(command, connectionToDB);
-
+        tables.doWork(command);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());

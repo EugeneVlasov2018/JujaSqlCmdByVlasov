@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 public class FindTest {
     private Model model;
     private View view;
-    private Connection connectionToDB;
     private Command find;
 
     @Before
@@ -54,14 +53,14 @@ public class FindTest {
         String params[] = new String[]{"find", "users"};
 
         try {
-            when(model.getColumnNameForFind(params, connectionToDB)).
+            when(model.getColumnNameForFind(params)).
                     thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
-            when(model.getColumnValuesForFind(params, connectionToDB)).
+            when(model.getColumnValuesForFind(params)).
                     thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
         } catch (UnknowShitException e) {
             //do nothing
         }
-        find.doWork(params, connectionToDB);
+        find.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
@@ -70,7 +69,7 @@ public class FindTest {
     @Test
     public void testDoWorkWhitoutParameters() {
         String[] commandWhitoutParameters = new String[]{"find"};
-        find.doWork(commandWhitoutParameters, connectionToDB);
+        find.doWork(commandWhitoutParameters);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды." +
@@ -83,43 +82,18 @@ public class FindTest {
                 "Причина: null";
         String[] params = new String[]{"find", "users"};
         try {
-            when(model.getColumnNameForFind(params, connectionToDB)).
+            when(model.getColumnNameForFind(params)).
                     thenThrow(new UnknowShitException("ExpectedMessageFromException"));
-            when(model.getColumnValuesForFind(params, connectionToDB)).
+            when(model.getColumnValuesForFind(params)).
                     thenThrow(new UnknowShitException("ExpectedMessageFromException"));
             doThrow(new UnknowShitException("ExpectedMessageFromException")).
-                    when(model).delete(params, connectionToDB);
+                    when(model).delete(params);
         } catch (UnknowShitException e) {
             e.printStackTrace();
         }
-        find.doWork(params, connectionToDB);
+        find.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
     }
-
-    @Test
-    public void testDoWorkWithNullPointerException() {
-        String[] params = new String[]{"delete", "users", "password", "123"};
-        String expected = "Вы попытались получить информацию из таблицы, не подключившись к базе данных.\n" +
-                "Подключитесь к базе данных командой\n" +
-                "connect|database|username|password";
-        try {
-            when(model.getColumnNameForFind(params, connectionToDB)).
-                    thenThrow(new NullPointerException());
-            when(model.getColumnValuesForFind(params, connectionToDB)).
-                    thenThrow(new NullPointerException());
-            doThrow(new NullPointerException()).when(model).delete(params, connectionToDB);
-        } catch (NullPointerException e) {
-            //do nothing
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            //do nothing
-        }
-        find.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
-    }
-
-
 }

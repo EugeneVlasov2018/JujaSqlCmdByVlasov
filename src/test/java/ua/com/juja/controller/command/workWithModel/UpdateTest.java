@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 public class UpdateTest {
     private Model model;
-    private Connection connectionToDB;
     private Command update;
     private View view;
 
@@ -54,19 +53,19 @@ public class UpdateTest {
                 "+--+---------+----------+--------+";
         String[] params = new String[]{"update", "users", "password", "123"};
         try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
+            when(model.getColumnNameForUpdateOrDelete(params)).
                     thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
         } catch (UnknowShitException e) {
             //do nothing
         }
         try {
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
+            when(model.getColumnValuesForUpdateOrDelete(params)).
                     thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
         } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
             e.printStackTrace();
         }
 
-        update.doWork(params, connectionToDB);
+        update.doWork(params);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
@@ -76,7 +75,7 @@ public class UpdateTest {
     @Test
     public void testDoWorkWhitoutParameters() {
         String[] commandWhitoutParameters = new String[]{"delete"};
-        update.doWork(commandWhitoutParameters, connectionToDB);
+        update.doWork(commandWhitoutParameters);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды." +
@@ -87,39 +86,18 @@ public class UpdateTest {
     public void testDoWorkWithException() {
         String[] params = new String[]{"update", "users", "password", "123"};
         try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
+            when(model.getColumnNameForUpdateOrDelete(params)).
                     thenThrow(new UnknowShitException("ExpectedMessageFromException"));
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
+            when(model.getColumnValuesForUpdateOrDelete(params)).
                     thenThrow(new UnknowShitException("ExpectedMessageFromException"));
             doThrow(new UnknowShitException("ExpectedMessageFromException")).
-                    when(model).delete(params, connectionToDB);
+                    when(model).delete(params);
         } catch (UnknowShitException e) {
             //do nothing
         }
-        update.doWork(params, connectionToDB);
+        update.doWork(params);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
-    }
-
-    @Test
-    public void testDoWorkWithNullPointerException() {
-        String[] params = new String[]{"update", "users", "password", "123"};
-        String expected = "Вы попытались изменить информацию в таблице, не подключившись к базе данных.\n" +
-                "Подключитесь к базе данных командой\n" +
-                "connect|database|username|password";
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new NullPointerException());
-            when(model.getColumnValuesForUpdateOrDelete(params, connectionToDB)).
-                    thenThrow(new NullPointerException());
-            doThrow(new NullPointerException()).when(model).delete(params, connectionToDB);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        update.doWork(params, connectionToDB);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
     }
 }

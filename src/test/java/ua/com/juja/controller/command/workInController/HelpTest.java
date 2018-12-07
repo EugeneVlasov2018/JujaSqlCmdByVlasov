@@ -33,7 +33,7 @@ public class HelpTest {
     @Test
     public void testDoWork(){
         Command help = new Help(view);
-        help.doWork(new String[]{"help"},null);
+        help.doWork(new String[]{"help"});
         Mockito.verify(view).write("");
     }
 
