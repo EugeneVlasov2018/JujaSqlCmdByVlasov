@@ -1,7 +1,7 @@
 package ua.com.juja.controller;
 
 import ua.com.juja.controller.command.*;
-import ua.com.juja.controller.command.workInController.Connect;
+import ua.com.juja.controller.command.workWithModel.Connect;
 import ua.com.juja.controller.command.workInController.Exit;
 import ua.com.juja.controller.command.workInController.Help;
 import ua.com.juja.controller.command.workInController.WrongCommand;
@@ -10,28 +10,23 @@ import ua.com.juja.controller.command.exceptions.SystemExitException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class MainController {
 
     private Command[] command;
-    private Model model;
     private String[] commandForWork;
-    private Connection connection;
     private View view;
 
 
     public MainController(Model model, View view) {
-        this.model = model;
         this.view = view;
 
-        this.command = new Command[]{new Connect(this.view), new Clear(this.model, this.view),
-                new Delete(this.model, this.view), new Drop(this.model, this.view), new Exit(this.view),
-                new Find(this.model, this.view), new Help(this.view), new Insert(this.model, this.view),
-                new Tables(this.model, this.view), new Update(this.model, this.view), new Create(this.model, this.view),
-                new WrongCommand(this.view)};
+        this.command = new Command[]{new Connect(view, model), new Clear(model, view),
+                new Delete(model, view), new Drop(model, view), new Exit(view),
+                new Find(model, view), new Help(view), new Insert(model, view),
+                new Tables(model, view), new Update(model, view), new Create(model, view),
+                new WrongCommand(view)};
     }
 
     public void beginWork() {
@@ -44,11 +39,7 @@ public class MainController {
             decouplingCommand();
         }
         } catch (SystemExitException e){
-            try {
-                connection.close();
-            } catch (SQLException e1) {
                 //do nothing
-            }
         }
     }
 
@@ -68,32 +59,31 @@ public class MainController {
 
     private void workWithCommand() {
         if (command[0].canProcess(commandForWork)) {
-            command[0].doWork(commandForWork, null);
-            connection = command[0].getConnection();
+            command[0].doWork(commandForWork);
         } else if (command[1].canProcess(commandForWork)) {
-            command[1].doWork(commandForWork, connection);
+            command[1].doWork(commandForWork);
         } else if (command[2].canProcess(commandForWork)) {
-            command[2].doWork(commandForWork, connection);
+            command[2].doWork(commandForWork);
         } else if (command[3].canProcess(commandForWork)) {
-            command[3].doWork(commandForWork, connection);
+            command[3].doWork(commandForWork);
         } else if (command[4].canProcess(commandForWork)) {
-            command[4].doWork(null, null);
+            command[4].doWork(null);
         } else if (command[5].canProcess(commandForWork)) {
-            command[5].doWork(commandForWork, connection);
+            command[5].doWork(commandForWork);
         } else if (command[6].canProcess(commandForWork)) {
-            command[6].doWork(null, null);
+            command[6].doWork(null);
         } else if (command[7].canProcess(commandForWork)) {
-            command[7].doWork(commandForWork, connection);
+            command[7].doWork(commandForWork);
         } else if (command[8].canProcess(commandForWork)) {
-            command[8].doWork(null, connection);
+            command[8].doWork(null);
         } else if (command[9].canProcess(commandForWork)) {
-            command[9].doWork(commandForWork, connection);
+            command[9].doWork(commandForWork);
         } else if (command[10].canProcess(commandForWork)) {
-            command[10].doWork(commandForWork, connection);
+            command[10].doWork(commandForWork);
         } else if (command[11].canProcess(commandForWork)) {
-            command[11].doWork(commandForWork, connection);
+            command[11].doWork(commandForWork);
         } else {
-            command[12].doWork(null, null);
+            command[12].doWork(null);
         }
     }
 }

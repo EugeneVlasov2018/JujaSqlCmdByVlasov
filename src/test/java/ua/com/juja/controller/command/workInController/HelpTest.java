@@ -34,7 +34,7 @@ public class HelpTest {
     public void testDoWork(){
         Command help = new Help(view);
         help.doWork(new String[]{"help"},null);
-        Mockito.verify(view).setMessage("");
+        Mockito.verify(view).write("");
     }
 
 }

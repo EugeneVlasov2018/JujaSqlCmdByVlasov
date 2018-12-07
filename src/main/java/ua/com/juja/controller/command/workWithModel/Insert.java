@@ -22,7 +22,7 @@ public class Insert implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if (command.length < 4 || command.length % 2 != 0) {
             if (command.length < 4) {
@@ -34,7 +34,7 @@ public class Insert implements Command {
             }
         } else {
             try {
-                model.insert(command, connection);
+                model.insert(command);
                 answer = "Все данные успешно добавлены";
             } catch (NullPointerException a) {
                 answer = "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
@@ -45,11 +45,6 @@ public class Insert implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }
 

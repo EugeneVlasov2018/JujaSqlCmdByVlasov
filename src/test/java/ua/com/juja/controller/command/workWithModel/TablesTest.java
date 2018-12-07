@@ -56,7 +56,7 @@ public class TablesTest {
         tables.doWork(command, connectionToDB);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expectedOnWiew, captor.getValue());
     }
 
@@ -76,7 +76,7 @@ public class TablesTest {
         tables.doWork(command, connectionToDB);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expectedOnWiew, captor.getValue());
     }
 
@@ -94,7 +94,7 @@ public class TablesTest {
         tables.doWork(command, connectionToDB);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 }

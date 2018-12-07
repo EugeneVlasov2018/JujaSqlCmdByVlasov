@@ -24,7 +24,7 @@ public class Find extends CommandWithTableInResponce implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if (command.length < 2) {
             answer = "Недостаточно данных для запуска команды." +
@@ -33,8 +33,8 @@ public class Find extends CommandWithTableInResponce implements Command {
             List<String> columnName = new ArrayList();
             List<String> columnValue = new ArrayList<>();
             try {
-                columnName = model.getColumnNameForFind(command, connection);
-                columnValue = model.getColumnValuesForFind(command, connection);
+                columnName = model.getColumnNameForFind(command);
+                columnValue = model.getColumnValuesForFind(command);
                 answer = createTable(columnName, columnValue);
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
@@ -45,10 +45,5 @@ public class Find extends CommandWithTableInResponce implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

@@ -22,14 +22,14 @@ public class Clear implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if(command.length<2){
             answer = "Недостаточно данных для запуска команды. " +
                     "Укажите имя таблицы, которое собираетесь очистить";
         } else {
             try {
-                model.clear(command, connection);
+                model.clear(command);
                 answer = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
             } catch (NullPointerException b) {
                 answer = "Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
@@ -40,11 +40,6 @@ public class Clear implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }
 

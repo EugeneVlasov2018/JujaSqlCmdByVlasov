@@ -22,7 +22,7 @@ public class Help implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         try(BufferedReader buffReader = new BufferedReader(new FileReader("resourses\\Help.txt"))){
             String message;
             while ((message = buffReader.readLine())!=null) {
@@ -33,11 +33,6 @@ public class Help implements Command {
             view.write(String.format("Ошибка в процессе выполнения 'help'. Причина: %s", x.getMessage()));
         }
 
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }
 

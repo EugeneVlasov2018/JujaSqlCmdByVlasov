@@ -46,7 +46,7 @@ public class ClearTest {
         String[] commandForWork = new String[]{"clear", "users"};
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("Все данные из таблицы users были удалены", captor.getValue());
 
     }
@@ -56,7 +56,7 @@ public class ClearTest {
         String[] commandForWork = new String[]{"clear"};
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды. Укажите имя таблицы, " +
                 "которое собираетесь очистить", captor.getValue());
     }
@@ -71,7 +71,7 @@ public class ClearTest {
         }
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("MessageFromException", captor.getValue());
 
     }
@@ -89,7 +89,7 @@ public class ClearTest {
         }
         clear.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
                 "Подключитесь к базе данных командой\n" +
                 "'connect|database|username|password'", captor.getValue());

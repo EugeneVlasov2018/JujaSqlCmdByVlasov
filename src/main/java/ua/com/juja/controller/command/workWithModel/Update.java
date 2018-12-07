@@ -24,7 +24,7 @@ public class Update extends CommandWithTableInResponce implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if (command.length < 4 || command.length % 2 != 0) {
             if (command.length < 4) {
@@ -36,9 +36,9 @@ public class Update extends CommandWithTableInResponce implements Command {
             }
         } else {
             try {
-                List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command, connection));
-                List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command, connection));
-                model.update(command, connection);
+                List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command));
+                List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command));
+                model.update(command);
                 answer = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch (NullPointerException a) {
                 answer = "Вы попытались изменить информацию в таблице, не подключившись к базе данных.\n" +
@@ -49,10 +49,5 @@ public class Update extends CommandWithTableInResponce implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

@@ -63,7 +63,7 @@ public class FindTest {
         }
         find.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -72,7 +72,7 @@ public class FindTest {
         String[] commandWhitoutParameters = new String[]{"find"};
         find.doWork(commandWhitoutParameters, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(view).setMessage(captor.capture());
+        Mockito.verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды." +
                 "Укажите имя таблицы, которую собираетесь вывести на екран", captor.getValue());
     }
@@ -94,7 +94,7 @@ public class FindTest {
         }
         find.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 
@@ -117,7 +117,7 @@ public class FindTest {
         }
         find.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 

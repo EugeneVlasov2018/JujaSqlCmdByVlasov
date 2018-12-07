@@ -18,14 +18,9 @@ public class WrongCommand implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         view.write("Вы ввели неизвестную команду.\n" +
                 "Вызовите команду 'help'");
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }
 

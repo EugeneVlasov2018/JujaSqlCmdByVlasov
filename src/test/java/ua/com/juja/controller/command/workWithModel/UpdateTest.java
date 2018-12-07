@@ -69,7 +69,7 @@ public class UpdateTest {
         update.doWork(params, connectionToDB);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -78,7 +78,7 @@ public class UpdateTest {
         String[] commandWhitoutParameters = new String[]{"delete"};
         update.doWork(commandWhitoutParameters, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды." +
                 "Недостаточно данных для ее выполнения. Попробуйте еще раз.", captor.getValue());
     }
@@ -98,7 +98,7 @@ public class UpdateTest {
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 
@@ -119,7 +119,7 @@ public class UpdateTest {
         }
         update.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 }

@@ -21,13 +21,13 @@ public class Create implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if(command.length<3){
             answer = "Недостаточно данных для запуска команды. Попробуйте еще раз";
         } else {
             try {
-                model.create(command, connection);
+                model.create(command);
                 answer = String.format("Таблица '%s' успешно создана",command[1]);
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
@@ -37,10 +37,5 @@ public class Create implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

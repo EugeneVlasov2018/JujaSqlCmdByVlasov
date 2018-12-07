@@ -22,14 +22,14 @@ public class Drop implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if (command.length < 2) {
             answer = "Недостаточно данных для запуска команды." +
                     "Укажите имя таблицы, которое собираетесь удалить";
         } else {
             try {
-                model.drop(command, connection);
+                model.drop(command);
                 answer = String.format("Таблица %s успешно удалена", command[1]);
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
@@ -40,10 +40,5 @@ public class Drop implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

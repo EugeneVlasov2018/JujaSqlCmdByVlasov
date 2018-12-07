@@ -47,7 +47,7 @@ public class CreateTest {
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -57,7 +57,7 @@ public class CreateTest {
         String[] params = new String[]{"create", "users"};
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -71,7 +71,7 @@ public class CreateTest {
         }
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("MessageFromException", captor.getValue());
     }
 
@@ -89,7 +89,7 @@ public class CreateTest {
         }
         create.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 }

@@ -18,7 +18,7 @@ public class WrongCommandTest {
     public void testDoWork(){
         Command wrongCommand = new WrongCommand(view);
         wrongCommand.doWork(new String[]{"dsfkldjs"},null);
-        Mockito.verify(view).setMessage("Вы ввели неизвестную команду.\n" +
+        Mockito.verify(view).write("Вы ввели неизвестную команду.\n" +
                 "Вызовите команду 'help'");
     }
 

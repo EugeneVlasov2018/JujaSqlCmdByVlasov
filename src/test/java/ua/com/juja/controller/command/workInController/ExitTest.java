@@ -35,6 +35,6 @@ public class ExitTest {
         catch (SystemExitException a){
             //do nothing
         }
-        Mockito.verify(view).setMessage("Всего хорошего, до встречи снова))");
+        Mockito.verify(view).write("Всего хорошего, до встречи снова))");
     }
 }

@@ -23,10 +23,10 @@ public class Tables implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         try {
-            List<String> resqponseFromDB = model.tables(connection);
+            List<String> resqponseFromDB = model.tables();
             answer = resqponseFromDB.toString();
         } catch (NullPointerException a) {
             answer = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
@@ -36,11 +36,6 @@ public class Tables implements Command {
             answer = b.getMessage();
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }
 

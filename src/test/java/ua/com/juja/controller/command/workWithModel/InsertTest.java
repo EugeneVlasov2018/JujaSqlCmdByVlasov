@@ -45,7 +45,7 @@ public class InsertTest {
         String[] params = new String[]{"insert", "users", "password", "123"};
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -56,7 +56,7 @@ public class InsertTest {
         String[] params = new String[]{"insert"};
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -67,7 +67,7 @@ public class InsertTest {
         String[] params = new String[]{"insert", "users", "password", "123", "firstname"};
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -84,7 +84,7 @@ public class InsertTest {
         }
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -98,7 +98,7 @@ public class InsertTest {
         }
         insert.doWork(params, connection);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 }

@@ -19,13 +19,8 @@ public class Exit implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         view.write("Всего хорошего, до встречи снова))");
         throw new SystemExitException();
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

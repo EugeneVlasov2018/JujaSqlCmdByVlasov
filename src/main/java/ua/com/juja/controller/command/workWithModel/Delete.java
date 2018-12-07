@@ -24,7 +24,7 @@ public class Delete extends CommandWithTableInResponce implements Command {
     }
 
     @Override
-    public void doWork(String[] command, Connection connection) {
+    public void doWork(String[] command) {
         String answer = "";
         if (command.length < 4) {
             answer = "Недостаточно данных для запуска команды." +
@@ -34,9 +34,9 @@ public class Delete extends CommandWithTableInResponce implements Command {
             List<String> columnName = new ArrayList();
             List<String> columnValue = new ArrayList<>();
             try {
-                columnValue = model.getColumnValuesForUpdateOrDelete(command, connection);
-                columnName = model.getColumnNameForUpdateOrDelete(command, connection);
-                model.delete(command, connection);
+                columnValue = model.getColumnValuesForUpdateOrDelete(command);
+                columnName = model.getColumnNameForUpdateOrDelete(command);
+                model.delete(command);
                 answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
@@ -47,10 +47,5 @@ public class Delete extends CommandWithTableInResponce implements Command {
             }
         }
         view.write(answer);
-    }
-
-    @Override
-    public Connection getConnection() {
-        return null;
     }
 }

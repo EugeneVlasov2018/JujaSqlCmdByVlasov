@@ -7,9 +7,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostgreModel implements Model {
+    private Connection connectionToDatabase;
 
     @Override
-    public void create(String[] params, Connection connectionToDatabase)
+    public void connect(String[] responceToDb) throws UnknowShitException {
+        String url = "jdbc:postgresql://localhost:5432/" + responceToDb[1];
+        String user = responceToDb[2];
+        String password = responceToDb[3];
+        String jdbcDriver = "org.postgresql.Driver";
+        connectionToDatabase = createConnection(url, user, password, jdbcDriver);
+
+
+    }
+
+    private Connection createConnection(String url, String user, String password, String jdbcDriver)
+            throws UnknowShitException {
+
+        try {
+            Class.forName(jdbcDriver);
+            connectionToDatabase = DriverManager.getConnection(url, user, password);
+            return connectionToDatabase;
+        } catch (SQLException e) {
+            StringBuilder resultForView = new StringBuilder("Вы ввели: ");
+            if (e.getSQLState().equalsIgnoreCase("3D000")) {
+                resultForView.append("\nНеверную ссылку на базу");
+            }
+            if (e.getSQLState().equalsIgnoreCase("28P01")) {
+                resultForView.append("\nНеверное имя пользователя или пароль");
+            }
+            resultForView.append("\nПопробуйте снова:P");
+            throw new UnknowShitException(resultForView.toString());
+        } catch (ClassNotFoundException a) {
+            throw new UnknowShitException("Не найден драйвер подключения к базе\n" +
+                    "Передайте разработчику, чтобы добавил либо джарник в либы, либо депенденс в мавен");
+        }
+    }
+
+    @Override
+    public void create(String[] params)
             throws NullPointerException, UnknowShitException {
 
         StringBuilder sqlRequest = new StringBuilder("CREATE TABLE " + params[1] + " (id SERIAL, ");
@@ -17,11 +52,11 @@ public class PostgreModel implements Model {
             sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
         }
         sqlRequest = sqlRequest.append("PRIMARY KEY (id))");
-        workWithDbWithoutAnswer(connectionToDatabase, sqlRequest.toString());
+        workWithDbWithoutAnswer(sqlRequest.toString());
     }
 
     @Override
-    public List<String> tables(Connection connectionToDatabase)
+    public List<String> tables()
             throws UnknowShitException, NullPointerException{
         ArrayList<String> tablenames = new ArrayList<String>();
 
@@ -56,22 +91,22 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void clear(String[] params, Connection connectionToDatabase)
+    public void clear(String[] params)
             throws NullPointerException, UnknowShitException {
         String sqlRequest = "DELETE FROM " + params[1];
-        workWithDbWithoutAnswer(connectionToDatabase, sqlRequest);
+        workWithDbWithoutAnswer(sqlRequest);
     }
 
     @Override
-    public void drop(String[] params, Connection connectionToDatabase)
+    public void drop(String[] params)
             throws NullPointerException, UnknowShitException {
         String sqlRequest = "DROP TABLE ".concat(params[1]);
-        workWithDbWithoutAnswer(connectionToDatabase, sqlRequest);
+        workWithDbWithoutAnswer(sqlRequest);
 
     }
 
     @Override
-    public void insert(String[] params, Connection connectionToDatabase) throws NullPointerException,
+    public void insert(String[] params) throws NullPointerException,
             UnknowShitException {
         StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
         //вбиваем в запрос имя базы
@@ -106,12 +141,12 @@ public class PostgreModel implements Model {
         }
         mainSqlRequest.append(")");
 
-        workWithDbWithoutAnswer(connectionToDatabase, mainSqlRequest.toString());
+        workWithDbWithoutAnswer(mainSqlRequest.toString());
 
     }
 
     @Override
-    public void update(String[] params, Connection connectionToDatabase)
+    public void update(String[] params)
             throws NullPointerException, UnknowShitException {
         StringBuilder sqlRequestForWork = new StringBuilder("UPDATE ").append(params[1]).append(" SET ");
         for (int index = 4; index < params.length; index++) {
@@ -123,24 +158,24 @@ public class PostgreModel implements Model {
         sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
         sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
 
-        workWithDbWithoutAnswer(connectionToDatabase, sqlRequestForWork.toString());
+        workWithDbWithoutAnswer(sqlRequestForWork.toString());
     }
 
     @Override
-    public void delete(String[] params, Connection connectionToDatabase)
+    public void delete(String[] params)
             throws NullPointerException, UnknowShitException {
         //Готовим запрос для удаления данных, подходящих под условия
         String sqlForWork = String.format("DELETE FROM %s WHERE %s ='%s'", params[1], params[2], params[3]);
-        workWithDbWithoutAnswer(connectionToDatabase, sqlForWork);
+        workWithDbWithoutAnswer(sqlForWork);
     }
 
     @Override
-    public void workWithDbWithoutAnswer(Connection connectionToDb, String sqlRequest) throws NullPointerException,
+    public void workWithDbWithoutAnswer(String sqlRequest) throws NullPointerException,
             UnknowShitException{
-        if (connectionToDb.equals(null)) {
+        if (connectionToDatabase.equals(null)) {
             throw new NullPointerException();
         } else {
-            try (Statement statement = connectionToDb.createStatement()) {
+            try (Statement statement = connectionToDatabase.createStatement()) {
                 statement.execute(sqlRequest);
             } catch (SQLException e) {
                 throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: ",e.getMessage()));
@@ -149,45 +184,45 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public List<String> getColumnNameForFind(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnNameForFind(String[] command)
             throws NullPointerException, UnknowShitException {
         List<String> responceWithColumnNames = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
-        responceWithColumnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
+        responceWithColumnNames = getColumnNamesFromDB(sqlRequest);
 
         return responceWithColumnNames;
     }
 
     @Override
-    public List<String> getColumnValuesForFind(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnValuesForFind(String[] command)
             throws NullPointerException, UnknowShitException {
         List<String> responceWithColumnValues = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
-        responceWithColumnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
+        responceWithColumnValues = getColumnValuesFromDB(sqlRequest);
 
         return responceWithColumnValues;
     }
 
     @Override
-    public List<String> getColumnNameForUpdateOrDelete(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnNameForUpdateOrDelete(String[] command)
             throws NullPointerException, UnknowShitException {
         List<String> columnNames = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
-        columnNames = getColumnNamesFromDB(sqlRequest, connectionToDatabase);
+        columnNames = getColumnNamesFromDB(sqlRequest);
         return columnNames;
     }
 
     @Override
-    public List<String> getColumnValuesForUpdateOrDelete(String[] command, Connection connectionToDatabase)
+    public List<String> getColumnValuesForUpdateOrDelete(String[] command)
             throws NullPointerException, UnknowShitException {
         List<String> columnValues = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
-        columnValues = getColumnValuesFromDB(sqlRequest, connectionToDatabase);
+        columnValues = getColumnValuesFromDB(sqlRequest);
         return columnValues;
     }
 
     @Override
-    public List<String> getColumnNamesFromDB(String responceToDB, Connection connectionToDatabase)
+    public List<String> getColumnNamesFromDB(String responceToDB)
             throws NullPointerException, UnknowShitException{
 
         ArrayList<String> responceWithColumnNames = new ArrayList<>();
@@ -205,7 +240,7 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public List<String> getColumnValuesFromDB(String responceToDB, Connection connectionToDatabase)
+    public List<String> getColumnValuesFromDB(String responceToDB)
             throws NullPointerException, UnknowShitException {
 
         ArrayList<String> responceWithColumnValues = new ArrayList<>();

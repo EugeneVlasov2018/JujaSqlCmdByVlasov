@@ -46,7 +46,7 @@ public class DropTest {
         String[] params = new String[]{"drop", "users"};
         drop.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -57,7 +57,7 @@ public class DropTest {
         String[] params = new String[]{"drop"};
         drop.doWork(params, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -73,7 +73,7 @@ public class DropTest {
         }
         drop.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals("ExpectedMessageFromException", captor.getValue());
     }
 
@@ -93,7 +93,7 @@ public class DropTest {
         }
         drop.doWork(commandForWork, connectionToDB);
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).setMessage(captor.capture());
+        verify(view).write(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 }
