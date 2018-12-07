@@ -11,6 +11,7 @@ import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class MainController {
@@ -34,7 +35,7 @@ public class MainController {
     }
 
     public void beginWork() {
-        System.out.println("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
+        view.write("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
                 "Для подключения к базе данных введи команду в формате:\n" +
                 "connect|database|username|password");
         try{
@@ -43,13 +44,16 @@ public class MainController {
             decouplingCommand();
         }
         } catch (SystemExitException e){
-            connection = null;
+            try {
+                connection.close();
+            } catch (SQLException e1) {
+                //do nothing
+            }
         }
     }
 
     private String[] splitCommandOnArray() {
-        Scanner scan = new Scanner(System.in);
-        String inputedInfo = scan.nextLine();
+        String inputedInfo = view.read();
         String[] preResult = inputedInfo.split("\\|");
         String[] result = new String[preResult.length];
         for (int index = 0; index < preResult.length; index++) {

@@ -35,8 +35,7 @@ public class Tables implements Command {
         } catch (UnknowShitException b) {
             answer = b.getMessage();
         }
-        view.setMessage(answer);
-        view.write();
+        view.write(answer);
     }
 
     @Override

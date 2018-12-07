@@ -1,18 +1,18 @@
 package ua.com.juja.view;
 
 
+import java.util.Scanner;
+
 public class ConsoleView implements View {
-    private String message;
 
-    public void setMessage(String message) {
-        this.message = message;
+    @Override
+    public String read() {
+        Scanner scan = new Scanner(System.in);
+        return scan.nextLine();
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void write() {
+    @Override
+    public void write(String message) {
         System.out.println(message);
     }
 

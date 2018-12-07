@@ -2,9 +2,7 @@ package ua.com.juja.view;
 
 public interface View {
 
-    void write ();
+    public String read();
 
-    void setMessage(String message);
-
-    String getMessage();
+    void write(String message);
 }

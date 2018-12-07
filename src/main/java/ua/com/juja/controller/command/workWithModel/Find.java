@@ -44,8 +44,7 @@ public class Find extends CommandWithTableInResponce implements Command {
                         "connect|database|username|password";
             }
         }
-        view.setMessage(answer);
-        view.write();
+        view.write(answer);
     }
 
     @Override

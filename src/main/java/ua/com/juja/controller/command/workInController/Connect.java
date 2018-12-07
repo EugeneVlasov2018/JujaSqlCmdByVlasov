@@ -26,8 +26,7 @@ public class Connect implements Command {
     @Override
     public void doWork(String[] command, Connection connection) {
         if(command.length<4){
-            view.setMessage("Недостаточно данных для запуска команды. Попробуйте еще раз");
-            view.write();
+            view.write("Недостаточно данных для запуска команды. Попробуйте еще раз");
         }
         else {
             String url = "jdbc:postgresql://localhost:5432/" + command[1];
@@ -43,8 +42,7 @@ public class Connect implements Command {
         try {
             Class.forName(jdbcDriver);
             connectionToDatabase = DriverManager.getConnection(url, user, password);
-            view.setMessage("База успешно подключена");
-            view.write();
+            view.write("База успешно подключена");
             return connectionToDatabase;
         } catch (SQLException e) {
             StringBuilder resultForView = new StringBuilder("Вы ввели: ");
@@ -56,12 +54,10 @@ public class Connect implements Command {
             else {//donothing
             }
             resultForView.append("\nПопробуйте снова:P");
-            view.setMessage(resultForView.toString());
-            view.write();
+            view.write(resultForView.toString());
         } catch (ClassNotFoundException a) {
-            view.setMessage("Не найден драйвер подключения к базе\n" +
+            view.write("Не найден драйвер подключения к базе\n" +
                     "Передайте разработчику, чтобы добавил либо джарник в либы, либо депенденс в мавен");
-            view.write();
         }
         return null;
     }

@@ -20,8 +20,7 @@ public class Exit implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        view.setMessage("Всего хорошего, до встречи снова))");
-        view.write();
+        view.write("Всего хорошего, до встречи снова))");
         throw new SystemExitException();
     }
 

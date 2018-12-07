@@ -19,9 +19,8 @@ public class WrongCommand implements Command {
 
     @Override
     public void doWork(String[] command, Connection connection) {
-        view.setMessage("Вы ввели неизвестную команду.\n" +
+        view.write("Вы ввели неизвестную команду.\n" +
                 "Вызовите команду 'help'");
-        view.write();
     }
 
     @Override

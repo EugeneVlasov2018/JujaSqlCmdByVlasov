@@ -39,8 +39,7 @@ public class Clear implements Command {
                 answer = e.getMessage();
             }
         }
-        view.setMessage(answer);
-        view.write();
+        view.write(answer);
     }
 
     @Override

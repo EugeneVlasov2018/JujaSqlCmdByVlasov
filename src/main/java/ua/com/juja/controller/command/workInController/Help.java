@@ -26,13 +26,11 @@ public class Help implements Command {
         try(BufferedReader buffReader = new BufferedReader(new FileReader("resourses\\Help.txt"))){
             String message;
             while ((message = buffReader.readLine())!=null) {
-                view.setMessage(message);
-                view.write();
+                view.write(message);
             }
 
         } catch (IOException x){
-            view.setMessage("Ошибка в процессе выполнения 'help'. Обратитесь к разработчику");
-            view.write();
+            view.write(String.format("Ошибка в процессе выполнения 'help'. Причина: %s", x.getMessage()));
         }
 
     }

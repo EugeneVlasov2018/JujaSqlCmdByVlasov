@@ -44,8 +44,7 @@ public class Insert implements Command {
                 answer = b.getMessage();
             }
         }
-            view.setMessage(answer);
-            view.write();
+        view.write(answer);
     }
 
     @Override

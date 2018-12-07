@@ -48,8 +48,7 @@ public class Update extends CommandWithTableInResponce implements Command {
                 answer = b.getMessage();
             }
         }
-        view.setMessage(answer);
-            view.write();
+        view.write(answer);
     }
 
     @Override

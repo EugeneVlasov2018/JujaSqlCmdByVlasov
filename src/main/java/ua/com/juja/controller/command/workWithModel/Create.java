@@ -36,8 +36,7 @@ public class Create implements Command {
                         "Сначала подключитесь командой 'connect' или вызовите команду 'help'";
             }
         }
-            view.setMessage(answer);
-            view.write();
+        view.write(answer);
     }
 
     @Override
