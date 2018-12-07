@@ -36,7 +36,7 @@ public class MainController {
         try{
         while (true) {
             commandForWork = splitCommandOnArray();
-            decouplingCommand();
+            workWithCommand();
         }
         } catch (SystemExitException e){
                 //do nothing
@@ -53,37 +53,10 @@ public class MainController {
         return result;
     }
 
-    private void decouplingCommand() throws SystemExitException{
-            workWithCommand();
-    }
-
     private void workWithCommand() {
-        if (command[0].canProcess(commandForWork)) {
-            command[0].doWork(commandForWork);
-        } else if (command[1].canProcess(commandForWork)) {
-            command[1].doWork(commandForWork);
-        } else if (command[2].canProcess(commandForWork)) {
-            command[2].doWork(commandForWork);
-        } else if (command[3].canProcess(commandForWork)) {
-            command[3].doWork(commandForWork);
-        } else if (command[4].canProcess(commandForWork)) {
-            command[4].doWork(null);
-        } else if (command[5].canProcess(commandForWork)) {
-            command[5].doWork(commandForWork);
-        } else if (command[6].canProcess(commandForWork)) {
-            command[6].doWork(null);
-        } else if (command[7].canProcess(commandForWork)) {
-            command[7].doWork(commandForWork);
-        } else if (command[8].canProcess(commandForWork)) {
-            command[8].doWork(null);
-        } else if (command[9].canProcess(commandForWork)) {
-            command[9].doWork(commandForWork);
-        } else if (command[10].canProcess(commandForWork)) {
-            command[10].doWork(commandForWork);
-        } else if (command[11].canProcess(commandForWork)) {
-            command[11].doWork(commandForWork);
-        } else {
-            command[12].doWork(null);
+        for (Command currentCommand : command) {
+            if (currentCommand.canProcess(commandForWork))
+                currentCommand.doWork(commandForWork);
         }
     }
 }

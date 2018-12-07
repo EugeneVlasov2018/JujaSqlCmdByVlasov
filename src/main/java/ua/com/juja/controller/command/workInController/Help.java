@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.Scanner;
 
 public class Help implements Command {
     private View view;
@@ -23,16 +24,14 @@ public class Help implements Command {
 
     @Override
     public void doWork(String[] command) {
-        try(BufferedReader buffReader = new BufferedReader(new FileReader("resourses\\Help.txt"))){
+        try (Scanner scanner = new Scanner(new FileReader("src\\main\\resourses\\Help.txt"))) {
             String message;
-            while ((message = buffReader.readLine())!=null) {
-                view.write(message);
+            while (scanner.hasNext()) {
+                view.write(scanner.nextLine());
             }
-
         } catch (IOException x){
             view.write(String.format("Ошибка в процессе выполнения 'help'. Причина: %s", x.getMessage()));
         }
-
     }
 }
 
