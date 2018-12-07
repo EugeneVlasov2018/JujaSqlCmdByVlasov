@@ -40,10 +40,6 @@ public class Delete extends CommandWithTableInResponce implements Command {
                 answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
-            } catch (NullPointerException b) {
-                answer = "Вы попытались удалить информацию из таблицы, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
             }
         }
         view.write(answer);

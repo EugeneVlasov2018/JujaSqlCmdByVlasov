@@ -28,10 +28,6 @@ public class Tables implements Command {
         try {
             List<String> resqponseFromDB = model.tables();
             answer = resqponseFromDB.toString();
-        } catch (NullPointerException a) {
-            answer = "Вы попытались получить список таблиц, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "connect|database|username|password";
         } catch (UnknowShitException b) {
             answer = b.getMessage();
         }

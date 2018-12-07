@@ -33,10 +33,6 @@ public class Drop implements Command {
                 answer = String.format("Таблица %s успешно удалена", command[1]);
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
-            } catch (NullPointerException b) {
-                answer = "Вы попытались удалить таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "'connect|database|username|password'";
             }
         }
         view.write(answer);

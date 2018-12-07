@@ -31,10 +31,6 @@ public class Clear implements Command {
             try {
                 model.clear(command);
                 answer = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
-            } catch (NullPointerException b) {
-                answer = "Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "'connect|database|username|password'";
             } catch (UnknowShitException e) {
                 answer = e.getMessage();
             }

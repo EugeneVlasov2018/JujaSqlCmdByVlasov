@@ -31,9 +31,6 @@ public class Create implements Command {
                 answer = String.format("Таблица '%s' успешно создана",command[1]);
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
-            } catch (NullPointerException b) {
-                answer = "Вы попытались создать таблицу, не подключившись к БД.\n" +
-                        "Сначала подключитесь командой 'connect' или вызовите команду 'help'";
             }
         }
         view.write(answer);

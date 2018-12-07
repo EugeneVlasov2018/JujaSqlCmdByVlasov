@@ -40,10 +40,6 @@ public class Update extends CommandWithTableInResponce implements Command {
                 List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command));
                 model.update(command);
                 answer = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
-            } catch (NullPointerException a) {
-                answer = "Вы попытались изменить информацию в таблице, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
             } catch (UnknowShitException b) {
                 answer = b.getMessage();
             }

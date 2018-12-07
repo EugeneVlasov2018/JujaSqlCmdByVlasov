@@ -38,10 +38,6 @@ public class Find extends CommandWithTableInResponce implements Command {
                 answer = createTable(columnName, columnValue);
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
-            } catch (NullPointerException b) {
-                answer = "Вы попытались получить информацию из таблицы, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
             }
         }
         view.write(answer);

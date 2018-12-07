@@ -36,10 +36,6 @@ public class Insert implements Command {
             try {
                 model.insert(command);
                 answer = "Все данные успешно добавлены";
-            } catch (NullPointerException a) {
-                answer = "Вы попытались вставить информацию в таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "connect|database|username|password";
             } catch (UnknowShitException b){
                 answer = b.getMessage();
             }
