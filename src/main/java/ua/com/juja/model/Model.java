@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface Model {
 
+    void exit() throws UnknowShitException;
+
     void insert(String[] params) throws UnknowShitException;
 
     void update(String[] params) throws UnknowShitException;

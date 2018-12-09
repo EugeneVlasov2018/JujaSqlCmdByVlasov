@@ -76,7 +76,7 @@ public class PostgreModel implements Model {
             if (tablenames.size() > 0) {
                 return tablenames;
             } else {
-                throw new UnknowShitException("В базе данных не одной таблицы");
+                throw new UnknowShitException("В базе данных нет ни одной таблицы");
             }
         } catch (SQLException a) {
             throw new UnknowShitException(String.format("ошибка в работе с Базой данныхю причина: %s",a.getMessage()));
@@ -101,6 +101,18 @@ public class PostgreModel implements Model {
         String sqlRequest = "DROP TABLE ".concat(params[1]);
         workWithDbWithoutAnswer(sqlRequest);
 
+    }
+
+    @Override
+    public void exit() throws UnknowShitException {
+        if (connectionToDatabase != null) {
+            try {
+                connectionToDatabase.close();
+            } catch (SQLException e) {
+                throw new UnknowShitException(String.format("Не удалось закрыть подключение к базе.\n" +
+                        "Причина: %s", e.getMessage()));
+            }
+        }
     }
 
     @Override
@@ -168,14 +180,14 @@ public class PostgreModel implements Model {
     public void workWithDbWithoutAnswer(String sqlRequest) throws UnknowShitException {
 
         if (connectionToDatabase == null) {
-            throw new UnknowShitException("Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
+            throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "'connect|database|username|password'");
         } else {
             try (Statement statement = connectionToDatabase.createStatement()) {
                 statement.execute(sqlRequest);
             } catch (SQLException e) {
-                throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: ",e.getMessage()));
+                throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s", e.getMessage()));
             }
         }
     }
@@ -217,9 +229,9 @@ public class PostgreModel implements Model {
     @Override
     public List<String> getColumnNamesFromDB(String responceToDB) throws UnknowShitException {
 
-        ArrayList<String> responceWithColumnNames = new ArrayList<>();
+        List<String> responceWithColumnNames = new ArrayList<>();
         if (connectionToDatabase == null) {
-            throw new UnknowShitException("Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
+            throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "'connect|database|username|password'");
         }
@@ -239,7 +251,7 @@ public class PostgreModel implements Model {
     @Override
     public List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException {
         if (connectionToDatabase == null) {
-            throw new UnknowShitException("Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
+            throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "'connect|database|username|password'");
         }

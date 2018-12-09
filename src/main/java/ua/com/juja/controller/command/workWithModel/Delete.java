@@ -34,8 +34,8 @@ public class Delete extends CommandWithTableInResponce implements Command {
             List<String> columnName = new ArrayList();
             List<String> columnValue = new ArrayList<>();
             try {
-                columnValue = model.getColumnValuesForUpdateOrDelete(command);
                 columnName = model.getColumnNameForUpdateOrDelete(command);
+                columnValue = model.getColumnValuesForUpdateOrDelete(command);
                 model.delete(command);
                 answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch (UnknowShitException a) {

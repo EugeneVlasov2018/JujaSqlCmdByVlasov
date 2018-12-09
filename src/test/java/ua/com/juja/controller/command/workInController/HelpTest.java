@@ -35,6 +35,6 @@ public class HelpTest {
     @Test
     public void testDoWork(){
         help.doWork(new String[]{"help"});
-        verify(view).write("");
+        verify(view).write("    сonnect");
     }
 }

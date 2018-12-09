@@ -35,9 +35,11 @@ public class Update extends CommandWithTableInResponce implements Command {
                         "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
             }
         } else {
+            List<String> columnName = new ArrayList<>();
+            List<String> columnValue = new ArrayList<>();
             try {
-                List<String> columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command));
-                List<String> columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command));
+                columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command));
+                columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command));
                 model.update(command);
                 answer = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
             } catch (UnknowShitException b) {
