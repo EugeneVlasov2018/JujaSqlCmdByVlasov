@@ -1,5 +1,6 @@
 package ua.com.juja.controller;
 
+import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.*;
 import ua.com.juja.controller.command.workWithModel.Connect;
 import ua.com.juja.controller.command.workWithModel.Exit;
@@ -9,8 +10,11 @@ import ua.com.juja.controller.command.workWithModel.*;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
+import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
+
 public class MainController {
 
+    private static final Logger logger = Logger.getLogger(getCurrentClassName());
     private Command[] command;
     private String[] commandForWork;
     private View view;
@@ -33,8 +37,11 @@ public class MainController {
         boolean flag = true;
         while (flag) {
             commandForWork = splitCommandOnArray();
+            logger.info("Отработал метод commandForWork(), началось распознавание конкретной комманды");
             workWithCommand();
+            logger.info("Отработал метод workWithCommand()");
             flag = whatCommandIsWork(commandForWork);
+            logger.info("Проверили состояние флага методом whatCommandIsWork");
         }
     }
 

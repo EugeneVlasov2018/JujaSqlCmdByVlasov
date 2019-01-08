@@ -1,5 +1,6 @@
 package ua.com.juja.controller.command.workWithModel;
 
+import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.model.Model;
@@ -9,7 +10,10 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
+
 public class Delete extends CommandWithTableInResponce implements Command {
+    private static final Logger logger = Logger.getLogger(getCurrentClassName());
     private Model model;
     private View view;
 

@@ -1,5 +1,6 @@
 package ua.com.juja.model;
 
+import org.apache.log4j.Logger;
 import ua.com.juja.model.exceptions.UnknowShitException;
 
 import java.sql.*;
@@ -9,6 +10,12 @@ import java.util.List;
 public class PostgreModel implements Model {
     private Connection connectionToDatabase;
 
+    private static final Logger logger = Logger.getLogger(getCurrentClassName());
+
+    private static String getCurrentClassName() {
+        return "ClassPostgreModel";
+    }
+
     @Override
     public void connect(String[] responceToDb) throws UnknowShitException {
         String url = "jdbc:postgresql://localhost:5432/" + responceToDb[1];
@@ -16,8 +23,6 @@ public class PostgreModel implements Model {
         String password = responceToDb[3];
         String jdbcDriver = "org.postgresql.Driver";
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
-
-
     }
 
     private Connection createConnection(String url, String user, String password, String jdbcDriver)
