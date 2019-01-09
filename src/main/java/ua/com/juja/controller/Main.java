@@ -12,7 +12,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        mainLogger.info("Приложение запустилось, отработывает mainController.beginWork()");
+        mainLogger.info("Приложение запустилось, отрабатывает mainController.beginWork()");
         mainController.beginWork();
+        mainLogger.info("Приложение отработало корректно и завершило свою работу");
     }
 }

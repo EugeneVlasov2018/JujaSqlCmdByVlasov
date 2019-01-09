@@ -42,7 +42,7 @@ public class Connect implements Command {
                         "процесс вернулся в MainController");
             } catch (UnknowShitException e) {
                 view.write(e.getMessage());
-                logger.error(String.format("поймано исключение из уровня модели\n" +
+                logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения:\n%s", e.getMessage()));
             }
         }

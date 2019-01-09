@@ -39,7 +39,7 @@ public class Create implements Command {
                 logger.debug("cформирована таблица в БД согласно запроса юзера");
             } catch (UnknowShitException a) {
                 answer = a.getMessage();
-                logger.error(String.format("поймано исключение из уровня модели\n" +
+                logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения:\n%s", a.getMessage()));
             }
         }

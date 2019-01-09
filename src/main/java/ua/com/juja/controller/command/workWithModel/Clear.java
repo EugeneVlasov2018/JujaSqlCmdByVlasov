@@ -41,7 +41,7 @@ public class Clear implements Command {
                 answer = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
             } catch (UnknowShitException e) {
                 answer = e.getMessage();
-                logger.error("Из модели прилетело исключение. Месседж исключения добавлен в ответ.\n" +
+                logger.warn("Из модели прилетело исключение. Месседж исключения добавлен в ответ.\n" +
                         "метод doWork() отработал, процесс вернулся в MainController");
             }
         }
