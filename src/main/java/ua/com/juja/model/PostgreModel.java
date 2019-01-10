@@ -225,7 +225,9 @@ public class PostgreModel implements Model {
     public List<String> getColumnNameForFind(String[] command) throws UnknowShitException {
         List<String> responceWithColumnNames = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
+        logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
         responceWithColumnNames = getColumnNamesFromDB(sqlRequest);
+        logger.debug(String.format("Получены имена колонок таблицы:\n%s", responceWithColumnNames.toArray().toString()));
 
         return responceWithColumnNames;
     }
@@ -234,7 +236,10 @@ public class PostgreModel implements Model {
     public List<String> getColumnValuesForFind(String[] command) throws UnknowShitException {
         List<String> responceWithColumnValues = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
+        logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
         responceWithColumnValues = getColumnValuesFromDB(sqlRequest);
+        logger.debug(String.format("Получены значения колонок таблицы:\n%s",
+                responceWithColumnValues.toArray().toString()));
 
         return responceWithColumnValues;
     }
@@ -243,7 +248,9 @@ public class PostgreModel implements Model {
     public List<String> getColumnNameForUpdateOrDelete(String[] command) throws UnknowShitException {
         List<String> columnNames = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
+        logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
         columnNames = getColumnNamesFromDB(sqlRequest);
+        logger.debug(String.format("Получены имена колонок таблицы:\n%s", columnNames.toArray().toString()));
         return columnNames;
     }
 
@@ -251,7 +258,10 @@ public class PostgreModel implements Model {
     public List<String> getColumnValuesForUpdateOrDelete(String[] command) throws UnknowShitException {
         List<String> columnValues = new ArrayList<>();
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
+        logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
         columnValues = getColumnValuesFromDB(sqlRequest);
+        logger.debug(String.format("Получены значения колонок таблицы:\n%s",
+                columnValues.toArray().toString()));
         return columnValues;
     }
 
@@ -260,18 +270,25 @@ public class PostgreModel implements Model {
 
         List<String> responceWithColumnNames = new ArrayList<>();
         if (connectionToDatabase == null) {
+            logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
+                    "Выброшен новый UnknowShitException");
             throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "'connect|database|username|password'");
         }
         try (Statement statement = connectionToDatabase.createStatement();
              ResultSet resultSet = statement.executeQuery(responceToDB)) {
+            logger.info("Были созданы новые statement и resultSet");
             ResultSetMetaData rsmd = resultSet.getMetaData();
+            logger.debug("Получена метаДата из resultSet");
             int columnCount = rsmd.getColumnCount();
             for (int i = 1; i <= columnCount; i++)
                 responceWithColumnNames.add(rsmd.getColumnName(i));
+            logger.debug(String.format("Получены имена колонок таблицы:\n%s",
+                    responceWithColumnNames.toArray().toString()));
 
         } catch (SQLException a) {
+            logger.warn(String.format("Ошибка в работе с базой данных. Причина: %s", a.getStackTrace()));
             throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage()));
         }
         return responceWithColumnNames;
@@ -280,6 +297,8 @@ public class PostgreModel implements Model {
     @Override
     public List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException {
         if (connectionToDatabase == null) {
+            logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
+                    "Выброшен новый UnknowShitException");
             throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "'connect|database|username|password'");
@@ -287,13 +306,19 @@ public class PostgreModel implements Model {
         ArrayList<String> responceWithColumnValues = new ArrayList<>();
         try (Statement statement = connectionToDatabase.createStatement();
              ResultSet resultSet = statement.executeQuery(responceToDB)) {
+            logger.info("Были созданы новые statement и resultSet");
             ResultSetMetaData rsmd = resultSet.getMetaData();
+            logger.debug("Получена метаДата из resultSet");
             int columnCount = rsmd.getColumnCount();
             while (resultSet.next()) {
                 for (int index = 1; index <= columnCount; index++)
                     responceWithColumnValues.add(resultSet.getString(index));
+                logger.debug(String.format("Получены имена колонок таблицы:\n%s",
+                        responceWithColumnValues.toArray().toString()));
             }
         } catch (SQLException a) {
+            logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
+                    "Выброшен новый UnknowShitException");
             throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage()));
         }
         return responceWithColumnValues;

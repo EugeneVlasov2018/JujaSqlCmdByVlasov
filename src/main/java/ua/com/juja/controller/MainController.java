@@ -37,11 +37,11 @@ public class MainController {
         boolean flag = true;
         while (flag) {
             commandForWork = splitCommandOnArray();
-            logger.info("Отработал метод commandForWork(), началось распознавание конкретной комманды");
+            logger.debug("Отработал метод commandForWork(), началось распознавание конкретной комманды");
             workWithCommand();
-            logger.info("Отработал метод workWithCommand()");
+            logger.debug("Отработал метод workWithCommand()");
             flag = whatCommandIsWork(commandForWork);
-            logger.info("Проверили состояние флага методом whatCommandIsWork");
+            logger.debug("Проверили состояние флага методом whatCommandIsWork");
         }
     }
 
