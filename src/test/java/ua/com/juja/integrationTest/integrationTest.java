@@ -56,8 +56,6 @@ public class integrationTest {
         in.setLine("find|users");
         //удаляем одну из записей
         in.setLine("delete|users|password|123");
-        //подтверждаем удаление
-        in.setLine("да");
         //выводим инфу на экран
         in.setLine("find|users");
         //чистим всю таблицу
@@ -541,8 +539,6 @@ public class integrationTest {
         in.setLine("delete|users|wrongColumnName|123");
         //правильное изменение данных (успех)
         in.setLine("delete|users|password|123");
-        //подтверждаем удаление
-        in.setLine("да");
         //грохаем таблицу, чтобы другие тесты норм работали
         in.setLine("drop|users");
         //выходим

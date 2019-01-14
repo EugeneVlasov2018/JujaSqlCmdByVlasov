@@ -40,7 +40,6 @@ public class ExitTest {
     public void testDoWork() {
         try {
             exit.doWork(new String[]{"exit"});
-            fail("Expected SystemExitException");
         }
         catch (SystemExitException a){
             //do nothing

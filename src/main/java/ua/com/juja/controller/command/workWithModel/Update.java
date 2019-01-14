@@ -60,7 +60,7 @@ public class Update extends CommandWithTableInResponce implements Command {
                 logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения, выведенный пользователю в консоль:\n%s", b.getMessage()));
             }
-            view.write(answer);
         }
+            view.write(answer);
     }
 }
