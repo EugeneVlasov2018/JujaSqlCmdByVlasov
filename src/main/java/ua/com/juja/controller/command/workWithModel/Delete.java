@@ -38,22 +38,25 @@ public class Delete extends CommandWithTableInResponce implements Command {
                     "метод doWork() отработал, процесс вернулся в MainController");
 
         } else {
-            List<String> columnName = new ArrayList();
-            List<String> columnValue = new ArrayList<>();
-            try {
-                columnName = model.getColumnNameForUpdateOrDelete(command);
-                logger.debug("ArrayList имен колонок таблицы заполнен");
-                columnValue = model.getColumnValuesForUpdateOrDelete(command);
-                logger.debug("ArrayList значений колонок таблицы заполнен");
-                model.delete(command);
-                logger.debug("model.delete успешно отработал");
-                answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
-            } catch (UnknowShitException a) {
-                answer = a.getMessage();
-                logger.warn(String.format("поймано исключение из уровня модели\n" +
-                        "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));
+            view.write("Вы действительно хотите удалить данные строки? Если уверены, напишите \"да\"");
+            if (view.read().equalsIgnoreCase("да")) {
+                List<String> columnName = new ArrayList();
+                List<String> columnValue = new ArrayList<>();
+                try {
+                    columnName = model.getColumnNameForUpdateOrDelete(command);
+                    logger.debug("ArrayList имен колонок таблицы заполнен");
+                    columnValue = model.getColumnValuesForUpdateOrDelete(command);
+                    logger.debug("ArrayList значений колонок таблицы заполнен");
+                    model.delete(command);
+                    logger.debug("model.delete успешно отработал");
+                    answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
+                } catch (UnknowShitException a) {
+                    answer = a.getMessage();
+                    logger.warn(String.format("поймано исключение из уровня модели\n" +
+                            "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));
+                }
+                view.write(answer);
             }
         }
-        view.write(answer);
     }
 }
