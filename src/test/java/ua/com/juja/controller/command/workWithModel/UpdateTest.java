@@ -9,8 +9,6 @@ import ua.com.juja.model.Model;
 import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.view.View;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 

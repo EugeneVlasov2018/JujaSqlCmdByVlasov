@@ -16,7 +16,6 @@ public class MainController {
 
     private static final Logger logger = Logger.getLogger(getCurrentClassName());
     private Command[] command;
-    private String[] commandForWork;
     private View view;
 
 
@@ -36,9 +35,9 @@ public class MainController {
                 "connect|database|username|password");
         boolean flag = true;
         while (flag) {
-            commandForWork = splitCommandOnArray();
+            String[] commandForWork = splitCommandOnArray();
             logger.debug("Отработал метод commandForWork(), началось распознавание конкретной комманды");
-            workWithCommand();
+            workWithCommand(commandForWork);
             logger.debug("Отработал метод workWithCommand()");
             flag = whatCommandIsWork(commandForWork);
             logger.debug("Проверили состояние флага методом whatCommandIsWork");
@@ -55,7 +54,7 @@ public class MainController {
         return result;
     }
 
-    private void workWithCommand() {
+    private void workWithCommand(String[] commandForWork) {
         for (Command currentCommand : command) {
             if (currentCommand.canProcess(commandForWork)) {
                 currentCommand.doWork(commandForWork);
