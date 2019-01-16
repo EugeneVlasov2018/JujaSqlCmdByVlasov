@@ -13,6 +13,7 @@ import ua.com.juja.model.Model;
 import ua.com.juja.view.ConsoleView;
 import ua.com.juja.view.View;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -20,6 +21,7 @@ import static org.junit.Assert.*;
 
 public class MainControllerTest {
     private ConfigurableInputStream in;
+    private Command command;
     private Model model;
     private View view;
     private MainController mainController;
@@ -28,6 +30,7 @@ public class MainControllerTest {
     public void setUp() throws Exception {
         in = new ConfigurableInputStream();
         model = mock(Model.class);
+        command = mock(Command.class);
         view = new ConsoleView();
         mainController = new MainController(model, view);
         System.setIn(in);
@@ -40,10 +43,11 @@ public class MainControllerTest {
 
     @Test
     public void beginWork() {
-        in.setLine("Stringline|forTest|howDoWork|splitCommandOnArray()");
-        String[] expected = new String[]{"Stringline", "forTest", "howDoWork", "splitCommandOnArray()"};
+        in.setLine("connect|anyDB|anyUser|anyPassword");
+        String[] parameters = new String[]{"Stringline", "forTest", "howDoWork", "splitCommandOnArray()"};
+
         mainController.beginWork();
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
 
     }
 }

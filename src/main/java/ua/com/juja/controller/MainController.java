@@ -17,6 +17,7 @@ public class MainController {
     private static final Logger logger = Logger.getLogger(getCurrentClassName());
     private Command[] command;
     private View view;
+    private String[] commandForWork;
 
 
     public MainController(Model model, View view) {
@@ -37,7 +38,7 @@ public class MainController {
         while (flag) {
             String[] commandForWork = splitCommandOnArray();
             logger.debug("Отработал метод commandForWork(), началось распознавание конкретной комманды");
-            workWithCommand(commandForWork);
+            workWithCommand();
             logger.debug("Отработал метод workWithCommand()");
             flag = whatCommandIsWork(commandForWork);
             logger.debug("Проверили состояние флага методом whatCommandIsWork");
@@ -54,7 +55,7 @@ public class MainController {
         return result;
     }
 
-    private void workWithCommand(String[] commandForWork) {
+    private void workWithCommand() {
         for (Command currentCommand : command) {
             if (currentCommand.canProcess(commandForWork)) {
                 currentCommand.doWork(commandForWork);
