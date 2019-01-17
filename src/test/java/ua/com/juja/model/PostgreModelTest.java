@@ -17,37 +17,6 @@ public class PostgreModelTest {
     private String[] responceToConnection = new String[]{"connect", "testforsql", "postgres", "root"};
     private Connection connection;
 
-    private void connectToDBTest() {
-        String url = "jdbc:postgresql://localhost:5432/testforsql";
-        String user = "postgres";
-        String password = "root";
-        String jdbcDriver = "org.postgresql.Driver";
-        try {
-            Class.forName(jdbcDriver);
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void deleteTableTest() {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE usertest");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void createTableTest() {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE usertest" +
-                    " (id SERIAL, firstname VARCHAR (225), secondname VARCHAR (225), password VARCHAR(225))");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Before
     public void setUp() {
@@ -129,7 +98,7 @@ public class PostgreModelTest {
         connectToDBTest();
         createTableTest();
         try {
-            model.connect(responceToDB);
+            model.connect(responceToConnection);
             model.drop(responceToDB);
             isThisDroped = true;
         } catch (UnknowShitException e) {
@@ -141,14 +110,56 @@ public class PostgreModelTest {
 
     @Test
     public void exit() {
+        boolean modelIsExit;
+        try {
+            model.connect(responceToConnection);
+            model.exit();
+            modelIsExit = true;
+        } catch (UnknowShitException e) {
+            modelIsExit = false;
+            e.printStackTrace();
+        }
+        assertTrue(modelIsExit);
+
     }
 
     @Test
     public void insert() {
+        String[] sqlRequest = new String[]
+                {"insert", "usertest", "firstname", "John", "secondname", "Dou", "password", "123"};
+        boolean isInserted;
+        connectToDBTest();
+        createTableTest();
+        try {
+            model.connect(responceToConnection);
+            model.insert(sqlRequest);
+            isInserted = true;
+        } catch (UnknowShitException e) {
+            isInserted = false;
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertTrue(isInserted);
     }
 
     @Test
     public void update() {
+        String[] sqlRequest = new String[]{
+                "update", "usertest", "password", "123", "firstname", "John2", "secondname", "Dou2", "password", "123456"};
+        boolean isUpdated;
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
+        try {
+            model.connect(responceToConnection);
+            model.update(sqlRequest);
+            isUpdated = true;
+        } catch (UnknowShitException e) {
+            isUpdated = false;
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertTrue(isUpdated);
     }
 
     @Test
@@ -182,4 +193,47 @@ public class PostgreModelTest {
     @Test
     public void getColumnValuesFromDB() {
     }
+
+    private void connectToDBTest() {
+        String url = "jdbc:postgresql://localhost:5432/testforsql";
+        String user = "postgres";
+        String password = "root";
+        String jdbcDriver = "org.postgresql.Driver";
+        try {
+            Class.forName(jdbcDriver);
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteTableTest() {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("DROP TABLE usertest");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createTableTest() {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE usertest" +
+                    " (id SERIAL, firstname VARCHAR (225), secondname VARCHAR (225), password VARCHAR(225))");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertDataIntoTableTest() {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute
+                    ("INSERT INTO usertest (firstname, secondname, password)," +
+                            " VALUES (John,Dou,123)");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
