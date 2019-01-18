@@ -21,7 +21,7 @@ public interface Model {
 
     void create(String[] params) throws UnknowShitException;
 
-    void workWithDbWithoutAnswer(String sqlRequest) throws UnknowShitException;
+    //void workWithDbWithoutAnswer(String sqlRequest) throws UnknowShitException;
 
     List<String> tables() throws UnknowShitException;
 
@@ -33,9 +33,9 @@ public interface Model {
 
     List<String> getColumnValuesForUpdateOrDelete(String[] command) throws UnknowShitException;
 
-    List<String> getColumnNamesFromDB(String responceToDB) throws UnknowShitException;
+    //List<String> getColumnNamesFromDB(String responceToDB) throws UnknowShitException;
 
-    List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException;
+    //List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException;
 
     void connect(String[] responceToDb) throws UnknowShitException;
 }

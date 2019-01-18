@@ -202,8 +202,8 @@ public class PostgreModel implements Model {
         logger.debug("метод workWithDbWithoutAnswer отработал корректно");
     }
 
-    @Override
-    public void workWithDbWithoutAnswer(String sqlRequest) throws UnknowShitException {
+
+    private void workWithDbWithoutAnswer(String sqlRequest) throws UnknowShitException {
 
         if (connectionToDatabase == null) {
             logger.warn("Попытка входа в базу без предварительного подключения.\nСоздан новый UnknowShitException");
@@ -265,8 +265,8 @@ public class PostgreModel implements Model {
         return columnValues;
     }
 
-    @Override
-    public List<String> getColumnNamesFromDB(String responceToDB) throws UnknowShitException {
+
+    private List<String> getColumnNamesFromDB(String responceToDB) throws UnknowShitException {
 
         List<String> responceWithColumnNames = new ArrayList<>();
         if (connectionToDatabase == null) {
@@ -294,8 +294,8 @@ public class PostgreModel implements Model {
         return responceWithColumnNames;
     }
 
-    @Override
-    public List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException {
+
+    private List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException {
         if (connectionToDatabase == null) {
             logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
                     "Выброшен новый UnknowShitException");

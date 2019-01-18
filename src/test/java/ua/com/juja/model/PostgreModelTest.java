@@ -2,13 +2,13 @@ package ua.com.juja.model;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import ua.com.juja.model.exceptions.UnknowShitException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -145,7 +145,11 @@ public class PostgreModelTest {
     @Test
     public void update() {
         String[] sqlRequest = new String[]{
-                "update", "usertest", "password", "123", "firstname", "John2", "secondname", "Dou2", "password", "123456"};
+                "update", "usertest",
+                "password", "123",
+                "firstname", "John2",
+                "secondname", "Dou2",
+                "password", "123456"};
         boolean isUpdated;
         connectToDBTest();
         createTableTest();
@@ -164,34 +168,97 @@ public class PostgreModelTest {
 
     @Test
     public void delete() {
-    }
-
-    @Test
-    public void workWithDbWithoutAnswer() {
+        boolean isDeleted;
+        String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
+        try {
+            model.connect(responceToConnection);
+            model.delete(sqlRequest);
+            isDeleted = true;
+        } catch (UnknowShitException e) {
+            isDeleted = false;
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertTrue(isDeleted);
     }
 
     @Test
     public void getColumnNameForFind() {
+        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+                "id", "firstname", "secondname", "password"));
+        ArrayList<String> actual = new ArrayList<>();
+        String[] sqlRequest = new String[]{"find", "usertest"};
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
+        try {
+            model.connect(responceToConnection);
+            actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
+        } catch (UnknowShitException e) {
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void getColumnValuesForFind() {
+        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+                "1", "John", "Dou", "123"));
+        ArrayList<String> actual = new ArrayList<>();
+        String[] sqlRequest = new String[]{"find", "usertest"};
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
+        try {
+            model.connect(responceToConnection);
+            actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
+        } catch (UnknowShitException e) {
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void getColumnNameForUpdateOrDelete() {
+        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+                "id", "firstname", "secondname", "password"));
+        ArrayList<String> actual = new ArrayList<>();
+        String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
+        try {
+            model.connect(responceToConnection);
+            actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
+        } catch (UnknowShitException e) {
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void getColumnValuesForUpdateOrDelete() {
-    }
-
-    @Test
-    public void getColumnNamesFromDB() {
-    }
-
-    @Test
-    public void getColumnValuesFromDB() {
+        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+                "1", "John", "Dou", "123"));
+        ArrayList<String> actual = new ArrayList<>();
+        String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
+        try {
+            model.connect(responceToConnection);
+            actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
+        } catch (UnknowShitException e) {
+            e.printStackTrace();
+        }
+        deleteTableTest();
+        assertEquals(expected, actual);
     }
 
     private void connectToDBTest() {
@@ -229,8 +296,8 @@ public class PostgreModelTest {
     private void insertDataIntoTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute
-                    ("INSERT INTO usertest (firstname, secondname, password)," +
-                            " VALUES (John,Dou,123)");
+                    ("INSERT INTO usertest (firstname, secondname, password)" +
+                            " VALUES ('John','Dou','123')");
         } catch (SQLException e) {
             e.printStackTrace();
         }
