@@ -66,7 +66,6 @@ public class integrationTest {
         in.setLine("drop|users");
         //выходим
         in.setLine("exit");
-        //Main.main(null);
         mainController.beginWork();
         assertEquals("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
                 "Для подключения к базе данных введи команду в формате:\n" +
@@ -324,7 +323,6 @@ public class integrationTest {
         in.setLine("exit");
         //Main.main(null);
         mainController.beginWork();
-        ;
         assertEquals("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
                 "Для подключения к базе данных введи команду в формате:\n" +
                 "connect|database|username|password\n" +
@@ -365,7 +363,6 @@ public class integrationTest {
         in.setLine("exit");
         //Main.main(null);
         mainController.beginWork();
-        ;
         assertEquals("Дорогой юзер, приветствую тебя в нашей МЕГАБАЗЕ)))\n" +
                 "Для подключения к базе данных введи команду в формате:\n" +
                 "connect|database|username|password\n" +
