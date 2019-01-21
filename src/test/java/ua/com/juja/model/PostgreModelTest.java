@@ -59,8 +59,7 @@ public class PostgreModelTest {
 
     @Test
     public void tables() {
-        connectToDBTest();
-        createTableTest();
+        prepareDataBaseWithoutData();
         String expected = "usertest";
         String actual = "";
         try {
@@ -77,8 +76,7 @@ public class PostgreModelTest {
     public void clear() {
         boolean isThisClear;
         String[] responceToDB = new String[]{"clear", "usertest"};
-        connectToDBTest();
-        createTableTest();
+        prepareDataBaseWithoutData();
         try {
             model.connect(responceToConnection);
             model.clear(responceToDB);
@@ -95,8 +93,7 @@ public class PostgreModelTest {
     public void drop() {
         boolean isThisDroped;
         String[] responceToDB = new String[]{"drop", "usertest"};
-        connectToDBTest();
-        createTableTest();
+        prepareDataBaseWithoutData();
         try {
             model.connect(responceToConnection);
             model.drop(responceToDB);
@@ -128,8 +125,7 @@ public class PostgreModelTest {
         String[] sqlRequest = new String[]
                 {"insert", "usertest", "firstname", "John", "secondname", "Dou", "password", "123"};
         boolean isInserted;
-        connectToDBTest();
-        createTableTest();
+        prepareDataBaseWithoutData();
         try {
             model.connect(responceToConnection);
             model.insert(sqlRequest);
@@ -151,9 +147,7 @@ public class PostgreModelTest {
                 "secondname", "Dou2",
                 "password", "123456"};
         boolean isUpdated;
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
+        prepareDataBaseWithData();
         try {
             model.connect(responceToConnection);
             model.update(sqlRequest);
@@ -170,9 +164,7 @@ public class PostgreModelTest {
     public void delete() {
         boolean isDeleted;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
+        prepareDataBaseWithData();
         try {
             model.connect(responceToConnection);
             model.delete(sqlRequest);
@@ -191,9 +183,7 @@ public class PostgreModelTest {
                 "id", "firstname", "secondname", "password"));
         ArrayList<String> actual = new ArrayList<>();
         String[] sqlRequest = new String[]{"find", "usertest"};
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
+        prepareDataBaseWithData();
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
@@ -210,9 +200,7 @@ public class PostgreModelTest {
                 "1", "John", "Dou", "123"));
         ArrayList<String> actual = new ArrayList<>();
         String[] sqlRequest = new String[]{"find", "usertest"};
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
+        prepareDataBaseWithData();
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
@@ -229,9 +217,7 @@ public class PostgreModelTest {
                 "id", "firstname", "secondname", "password"));
         ArrayList<String> actual = new ArrayList<>();
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
+        prepareDataBaseWithData();
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
@@ -248,9 +234,7 @@ public class PostgreModelTest {
                 "1", "John", "Dou", "123"));
         ArrayList<String> actual = new ArrayList<>();
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
+        prepareDataBaseWithData();
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
@@ -301,6 +285,17 @@ public class PostgreModelTest {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void prepareDataBaseWithoutData() {
+        connectToDBTest();
+        createTableTest();
+    }
+
+    private void prepareDataBaseWithData() {
+        connectToDBTest();
+        createTableTest();
+        insertDataIntoTableTest();
     }
 }
 
