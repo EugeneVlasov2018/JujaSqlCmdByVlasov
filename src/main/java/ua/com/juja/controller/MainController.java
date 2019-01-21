@@ -36,7 +36,7 @@ public class MainController {
                 "connect|database|username|password");
         boolean flag = true;
         while (flag) {
-            String[] commandForWork = splitCommandOnArray();
+            commandForWork = splitCommandOnArray();
             logger.debug("Отработал метод commandForWork(), началось распознавание конкретной комманды");
             workWithCommand();
             logger.debug("Отработал метод workWithCommand()");
@@ -65,9 +65,6 @@ public class MainController {
     }
 
     private boolean whatCommandIsWork(String[] commandForWork) {
-        if (commandForWork[0].equalsIgnoreCase("exit")) {
-            return false;
-        }
-        return true;
+        return !commandForWork[0].equalsIgnoreCase("exit");
     }
 }

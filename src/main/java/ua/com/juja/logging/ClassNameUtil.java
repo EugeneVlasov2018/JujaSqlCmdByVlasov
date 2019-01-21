@@ -3,7 +3,7 @@ package ua.com.juja.logging;
 import org.apache.log4j.Logger;
 
 public class ClassNameUtil {
-    /*метод-костыль для получения имени класса для логгера. Подсмотрел у Головача
+    /*метод-костыль для получения имени класса для логгера.
       суть, - бросаем экзепшен и в обработке получаем имя класса, в котором был вызван этот метод
       профит, - можем копипастить получение логгера только одной строкой
       private static final Logger logger = Logger.getLogger(getCurrentClassName());
