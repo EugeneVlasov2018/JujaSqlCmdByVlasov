@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
 import ua.com.juja.view.View;
 
 import static org.junit.Assert.*;

@@ -2,11 +2,11 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class UpdateTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWork() throws UnknowShitException {
+    public void testDoWork() throws CreatedInModelException {
         String expected = "Были изменены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
                 "|id|firstname|secondname|password|\n" +
@@ -66,13 +66,13 @@ public class UpdateTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String[] params = new String[]{"update", "users", "password", "123"};
         when(model.getColumnNameForUpdateOrDelete(params)).
-                thenThrow(new UnknowShitException("ExpectedMessageFromException"));
+                thenThrow(new CreatedInModelException("ExpectedMessageFromException"));
         when(model.getColumnValuesForUpdateOrDelete(params)).
-                thenThrow(new UnknowShitException("ExpectedMessageFromException"));
-        doThrow(new UnknowShitException("ExpectedMessageFromException")).
+                thenThrow(new CreatedInModelException("ExpectedMessageFromException"));
+        doThrow(new CreatedInModelException("ExpectedMessageFromException")).
                 when(model).delete(params);
         assertEquals("ExpectedMessageFromException", getActualValue(update, view, params));
     }

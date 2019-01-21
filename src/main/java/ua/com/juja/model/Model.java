@@ -1,35 +1,34 @@
 package ua.com.juja.model;
 
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 
-import java.sql.Connection;
 import java.util.List;
 
 public interface Model {
 
-    void exit() throws UnknowShitException;
+    void exit() throws CreatedInModelException;
 
-    void insert(String[] params) throws UnknowShitException;
+    void insert(String[] params) throws CreatedInModelException;
 
-    void update(String[] params) throws UnknowShitException;
+    void update(String[] params) throws CreatedInModelException;
 
-    void delete(String[] params) throws UnknowShitException;
+    void delete(String[] params) throws CreatedInModelException;
 
-    void clear(String[] params) throws UnknowShitException;
+    void clear(String[] params) throws CreatedInModelException;
 
-    void drop(String[] params) throws UnknowShitException;
+    void drop(String[] params) throws CreatedInModelException;
 
-    void create(String[] params) throws UnknowShitException;
+    void create(String[] params) throws CreatedInModelException;
 
-    List<String> tables() throws UnknowShitException;
+    List<String> tables() throws CreatedInModelException;
 
-    List<String> getColumnNameForFind(String[] command) throws UnknowShitException;
+    List<String> getColumnNameForFind(String[] command) throws CreatedInModelException;
 
-    List<String> getColumnValuesForFind(String[] command) throws UnknowShitException;
+    List<String> getColumnValuesForFind(String[] command) throws CreatedInModelException;
 
-    List<String> getColumnNameForUpdateOrDelete(String[] command) throws UnknowShitException;
+    List<String> getColumnNameForUpdateOrDelete(String[] command) throws CreatedInModelException;
 
-    List<String> getColumnValuesForUpdateOrDelete(String[] command) throws UnknowShitException;
+    List<String> getColumnValuesForUpdateOrDelete(String[] command) throws CreatedInModelException;
 
-    void connect(String[] responceToDb) throws UnknowShitException;
+    void connect(String[] responceToDb) throws CreatedInModelException;
 }

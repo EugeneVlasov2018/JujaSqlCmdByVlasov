@@ -2,11 +2,10 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
@@ -54,9 +53,9 @@ public class ClearTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String[] commandForWork = new String[]{"clear", "user"};
-        doThrow(new UnknowShitException("MessageFromException")).when(model).clear(commandForWork);
+        doThrow(new CreatedInModelException("MessageFromException")).when(model).clear(commandForWork);
         assertEquals("MessageFromException", getActualValue(clear, view, commandForWork));
     }
 }

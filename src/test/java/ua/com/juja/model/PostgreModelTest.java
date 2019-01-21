@@ -2,9 +2,8 @@ package ua.com.juja.model;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -22,18 +21,14 @@ public class PostgreModelTest {
     public void setUp() {
         model = new PostgreModel();
     }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
+    
     @Test
     public void connect() {
         Boolean isConnected;
         try {
             model.connect(responceToConnection);
             isConnected = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             isConnected = false;
         }
         assertTrue(isConnected);
@@ -47,7 +42,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.create(responceToDB);
             theTableIsCreated = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             e.printStackTrace();
             theTableIsCreated = false;
         }
@@ -65,7 +60,7 @@ public class PostgreModelTest {
         try {
             model.connect(responceToConnection);
             actual = model.tables().get(0);
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
         deleteTableTest();
@@ -81,7 +76,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.clear(responceToDB);
             isThisClear = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             isThisClear = false;
             e.printStackTrace();
         }
@@ -98,7 +93,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.drop(responceToDB);
             isThisDroped = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             isThisDroped = false;
             e.printStackTrace();
         }
@@ -112,7 +107,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.exit();
             modelIsExit = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             modelIsExit = false;
             e.printStackTrace();
         }
@@ -130,7 +125,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.insert(sqlRequest);
             isInserted = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             isInserted = false;
             e.printStackTrace();
         }
@@ -152,7 +147,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.update(sqlRequest);
             isUpdated = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             isUpdated = false;
             e.printStackTrace();
         }
@@ -169,7 +164,7 @@ public class PostgreModelTest {
             model.connect(responceToConnection);
             model.delete(sqlRequest);
             isDeleted = true;
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             isDeleted = false;
             e.printStackTrace();
         }
@@ -187,7 +182,7 @@ public class PostgreModelTest {
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
         deleteTableTest();
@@ -204,7 +199,7 @@ public class PostgreModelTest {
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
         deleteTableTest();
@@ -221,7 +216,7 @@ public class PostgreModelTest {
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
         deleteTableTest();
@@ -238,7 +233,7 @@ public class PostgreModelTest {
         try {
             model.connect(responceToConnection);
             actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
         deleteTableTest();

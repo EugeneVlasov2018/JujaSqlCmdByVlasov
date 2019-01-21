@@ -2,15 +2,13 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -42,7 +40,7 @@ public class TablesTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWork() throws UnknowShitException {
+    public void testDoWork() throws CreatedInModelException {
         String[] command = new String[]{"tables"};
         ArrayList<String> expectedFromTables = new ArrayList<>(Arrays.asList("users"));
         String expectedOnWiew = "[users]";
@@ -51,9 +49,9 @@ public class TablesTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String[] command = new String[]{"tables"};
-        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).tables();
+        doThrow(new CreatedInModelException("ExpectedMessageFromException")).when(model).tables();
         assertEquals("ExpectedMessageFromException", getActualValue(tables, view, command));
     }
 }

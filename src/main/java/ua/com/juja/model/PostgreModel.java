@@ -1,7 +1,7 @@
 package ua.com.juja.model;
 
 import org.apache.log4j.Logger;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class PostgreModel implements Model {
     private static final Logger logger = Logger.getLogger(getCurrentClassName());
 
     @Override
-    public void connect(String[] responceToDb) throws UnknowShitException {
+    public void connect(String[] responceToDb) throws CreatedInModelException {
         String url = "jdbc:postgresql://localhost:5432/" + responceToDb[1];
         String user = responceToDb[2];
         String password = responceToDb[3];
@@ -25,7 +25,7 @@ public class PostgreModel implements Model {
     }
 
     private Connection createConnection(String url, String user, String password, String jdbcDriver)
-            throws UnknowShitException {
+            throws CreatedInModelException {
 
         try {
             Class.forName(jdbcDriver);
@@ -36,11 +36,11 @@ public class PostgreModel implements Model {
             logger.error(String.format("Неправильный коннекшен к базе. причина:\n%s", e.getStackTrace()));
             String result = getMessage(e);
             logger.debug("сообщение о харрактере ошибки сформировано и передано в модель для дальнейшей передачи юзеру");
-            throw new UnknowShitException(result);
+            throw new CreatedInModelException(result);
         } catch (ClassNotFoundException a) {
             logger.error("Ошибка подключения к базе из-за отсутствующего или неправильного драйвера\n" +
                     "Проверьте наличие джарника либо депенденса в pom.xml");
-            throw new UnknowShitException("Не найден драйвер подключения к базе\n" +
+            throw new CreatedInModelException("Не найден драйвер подключения к базе\n" +
                     "Передайте разработчику, чтобы добавил либо джарник в либы, либо депенденс в мавен");
         }
     }
@@ -58,7 +58,7 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void create(String[] params) throws UnknowShitException {
+    public void create(String[] params) throws CreatedInModelException {
 
         String command = getSqlCommandForCreate(params);
         logger.debug(String.format("Сформирован SQL-запрос для создания таблицы в таком виде:\n%s",
@@ -77,52 +77,26 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public List<String> tables() throws UnknowShitException {
+    public List<String> tables() throws CreatedInModelException {
         ArrayList<String> tablenames = new ArrayList<>();
-
-        DatabaseMetaData databaseMetaData;
-        ResultSet resultSet = null;
-
-        try {
-            if (connectionToDatabase == null) {
-                logger.debug("Команда была вызвана без предварительного подключения к базе.\n" +
-                        "Ошибка корректно обработана");
-                throw new UnknowShitException("Вы попытались очистить таблицу, не подключившись к базе данных.\n" +
-                        "Подключитесь к базе данных командой\n" +
-                        "'connect|database|username|password'");
-            }
-            databaseMetaData = connectionToDatabase.getMetaData();
-            logger.debug("Получена метадата из коннекшена connectionToDatabase");
-            resultSet = databaseMetaData.getTables(null, null, "%",
-                    new String[]{"TABLE"});
-            logger.debug("Из метадаты достаем имена таблиц");
-            while (resultSet.next()) {
-                tablenames.add(resultSet.getString("TABLE_NAME"));
-            }
-            if (tablenames.size() > 0) {
-                logger.debug(String.format("сформирован ответ с перечнем имен таблиц в следующем виде:\n%s",
-                        tablenames.toString()));
-                return tablenames;
-            } else {
-                logger.debug("Сформирован ответ об отсутствии таблиц в БД");
-                throw new UnknowShitException("В базе данных нет ни одной таблицы");
-            }
-        } catch (SQLException a) {
-            logger.error(String.format("Неизвестное SQL-Exception. Причина:\n%s", a.getStackTrace()));
-            throw new UnknowShitException(String.format("ошибка в работе с Базой данныхю причина: %s",a.getMessage()));
-        } finally {
-            try {
-                if (resultSet != null)
-                    resultSet.close();
-                logger.debug("resultSet закрыт");
+        String sql = "SELECT table_name FROM information_schema.tables\n" +
+                "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')\n" +
+                "AND table_schema IN('public');";
+        if (isConnected()) {
+            try (Statement statement = connectionToDatabase.createStatement();
+                 ResultSet resultSet = statement.executeQuery(sql)) {
+                while (resultSet.next()) {
+                    tablenames.add(resultSet.getString(1));
+                }
             } catch (SQLException e) {
-                logger.error("resultSet не удалось закрыть!!!");
+                createExceptionInModel(e);
             }
         }
+        return tablenames;
     }
 
     @Override
-    public void clear(String[] params) throws UnknowShitException {
+    public void clear(String[] params) throws CreatedInModelException {
         String sqlRequest = "DELETE FROM " + params[1];
         logger.debug(String.format("Составлен запрос в БД:\n%s", sqlRequest));
         workWithDbWithoutAnswer(sqlRequest);
@@ -130,16 +104,15 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void drop(String[] params) throws UnknowShitException {
+    public void drop(String[] params) throws CreatedInModelException {
         String sqlRequest = "DROP TABLE ".concat(params[1]);
         logger.debug(String.format("Составлен запрос в БД:\n%s", sqlRequest));
         workWithDbWithoutAnswer(sqlRequest);
         logger.debug("Метод workWithDbWithoutAnswer отработал корректно");
-
     }
 
     @Override
-    public void exit() throws UnknowShitException {
+    public void exit() throws CreatedInModelException {
         if (connectionToDatabase != null) {
             try {
                 connectionToDatabase.close();
@@ -147,24 +120,23 @@ public class PostgreModel implements Model {
             } catch (SQLException e) {
                 logger.error(String.format("Зафейлено закрытие connectionToDatabase. Причина:\n%s",
                         e.getStackTrace()));
-                throw new UnknowShitException(String.format("Не удалось закрыть подключение к базе.\n" +
+                throw new CreatedInModelException(String.format("Не удалось закрыть подключение к базе.\n" +
                         "Причина: %s", e.getMessage()));
             }
         }
     }
 
     @Override
-    public void insert(String[] commandFromUser) throws UnknowShitException {
-        List<String> columnValues = getValuesForSqlCommand(commandFromUser);
-        List<String> columnNames = getNamesForSqlCommand(commandFromUser);
+    public void insert(String[] commandFromUser) throws CreatedInModelException {
+        List<String> columnValues = getValuesForSqlInsertCommand(commandFromUser);
+        List<String> columnNames = getNamesForSqlInsertCommand(commandFromUser);
         String sqlCommand = getSqlCommand(commandFromUser[1], columnValues, columnNames);
         logger.debug(String.format("Сформирован запрос в БД:\n%s", sqlCommand));
         workWithDbWithoutAnswer(sqlCommand);
         logger.debug("метод workWithDbWithoutAnswer отработал корректно");
-
     }
 
-    private List<String> getNamesForSqlCommand(String[] params) {
+    private List<String> getNamesForSqlInsertCommand(String[] params) {
         List<String> columnNames = new ArrayList<>();
         for (int indexOfcommandFromUser = 2; indexOfcommandFromUser < params.length; indexOfcommandFromUser++) {
             if (indexOfcommandFromUser % 2 == 0) {
@@ -174,7 +146,7 @@ public class PostgreModel implements Model {
         return columnNames;
     }
 
-    private List<String> getValuesForSqlCommand(String[] params) {
+    private List<String> getValuesForSqlInsertCommand(String[] params) {
         List<String> columnValues = new ArrayList<>();
         for (int indexOfcommandFromUser = 3; indexOfcommandFromUser < params.length; indexOfcommandFromUser++) {
             if (indexOfcommandFromUser % 2 == 1) {
@@ -205,7 +177,7 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void update(String[] commandFromUser) throws UnknowShitException {
+    public void update(String[] commandFromUser) throws CreatedInModelException {
         String command = getSqlCommandForUpdate(commandFromUser);
         logger.debug(String.format("Сформирован запрос в БД:\n%s", command));
 
@@ -227,34 +199,15 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void delete(String[] params) throws UnknowShitException {
+    public void delete(String[] params) throws CreatedInModelException {
         String sqlForWork = String.format("DELETE FROM %s WHERE %s ='%s'", params[1], params[2], params[3]);
         logger.debug(String.format("Сформирован запрос в БД:\n%s", sqlForWork));
         workWithDbWithoutAnswer(sqlForWork);
         logger.debug("метод workWithDbWithoutAnswer отработал корректно");
     }
 
-
-    private void workWithDbWithoutAnswer(String sqlRequest) throws UnknowShitException {
-
-        if (connectionToDatabase == null) {
-            logger.warn("Попытка входа в базу без предварительного подключения.\nСоздан новый UnknowShitException");
-            throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "'connect|database|username|password'");
-        } else {
-            try (Statement statement = connectionToDatabase.createStatement()) {
-                statement.execute(sqlRequest);
-                logger.debug("statement отработал корректно");
-            } catch (SQLException e) {
-                logger.warn(String.format("получено SQL-Exception:\n%s", e.getStackTrace()));
-                throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s", e.getMessage()));
-            }
-        }
-    }
-
     @Override
-    public List<String> getColumnNameForFind(String[] command) throws UnknowShitException {
+    public List<String> getColumnNameForFind(String[] command) throws CreatedInModelException {
         List<String> responceWithColumnNames;
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
@@ -265,7 +218,7 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public List<String> getColumnValuesForFind(String[] command) throws UnknowShitException {
+    public List<String> getColumnValuesForFind(String[] command) throws CreatedInModelException {
         List<String> responceWithColumnValues;
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
@@ -277,7 +230,7 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public List<String> getColumnNameForUpdateOrDelete(String[] command) throws UnknowShitException {
+    public List<String> getColumnNameForUpdateOrDelete(String[] command) throws CreatedInModelException {
         List<String> columnNames;
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
         logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
@@ -287,7 +240,7 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public List<String> getColumnValuesForUpdateOrDelete(String[] command) throws UnknowShitException {
+    public List<String> getColumnValuesForUpdateOrDelete(String[] command) throws CreatedInModelException {
         List<String> columnValues;
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
         logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
@@ -297,63 +250,78 @@ public class PostgreModel implements Model {
         return columnValues;
     }
 
-
-    private List<String> getColumnNamesFromDB(String responceToDB) throws UnknowShitException {
-
-        List<String> responceWithColumnNames = new ArrayList<>();
-        if (connectionToDatabase == null) {
-            logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
-                    "Выброшен новый UnknowShitException");
-            throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
-                    "Подключитесь к базе данных командой\n" +
-                    "'connect|database|username|password'");
+    private void workWithDbWithoutAnswer(String sqlRequest) throws CreatedInModelException {
+        if (isConnected()) {
+            try (Statement statement = connectionToDatabase.createStatement()) {
+                statement.execute(sqlRequest);
+                logger.debug("statement отработал корректно");
+            } catch (SQLException e) {
+                createExceptionInModel(e);
+            }
         }
-        try (Statement statement = connectionToDatabase.createStatement();
-             ResultSet resultSet = statement.executeQuery(responceToDB)) {
-            logger.info("Были созданы новые statement и resultSet");
-            ResultSetMetaData rsmd = resultSet.getMetaData();
-            logger.debug("Получена метаДата из resultSet");
-            int columnCount = rsmd.getColumnCount();
-            for (int i = 1; i <= columnCount; i++)
-                responceWithColumnNames.add(rsmd.getColumnName(i));
-            logger.debug(String.format("Получены имена колонок таблицы:\n%s",
-                    responceWithColumnNames.toArray().toString()));
+    }
 
-        } catch (SQLException a) {
-            logger.warn(String.format("Ошибка в работе с базой данных. Причина: %s", a.getStackTrace()));
-            throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage()));
+    private List<String> getColumnNamesFromDB(String responceToDB) throws CreatedInModelException {
+        List<String> responceWithColumnNames = new ArrayList<>();
+        if (isConnected()) {
+            try (Statement statement = connectionToDatabase.createStatement();
+                 ResultSet resultSet = statement.executeQuery(responceToDB)) {
+                logger.info("Были созданы новые statement и resultSet");
+                ResultSetMetaData rsmd = resultSet.getMetaData();
+                logger.debug("Получена метаДата из resultSet");
+                int columnCount = rsmd.getColumnCount();
+                for (int i = 1; i <= columnCount; i++) {
+                    responceWithColumnNames.add(rsmd.getColumnName(i));
+                }
+                logger.debug(String.format("Получены имена колонок таблицы:\n%s",
+                        responceWithColumnNames.toArray().toString()));
+
+            } catch (SQLException e) {
+                createExceptionInModel(e);
+            }
         }
         return responceWithColumnNames;
     }
 
 
-    private List<String> getColumnValuesFromDB(String responceToDB) throws UnknowShitException {
+    private List<String> getColumnValuesFromDB(String responceToDB) throws CreatedInModelException {
+        ArrayList<String> responceWithColumnValues = new ArrayList<>();
+        if (isConnected()) {
+            try (Statement statement = connectionToDatabase.createStatement();
+                 ResultSet resultSet = statement.executeQuery(responceToDB)) {
+                logger.info("Были созданы новые statement и resultSet");
+                ResultSetMetaData rsmd = resultSet.getMetaData();
+                logger.debug("Получена метаДата из resultSet");
+                int columnCount = rsmd.getColumnCount();
+                while (resultSet.next()) {
+                    for (int index = 1; index <= columnCount; index++)
+                        responceWithColumnValues.add(resultSet.getString(index));
+                    logger.debug(String.format("Получены имена колонок таблицы:\n%s",
+                            responceWithColumnValues.toArray().toString()));
+                }
+            } catch (SQLException e) {
+                createExceptionInModel(e);
+            }
+        }
+        return responceWithColumnValues;
+    }
+
+    private boolean isConnected() throws CreatedInModelException {
         if (connectionToDatabase == null) {
             logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
-                    "Выброшен новый UnknowShitException");
-            throw new UnknowShitException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
+                    "Выброшен новый CreatedInModelException");
+            throw new CreatedInModelException("Вы попытались выполнить работу, не подключившись к базе данных.\n" +
                     "Подключитесь к базе данных командой\n" +
                     "'connect|database|username|password'");
         }
-        ArrayList<String> responceWithColumnValues = new ArrayList<>();
-        try (Statement statement = connectionToDatabase.createStatement();
-             ResultSet resultSet = statement.executeQuery(responceToDB)) {
-            logger.info("Были созданы новые statement и resultSet");
-            ResultSetMetaData rsmd = resultSet.getMetaData();
-            logger.debug("Получена метаДата из resultSet");
-            int columnCount = rsmd.getColumnCount();
-            while (resultSet.next()) {
-                for (int index = 1; index <= columnCount; index++)
-                    responceWithColumnValues.add(resultSet.getString(index));
-                logger.debug(String.format("Получены имена колонок таблицы:\n%s",
-                        responceWithColumnValues.toArray().toString()));
-            }
-        } catch (SQLException a) {
-            logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
-                    "Выброшен новый UnknowShitException");
-            throw new UnknowShitException(String.format("Ошибка в работе с базой данных. Причина: %s",a.getMessage()));
-        }
-        return responceWithColumnValues;
+        return true;
+    }
+
+    private Exception createExceptionInModel(Exception e) throws CreatedInModelException {
+        logger.warn("Была попытка выполнить операцию без предварительного подключения к базе.\n" +
+                "Выброшен новый CreatedInModelException" + e.getStackTrace());
+        throw new CreatedInModelException(String.format("Ошибка в работе с базой данных. Причина: %s",
+                e.getMessage()));
     }
 }
 

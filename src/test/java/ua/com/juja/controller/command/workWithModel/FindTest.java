@@ -2,17 +2,14 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mockito;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -44,7 +41,7 @@ public class FindTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWork() throws UnknowShitException {
+    public void testDoWork() throws CreatedInModelException {
         String expected = "+--+---------+----------+--------+\n" +
                 "|id|firstname|secondname|password|\n" +
                 "+--+---------+----------+--------+\n" +
@@ -67,15 +64,15 @@ public class FindTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String expected = "Непредвиденная ошибка в работе с базой данных.\n" +
                 "Причина: null";
         String[] params = new String[]{"find", "users"};
         when(model.getColumnNameForFind(params)).
-                thenThrow(new UnknowShitException(expected));
+                thenThrow(new CreatedInModelException(expected));
         when(model.getColumnValuesForFind(params)).
-                thenThrow(new UnknowShitException(expected));
-        doThrow(new UnknowShitException(expected)).
+                thenThrow(new CreatedInModelException(expected));
+        doThrow(new CreatedInModelException(expected)).
                 when(model).delete(params);
         assertEquals(expected, getActualValue(find, view, params));
     }

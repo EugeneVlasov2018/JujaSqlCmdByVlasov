@@ -2,11 +2,10 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +54,7 @@ public class Update extends CommandWithTableInResponce implements Command {
                 logger.debug("метод model.update отработал корректно");
                 answer = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
                 logger.debug("метод createTable отработал корректно, ответ сформирован");
-            } catch (UnknowShitException b) {
+            } catch (CreatedInModelException b) {
                 answer = b.getMessage();
                 logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения, выведенный пользователю в консоль:\n%s", b.getMessage()));

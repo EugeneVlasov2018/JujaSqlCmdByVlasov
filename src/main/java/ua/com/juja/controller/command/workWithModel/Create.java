@@ -2,11 +2,9 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
@@ -37,7 +35,7 @@ public class Create implements Command {
                 model.create(command);
                 answer = String.format("Таблица '%s' успешно создана",command[1]);
                 logger.debug("cформирована таблица в БД согласно запроса юзера");
-            } catch (UnknowShitException a) {
+            } catch (CreatedInModelException a) {
                 answer = a.getMessage();
                 logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения:\n%s", a.getMessage()));

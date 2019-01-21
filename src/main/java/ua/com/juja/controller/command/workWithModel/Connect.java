@@ -3,10 +3,8 @@ package ua.com.juja.controller.command.workWithModel;
 import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
@@ -40,7 +38,7 @@ public class Connect implements Command {
                 logger.debug("метод doWork() отработал,\n" +
                         "ответ о успешном подключении получен пользователем,\n" +
                         "процесс вернулся в MainController");
-            } catch (UnknowShitException e) {
+            } catch (CreatedInModelException e) {
                 view.write(e.getMessage());
                 logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения:\n%s", e.getMessage()));

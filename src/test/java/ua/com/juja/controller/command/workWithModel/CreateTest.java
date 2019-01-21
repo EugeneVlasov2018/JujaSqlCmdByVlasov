@@ -5,14 +5,10 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
-import org.mockito.ArgumentCaptor;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
@@ -55,9 +51,9 @@ public class CreateTest extends ActualValueGetter {
     }
 
     @Test
-    public void testWithUnknowTableException() throws UnknowShitException {
+    public void testWithUnknowTableException() throws CreatedInModelException {
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        doThrow(new UnknowShitException("MessageFromException")).when(model).create(params);
+        doThrow(new CreatedInModelException("MessageFromException")).when(model).create(params);
         assertEquals("MessageFromException", getActualValue(create, view, params));
     }
 }

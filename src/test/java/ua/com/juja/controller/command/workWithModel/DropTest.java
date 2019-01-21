@@ -2,16 +2,12 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
@@ -55,11 +51,11 @@ public class DropTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String expected = "Вы попытались удалить несуществующую таблицу.\n" +
                 "Введите команду 'tables', чтобы увидеть все созданные таблицы";
         String[] params = new String[]{"clear", "user"};
-        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).drop(params);
+        doThrow(new CreatedInModelException("ExpectedMessageFromException")).when(model).drop(params);
         assertEquals("ExpectedMessageFromException", getActualValue(drop, view, params));
     }
 }

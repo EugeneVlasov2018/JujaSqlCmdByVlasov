@@ -2,11 +2,10 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class Delete extends CommandWithTableInResponce implements Command {
                 model.delete(command);
                 logger.debug("model.delete успешно отработал");
                 answer = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
-            } catch (UnknowShitException a) {
+            } catch (CreatedInModelException a) {
                 answer = a.getMessage();
                 logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));

@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
 
 import static org.junit.Assert.*;
@@ -42,9 +42,9 @@ public class ConnectTest {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String[] command = new String[]{"connect", "testforsql", "wrongUser", "root"};
-        doThrow(new UnknowShitException("messageFromException")).
+        doThrow(new CreatedInModelException("messageFromException")).
                 when(model).connect(command);
         connect.doWork(command);
         verify(view).write("messageFromException");

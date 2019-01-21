@@ -2,11 +2,9 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
@@ -39,7 +37,7 @@ public class Drop implements Command {
                 model.drop(command);
                 logger.debug("model.drop отработал, процесс вернулся в MainController");
                 answer = String.format("Таблица %s успешно удалена", command[1]);
-            } catch (UnknowShitException a) {
+            } catch (CreatedInModelException a) {
                 answer = a.getMessage();
                 logger.warn(String.format("поймано исключение из уровня модели\n" +
                         "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));

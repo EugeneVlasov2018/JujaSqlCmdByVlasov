@@ -2,14 +2,12 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
 
 import static org.junit.Assert.*;
 
@@ -62,9 +60,9 @@ public class InsertTest extends ActualValueGetter {
     }
 
     @Test
-    public void testDoWorkWithException() throws UnknowShitException {
+    public void testDoWorkWithException() throws CreatedInModelException {
         String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
-        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).insert(params);
+        doThrow(new CreatedInModelException("ExpectedMessageFromException")).when(model).insert(params);
         assertEquals("ExpectedMessageFromException", getActualValue(insert, view, params));
     }
 }

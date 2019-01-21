@@ -2,12 +2,9 @@ package ua.com.juja.controller.command.workWithModel;
 
 import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
-import ua.com.juja.controller.command.exceptions.SystemExitException;
 import ua.com.juja.model.Model;
-import ua.com.juja.model.exceptions.UnknowShitException;
+import ua.com.juja.model.exceptions.CreatedInModelException;
 import ua.com.juja.view.View;
-
-import java.sql.Connection;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
@@ -33,7 +30,7 @@ public class Exit implements Command {
             model.exit();
             logger.debug("отработал model.exit()");
             view.write("Всего хорошего, до встречи снова))");
-        } catch (UnknowShitException e) {
+        } catch (CreatedInModelException e) {
             logger.warn(String.format("поймано исключение из уровня модели\n" +
                     "текст исключения, выведенный пользователю в консоль:\n%s", e.getMessage()));
             view.write(e.getMessage());

@@ -1,10 +1,10 @@
 package ua.com.juja.model.exceptions;
 
-public class UnknowShitException extends Exception {
+public class CreatedInModelException extends Exception {
 
     private String message;
 
-    public UnknowShitException(String message){
+    public CreatedInModelException(String message) {
         this.message = message;
     }
 
