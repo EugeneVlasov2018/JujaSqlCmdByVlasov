@@ -13,7 +13,7 @@ import java.sql.Connection;
 
 import static org.junit.Assert.*;
 
-public class InsertTest {
+public class InsertTest extends ActualValueGetter {
     private Model model;
     private Command insert;
     private View view;
@@ -42,10 +42,7 @@ public class InsertTest {
     public void testDoWork() {
         String expected = "Все данные успешно добавлены";
         String[] params = new String[]{"insert", "users", "password", "123"};
-        insert.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(insert, view, params));
     }
 
     @Test
@@ -53,10 +50,7 @@ public class InsertTest {
         String expected = "Недостаточно данных для запуска команды." +
                 "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
         String[] params = new String[]{"insert"};
-        insert.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(insert, view, params));
     }
 
     @Test
@@ -64,23 +58,13 @@ public class InsertTest {
         String expected = "Ошибка в формате команды." +
                 "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
         String[] params = new String[]{"insert", "users", "password", "123", "firstname"};
-        insert.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(insert, view, params));
     }
 
     @Test
-    public void testDoWorkWithException() {
+    public void testDoWorkWithException() throws UnknowShitException {
         String params[] = new String[]{"insert", "users", "password", "123", "firstname", "John"};
-        try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).insert(params);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        insert.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("ExpectedMessageFromException", captor.getValue());
+        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).insert(params);
+        assertEquals("ExpectedMessageFromException", getActualValue(insert, view, params));
     }
 }

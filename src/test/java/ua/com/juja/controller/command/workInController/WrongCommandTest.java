@@ -2,23 +2,20 @@ package ua.com.juja.controller.command.workInController;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.view.View;
 
 public class WrongCommandTest {
     private View view;
 
-    @Before
-    public void setup(){
-        view = Mockito.mock(View.class);
-    }
-
     @Test
     public void testDoWork(){
+        view = mock(View.class);
         Command wrongCommand = new WrongCommand(view);
         wrongCommand.doWork(new String[]{"dsfkldjs"});
-        Mockito.verify(view).write("Вы ввели неизвестную команду.\n" +
+        verify(view).write("Вы ввели неизвестную команду.\n" +
                 "Вызовите команду 'help'");
     }
 

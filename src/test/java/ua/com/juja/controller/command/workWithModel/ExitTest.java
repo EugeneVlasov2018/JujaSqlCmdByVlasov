@@ -1,4 +1,4 @@
-package ua.com.juja.controller.command.workInController;
+package ua.com.juja.controller.command.workWithModel;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class ExitTest {
     private View view;
     private Model model;
-    Command exit;
+    private Command exit;
 
     @Before
     public void setUp() {

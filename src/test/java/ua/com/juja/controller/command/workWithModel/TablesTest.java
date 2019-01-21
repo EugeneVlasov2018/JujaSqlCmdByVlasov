@@ -16,7 +16,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class TablesTest {
+public class TablesTest extends ActualValueGetter {
     private Model model;
     private Command tables;
     private View view;
@@ -42,34 +42,18 @@ public class TablesTest {
     }
 
     @Test
-    public void testDoWork() {
+    public void testDoWork() throws UnknowShitException {
         String[] command = new String[]{"tables"};
         ArrayList<String> expectedFromTables = new ArrayList<>(Arrays.asList("users"));
         String expectedOnWiew = "[users]";
-
-        try {
-            doReturn(expectedFromTables).when(model).tables();
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        tables.doWork(command);
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expectedOnWiew, captor.getValue());
+        doReturn(expectedFromTables).when(model).tables();
+        assertEquals(expectedOnWiew, getActualValue(tables, view, command));
     }
 
     @Test
-    public void testDoWorkWithException(){
+    public void testDoWorkWithException() throws UnknowShitException {
         String[] command = new String[]{"tables"};
-        try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).tables();
-        } catch (UnknowShitException e) {
-            e.printStackTrace();
-        }
-        tables.doWork(command);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("ExpectedMessageFromException", captor.getValue());
+        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).tables();
+        assertEquals("ExpectedMessageFromException", getActualValue(tables, view, command));
     }
 }

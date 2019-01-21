@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class DeleteTest {
+public class DeleteTest extends ActualValueGetter {
     private Model model;
     private Command delete;
     private View view;
@@ -42,7 +42,7 @@ public class DeleteTest {
     }
 
     @Test
-    public void testDoWork() {
+    public void testDoWork() throws UnknowShitException {
         String expected = "Были удалены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
                 "|id|firstname|secondname|password|\n" +
@@ -50,47 +50,25 @@ public class DeleteTest {
                 "|1 |John     |Dou       |123     |\n" +
                 "+--+---------+----------+--------+";
         String[] params = new String[]{"delete", "users", "password", "123"};
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params)).
-                    thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-        try {
-            when(model.getColumnValuesForUpdateOrDelete(params)).
-                    thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-
-        delete.doWork(params);
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        when(model.getColumnNameForUpdateOrDelete(params)).
+                thenReturn(new ArrayList<>(Arrays.asList("id", "firstname", "secondname", "password")));
+        when(model.getColumnValuesForUpdateOrDelete(params)).
+                thenReturn(new ArrayList<>(Arrays.asList("1", "John", "Dou", "123")));
+        assertEquals(expected, getActualValue(delete, view, params));
     }
 
     @Test
     public void testDoWorkWhitoutParameters() {
-        String[] commandWhitoutParameters = new String[]{"delete"};
-        delete.doWork(commandWhitoutParameters);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
+        String[] params = new String[]{"delete"};
         assertEquals("Недостаточно данных для запуска команды." +
-                "Недостаточно данных для ее выполнения. Попробуйте еще раз.", captor.getValue());
+                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.",
+                getActualValue(delete, view, params));
     }
 
     @Test
-    public void testDoWorkWithException() {
+    public void testDoWorkWithException() throws UnknowShitException {
         String[] params = new String[]{"delete", "users", "password", "123"};
-        try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).delete(params);
-        } catch (UnknowShitException e) {
-            e.printStackTrace();
-        }
-        delete.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("ExpectedMessageFromException", captor.getValue());
+        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).delete(params);
+        assertEquals("ExpectedMessageFromException", getActualValue(delete, view, params));
     }
 }

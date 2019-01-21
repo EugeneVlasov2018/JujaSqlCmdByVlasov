@@ -15,7 +15,7 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
-public class DropTest {
+public class DropTest extends ActualValueGetter {
     private Model model;
     private Command drop;
     private View view;
@@ -43,10 +43,7 @@ public class DropTest {
     public void testDoWork() {
         String expected = "Таблица users успешно удалена";
         String[] params = new String[]{"drop", "users"};
-        drop.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(drop, view, params));
     }
 
     @Test
@@ -54,25 +51,15 @@ public class DropTest {
         String expected = "Недостаточно данных для запуска команды." +
                 "Укажите имя таблицы, которое собираетесь удалить";
         String[] params = new String[]{"drop"};
-        drop.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(drop, view, params));
     }
 
     @Test
-    public void testDoWorkWithException() {
+    public void testDoWorkWithException() throws UnknowShitException {
         String expected = "Вы попытались удалить несуществующую таблицу.\n" +
                 "Введите команду 'tables', чтобы увидеть все созданные таблицы";
-        String[] commandForWork = new String[]{"clear", "user"};
-        try {
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).drop(commandForWork);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        drop.doWork(commandForWork);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("ExpectedMessageFromException", captor.getValue());
+        String[] params = new String[]{"clear", "user"};
+        doThrow(new UnknowShitException("ExpectedMessageFromException")).when(model).drop(params);
+        assertEquals("ExpectedMessageFromException", getActualValue(drop, view, params));
     }
 }

@@ -16,7 +16,7 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
-public class CreateTest {
+public class CreateTest extends ActualValueGetter {
     private Model model;
     private Command create;
     private View view;
@@ -44,33 +44,20 @@ public class CreateTest {
     public void testDoWork() {
         String expected = "Таблица 'users' успешно создана";
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        create.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(create, view, params));
     }
 
     @Test
     public void testDoWorkWithoutParams() {
         String expected = "Недостаточно данных для запуска команды. Попробуйте еще раз";
         String[] params = new String[]{"create", "users"};
-        create.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        assertEquals(expected, getActualValue(create, view, params));
     }
 
     @Test
-    public void testWithUnknowTableException() {
+    public void testWithUnknowTableException() throws UnknowShitException {
         String[] params = new String[]{"create", "users", "firstname", "secondname", "password"};
-        try {
-            doThrow(new UnknowShitException("MessageFromException")).when(model).create(params);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        create.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("MessageFromException", captor.getValue());
+        doThrow(new UnknowShitException("MessageFromException")).when(model).create(params);
+        assertEquals("MessageFromException", getActualValue(create, view, params));
     }
 }

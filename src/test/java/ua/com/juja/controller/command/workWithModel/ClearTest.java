@@ -12,7 +12,7 @@ import ua.com.juja.view.View;
 
 import static org.junit.Assert.*;
 
-public class ClearTest {
+public class ClearTest extends ActualValueGetter {
 
     private Model model;
     private Command clear;
@@ -41,35 +41,22 @@ public class ClearTest {
     @Test
     public void testDoWork() {
         String[] commandForWork = new String[]{"clear", "users"};
-        clear.doWork(commandForWork);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("Все данные из таблицы users были удалены", captor.getValue());
+        assertEquals("Все данные из таблицы users были удалены",
+                getActualValue(clear, view, commandForWork));
 
     }
 
     @Test
     public void testDoWorkWithoutParameters() {
         String[] commandForWork = new String[]{"clear"};
-        clear.doWork(commandForWork);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
         assertEquals("Недостаточно данных для запуска команды. Укажите имя таблицы, " +
-                "которое собираетесь очистить", captor.getValue());
+                "которое собираетесь очистить", getActualValue(clear, view, commandForWork));
     }
 
     @Test
-    public void testDoWorkWithException() {
+    public void testDoWorkWithException() throws UnknowShitException {
         String[] commandForWork = new String[]{"clear", "user"};
-        try {
-            doThrow(new UnknowShitException("MessageFromException")).when(model).clear(commandForWork);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        clear.doWork(commandForWork);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("MessageFromException", captor.getValue());
-
+        doThrow(new UnknowShitException("MessageFromException")).when(model).clear(commandForWork);
+        assertEquals("MessageFromException", getActualValue(clear, view, commandForWork));
     }
 }

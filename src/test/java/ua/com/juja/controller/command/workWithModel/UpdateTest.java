@@ -17,7 +17,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UpdateTest {
+public class UpdateTest extends ActualValueGetter {
     private Model model;
     private Command update;
     private View view;
@@ -42,7 +42,7 @@ public class UpdateTest {
     }
 
     @Test
-    public void testDoWork() {
+    public void testDoWork() throws UnknowShitException {
         String expected = "Были изменены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
                 "|id|firstname|secondname|password|\n" +
@@ -50,52 +50,30 @@ public class UpdateTest {
                 "|1 |John     |Dou       |123     |\n" +
                 "+--+---------+----------+--------+";
         String[] params = new String[]{"update", "users", "password", "123"};
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params)).
-                    thenReturn(new ArrayList<String>(Arrays.asList("id", "firstname", "secondname", "password")));
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        try {
-            when(model.getColumnValuesForUpdateOrDelete(params)).
-                    thenReturn(new ArrayList<String>(Arrays.asList("1", "John", "Dou", "123")));
-        } catch (ua.com.juja.model.exceptions.UnknowShitException e) {
-            e.printStackTrace();
-        }
-
-        update.doWork(params);
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals(expected, captor.getValue());
+        when(model.getColumnNameForUpdateOrDelete(params)).
+                thenReturn(new ArrayList<>(Arrays.asList("id", "firstname", "secondname", "password")));
+        when(model.getColumnValuesForUpdateOrDelete(params)).
+                thenReturn(new ArrayList<>(Arrays.asList("1", "John", "Dou", "123")));
+        assertEquals(expected, getActualValue(update, view, params));
     }
 
     @Test
     public void testDoWorkWhitoutParameters() {
-        String[] commandWhitoutParameters = new String[]{"delete"};
-        update.doWork(commandWhitoutParameters);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
+        String[] params = new String[]{"delete"};
         assertEquals("Недостаточно данных для запуска команды." +
-                "Недостаточно данных для ее выполнения. Попробуйте еще раз.", captor.getValue());
+                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.",
+                getActualValue(update, view, params));
     }
 
     @Test
-    public void testDoWorkWithException() {
+    public void testDoWorkWithException() throws UnknowShitException {
         String[] params = new String[]{"update", "users", "password", "123"};
-        try {
-            when(model.getColumnNameForUpdateOrDelete(params)).
-                    thenThrow(new UnknowShitException("ExpectedMessageFromException"));
-            when(model.getColumnValuesForUpdateOrDelete(params)).
-                    thenThrow(new UnknowShitException("ExpectedMessageFromException"));
-            doThrow(new UnknowShitException("ExpectedMessageFromException")).
-                    when(model).delete(params);
-        } catch (UnknowShitException e) {
-            //do nothing
-        }
-        update.doWork(params);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(view).write(captor.capture());
-        assertEquals("ExpectedMessageFromException", captor.getValue());
+        when(model.getColumnNameForUpdateOrDelete(params)).
+                thenThrow(new UnknowShitException("ExpectedMessageFromException"));
+        when(model.getColumnValuesForUpdateOrDelete(params)).
+                thenThrow(new UnknowShitException("ExpectedMessageFromException"));
+        doThrow(new UnknowShitException("ExpectedMessageFromException")).
+                when(model).delete(params);
+        assertEquals("ExpectedMessageFromException", getActualValue(update, view, params));
     }
 }
