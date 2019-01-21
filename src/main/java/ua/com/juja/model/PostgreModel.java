@@ -34,16 +34,9 @@ public class PostgreModel implements Model {
             return connectionToDatabase;
         } catch (SQLException e) {
             logger.error(String.format("Неправильный коннекшен к базе. причина:\n%s", e.getStackTrace()));
-            StringBuilder resultForView = new StringBuilder("Вы ввели: ");
-            if (e.getSQLState().equalsIgnoreCase("3D000")) {
-                resultForView.append("\nНеверную ссылку на базу");
-            }
-            if (e.getSQLState().equalsIgnoreCase("28P01")) {
-                resultForView.append("\nНеверное имя пользователя или пароль");
-            }
-            resultForView.append("\nПопробуйте снова:P");
+            String result = getMessage(e);
             logger.debug("сообщение о харрактере ошибки сформировано и передано в модель для дальнейшей передачи юзеру");
-            throw new UnknowShitException(resultForView.toString());
+            throw new UnknowShitException(result);
         } catch (ClassNotFoundException a) {
             logger.error("Ошибка подключения к базе из-за отсутствующего или неправильного драйвера\n" +
                     "Проверьте наличие джарника либо депенденса в pom.xml");
@@ -52,25 +45,42 @@ public class PostgreModel implements Model {
         }
     }
 
+    private String getMessage(SQLException e) {
+        StringBuilder result = new StringBuilder("Вы ввели: ");
+        if (e.getSQLState().equalsIgnoreCase("3D000")) {
+            result.append("\nНеверную ссылку на базу");
+        }
+        if (e.getSQLState().equalsIgnoreCase("28P01")) {
+            result.append("\nНеверное имя пользователя или пароль");
+        }
+        result.append("\nПопробуйте снова:P");
+        return result.toString();
+    }
+
     @Override
     public void create(String[] params) throws UnknowShitException {
 
+        String command = getSqlCommandForCreate(params);
+        logger.debug(String.format("Сформирован SQL-запрос для создания таблицы в таком виде:\n%s",
+                command));
+        workWithDbWithoutAnswer(command);
+        logger.debug("метод workWithDbWithoutAnswer() успешно отработал");
+    }
+
+    private String getSqlCommandForCreate(String[] params) {
         StringBuilder sqlRequest = new StringBuilder("CREATE TABLE " + params[1] + " (id SERIAL, ");
         for (int i = 2; i < params.length; i++) {
             sqlRequest = sqlRequest.append(params[i]).append(" VARCHAR(255), ");
         }
         sqlRequest = sqlRequest.append("PRIMARY KEY (id))");
-        logger.debug(String.format("Сформирован SQL-запрос для создания таблицы в таком виде:\n%s",
-                sqlRequest.toString()));
-        workWithDbWithoutAnswer(sqlRequest.toString());
-        logger.debug("метод workWithDbWithoutAnswer() успешно отработал");
+        return sqlRequest.toString();
     }
 
     @Override
     public List<String> tables() throws UnknowShitException {
-        ArrayList<String> tablenames = new ArrayList<String>();
+        ArrayList<String> tablenames = new ArrayList<>();
 
-        DatabaseMetaData databaseMetaData = null;
+        DatabaseMetaData databaseMetaData;
         ResultSet resultSet = null;
 
         try {
@@ -144,54 +154,76 @@ public class PostgreModel implements Model {
     }
 
     @Override
-    public void insert(String[] params) throws UnknowShitException {
-        StringBuilder mainSqlRequest = new StringBuilder("INSERT INTO ");
-        mainSqlRequest.append(params[1]).append(" (");
-        List<String> columnNames = new ArrayList<String>();
-        List<String> columnValues = new ArrayList<String>();
-        for (int index = 2; index < params.length; index++) {
-            if (index % 2 == 0) {
-                columnNames.add(params[index].trim());
-            } else {
-                columnValues.add(params[index].trim());
-            }
-        }
-        for (int index = 0; index < columnNames.size(); index++) {
-            if (index != columnNames.size() - 1)
-                mainSqlRequest.append(columnNames.get(index)).append(", ");
-            else
-                mainSqlRequest.append(columnNames.get(index));
-        }
-        mainSqlRequest.append(")VALUES ('");
-        for (int index = 0; index < columnValues.size(); index++) {
-            if (index != columnNames.size() - 1)
-                mainSqlRequest.append(columnValues.get(index)).append("', '");
-            else
-                mainSqlRequest.append(columnValues.get(index)).append("'");
-        }
-        mainSqlRequest.append(")");
-        logger.debug(String.format("Сформирован запрос в БД:\n%s", mainSqlRequest.toString()));
-
-        workWithDbWithoutAnswer(mainSqlRequest.toString());
+    public void insert(String[] commandFromUser) throws UnknowShitException {
+        List<String> columnValues = getValuesForSqlCommand(commandFromUser);
+        List<String> columnNames = getNamesForSqlCommand(commandFromUser);
+        String sqlCommand = getSqlCommand(commandFromUser[1], columnValues, columnNames);
+        logger.debug(String.format("Сформирован запрос в БД:\n%s", sqlCommand));
+        workWithDbWithoutAnswer(sqlCommand);
         logger.debug("метод workWithDbWithoutAnswer отработал корректно");
 
     }
 
-    @Override
-    public void update(String[] params) throws UnknowShitException {
-        StringBuilder sqlRequestForWork = new StringBuilder("UPDATE ").append(params[1]).append(" SET ");
-        for (int index = 4; index < params.length; index++) {
-            if (index % 2 == 0)
-                sqlRequestForWork.append(params[index] + " = '");
-            else
-                sqlRequestForWork.append(params[index] + "', ");
+    private List<String> getNamesForSqlCommand(String[] params) {
+        List<String> columnNames = new ArrayList<>();
+        for (int indexOfcommandFromUser = 2; indexOfcommandFromUser < params.length; indexOfcommandFromUser++) {
+            if (indexOfcommandFromUser % 2 == 0) {
+                columnNames.add(params[indexOfcommandFromUser].trim());
+            }
         }
-        sqlRequestForWork.setLength(sqlRequestForWork.length() - 2);
-        sqlRequestForWork.append(" WHERE ").append(params[2]).append(" ='" + params[3] + "'");
-        logger.debug(String.format("Сформирован запрос в БД:\n%s", sqlRequestForWork.toString()));
+        return columnNames;
+    }
 
-        workWithDbWithoutAnswer(sqlRequestForWork.toString());
+    private List<String> getValuesForSqlCommand(String[] params) {
+        List<String> columnValues = new ArrayList<>();
+        for (int indexOfcommandFromUser = 3; indexOfcommandFromUser < params.length; indexOfcommandFromUser++) {
+            if (indexOfcommandFromUser % 2 == 1) {
+                columnValues.add(params[indexOfcommandFromUser].trim());
+            }
+        }
+        return columnValues;
+    }
+
+    private String getSqlCommand(String param, List<String> columnValues, List<String> columnNames) {
+        StringBuilder result = new StringBuilder("INSERT INTO ");
+        result.append(param).append(" (");
+        for (int index = 0; index < columnNames.size(); index++) {
+            if (index != columnNames.size() - 1)
+                result.append(columnNames.get(index)).append(", ");
+            else
+                result.append(columnNames.get(index));
+        }
+        result.append(")VALUES ('");
+        for (int index = 0; index < columnValues.size(); index++) {
+            if (index != columnNames.size() - 1)
+                result.append(columnValues.get(index)).append("', '");
+            else
+                result.append(columnValues.get(index)).append("'");
+        }
+        result.append(")");
+        return result.toString();
+    }
+
+    @Override
+    public void update(String[] commandFromUser) throws UnknowShitException {
+        String command = getSqlCommandForUpdate(commandFromUser);
+        logger.debug(String.format("Сформирован запрос в БД:\n%s", command));
+
+        workWithDbWithoutAnswer(command);
         logger.debug("метод workWithDbWithoutAnswer отработал корректно");
+    }
+
+    private String getSqlCommandForUpdate(String[] commandFromUser) {
+        StringBuilder commandForSql = new StringBuilder("UPDATE ").append(commandFromUser[1]).append(" SET ");
+        for (int indexOfCommand = 4; indexOfCommand < commandFromUser.length; indexOfCommand++) {
+            if (indexOfCommand % 2 == 0)
+                commandForSql.append(commandFromUser[indexOfCommand] + " = '");
+            else
+                commandForSql.append(commandFromUser[indexOfCommand] + "', ");
+        }
+        commandForSql.setLength(commandForSql.length() - 2);
+        commandForSql.append(" WHERE ").append(commandFromUser[2]).append(" ='" + commandFromUser[3] + "'");
+        return commandForSql.toString();
     }
 
     @Override
@@ -223,7 +255,7 @@ public class PostgreModel implements Model {
 
     @Override
     public List<String> getColumnNameForFind(String[] command) throws UnknowShitException {
-        List<String> responceWithColumnNames = new ArrayList<>();
+        List<String> responceWithColumnNames;
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
         responceWithColumnNames = getColumnNamesFromDB(sqlRequest);
@@ -234,7 +266,7 @@ public class PostgreModel implements Model {
 
     @Override
     public List<String> getColumnValuesForFind(String[] command) throws UnknowShitException {
-        List<String> responceWithColumnValues = new ArrayList<>();
+        List<String> responceWithColumnValues;
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
         responceWithColumnValues = getColumnValuesFromDB(sqlRequest);
@@ -246,7 +278,7 @@ public class PostgreModel implements Model {
 
     @Override
     public List<String> getColumnNameForUpdateOrDelete(String[] command) throws UnknowShitException {
-        List<String> columnNames = new ArrayList<>();
+        List<String> columnNames;
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
         logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
         columnNames = getColumnNamesFromDB(sqlRequest);
@@ -256,7 +288,7 @@ public class PostgreModel implements Model {
 
     @Override
     public List<String> getColumnValuesForUpdateOrDelete(String[] command) throws UnknowShitException {
-        List<String> columnValues = new ArrayList<>();
+        List<String> columnValues;
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
         logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
         columnValues = getColumnValuesFromDB(sqlRequest);
