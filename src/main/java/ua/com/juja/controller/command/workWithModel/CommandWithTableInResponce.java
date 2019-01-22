@@ -5,8 +5,6 @@ import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;

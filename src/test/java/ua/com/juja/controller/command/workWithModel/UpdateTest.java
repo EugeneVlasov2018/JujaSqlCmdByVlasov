@@ -14,7 +14,6 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UpdateTest extends ActualValueGetter {

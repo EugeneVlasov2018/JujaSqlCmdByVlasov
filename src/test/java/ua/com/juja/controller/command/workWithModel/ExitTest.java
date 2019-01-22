@@ -6,7 +6,6 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.controller.command.exceptions.SystemExitException;
-import ua.com.juja.controller.command.workWithModel.Exit;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 

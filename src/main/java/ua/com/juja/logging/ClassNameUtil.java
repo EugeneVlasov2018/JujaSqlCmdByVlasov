@@ -1,7 +1,5 @@
 package ua.com.juja.logging;
 
-import org.apache.log4j.Logger;
-
 public class ClassNameUtil {
     /*метод-костыль для получения имени класса для логгера.
       суть, - бросаем экзепшен и в обработке получаем имя класса, в котором был вызван этот метод

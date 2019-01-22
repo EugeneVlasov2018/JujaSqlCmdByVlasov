@@ -4,10 +4,8 @@ import org.apache.log4j.Logger;
 import ua.com.juja.controller.command.Command;
 import ua.com.juja.view.View;
 
-import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Scanner;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
