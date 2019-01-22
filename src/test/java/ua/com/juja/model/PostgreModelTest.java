@@ -173,84 +173,68 @@ public class PostgreModelTest {
     }
 
     @Test
-    public void getColumnNameForFind() {
-        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+    public void getColumnNameForFind() throws CreatedInModelException {
+        ArrayList<String> expected = new ArrayList<>(Arrays.asList(
                 "id", "firstname", "secondname", "password"));
-        ArrayList<String> actual = new ArrayList<>();
+        ArrayList<String> actual;
         String[] sqlRequest = new String[]{"find", "usertest"};
         prepareDataBaseWithData();
-        try {
-            model.connect(responceToConnection);
-            actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
+        model.connect(responceToConnection);
+        actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
         deleteTableTest();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void getColumnValuesForFind() {
-        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+    public void getColumnValuesForFind() throws CreatedInModelException {
+        ArrayList<String> expected = new ArrayList<>(Arrays.asList(
                 "1", "John", "Dou", "123"));
-        ArrayList<String> actual = new ArrayList<>();
+        ArrayList<String> actual;
         String[] sqlRequest = new String[]{"find", "usertest"};
         prepareDataBaseWithData();
-        try {
-            model.connect(responceToConnection);
-            actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
+        model.connect(responceToConnection);
+        actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
         deleteTableTest();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void getColumnNameForUpdateOrDelete() {
-        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+    public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
+        ArrayList<String> expected = new ArrayList<>(Arrays.asList(
                 "id", "firstname", "secondname", "password"));
-        ArrayList<String> actual = new ArrayList<>();
+        ArrayList<String> actual;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         prepareDataBaseWithData();
-        try {
-            model.connect(responceToConnection);
-            actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
+        model.connect(responceToConnection);
+        actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
         deleteTableTest();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void getColumnValuesForUpdateOrDelete() {
-        ArrayList<String> expected = new ArrayList<String>(Arrays.asList(
+    public void getColumnValuesForUpdateOrDelete() throws CreatedInModelException {
+        ArrayList<String> expected = new ArrayList<>(Arrays.asList(
                 "1", "John", "Dou", "123"));
-        ArrayList<String> actual = new ArrayList<>();
+        ArrayList<String> actual;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         prepareDataBaseWithData();
-        try {
-            model.connect(responceToConnection);
-            actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
+        model.connect(responceToConnection);
+        actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
         deleteTableTest();
         assertEquals(expected, actual);
     }
 
     private void connectToDBTest() {
-        String url = "jdbc:postgresql://localhost:5432/testforsql";
-        String user = "postgres";
-        String password = "root";
+        String url = "jdbc:postgresql://localhost:5432/" + responceToConnection[1];
+        String user = responceToConnection[2];
+        String password = responceToConnection[3];
         String jdbcDriver = "org.postgresql.Driver";
         try {
             Class.forName(jdbcDriver);
             connection = DriverManager.getConnection(url, user, password);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

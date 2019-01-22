@@ -15,7 +15,7 @@ import java.io.UnsupportedEncodingException;
 import static org.junit.Assert.assertEquals;
 
 
-public class integrationTest {
+public class IntegrationTest {
     private ConfigurableInputStream in;
     private ByteArrayOutputStream out;
     private Model model;
