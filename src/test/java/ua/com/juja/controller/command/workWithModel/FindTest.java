@@ -58,8 +58,9 @@ public class FindTest extends ActualValueGetter {
     @Test
     public void testDoWorkWhitoutParameters() {
         String[] params = new String[]{"find"};
-        assertEquals("Недостаточно данных для запуска команды." +
-                        "Укажите имя таблицы, которую собираетесь вывести на екран",
+        assertEquals("Введенная команда неполная.\n" +
+                        "Команда должна состоять из 2 элементов, а у вас их 1\n" +
+                        "Попробуйте еще раз",
                 getActualValue(find, view, params));
     }
 

@@ -45,7 +45,9 @@ public class CreateTest extends ActualValueGetter {
 
     @Test
     public void testDoWorkWithoutParams() {
-        String expected = "Недостаточно данных для запуска команды. Попробуйте еще раз";
+        String expected = "Введенная команда неполная.\n" +
+                "Команда должна состоять из 3 элементов, а у вас их 2\n" +
+                "Попробуйте еще раз";
         String[] params = new String[]{"create", "users"};
         assertEquals(expected, getActualValue(create, view, params));
     }

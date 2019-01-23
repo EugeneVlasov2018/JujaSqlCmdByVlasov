@@ -44,8 +44,9 @@ public class DropTest extends ActualValueGetter {
 
     @Test
     public void testDoWorkWhitoutParams() {
-        String expected = "Недостаточно данных для запуска команды." +
-                "Укажите имя таблицы, которое собираетесь удалить";
+        String expected = "Введенная команда неполная.\n" +
+                "Команда должна состоять из 2 элементов, а у вас их 1\n" +
+                "Попробуйте еще раз";
         String[] params = new String[]{"drop"};
         assertEquals(expected, getActualValue(drop, view, params));
     }

@@ -57,8 +57,9 @@ public class DeleteTest extends ActualValueGetter {
     @Test
     public void testDoWorkWhitoutParameters() {
         String[] params = new String[]{"delete"};
-        assertEquals("Недостаточно данных для запуска команды." +
-                        "Недостаточно данных для ее выполнения. Попробуйте еще раз.",
+        assertEquals("Введенная команда неполная.\n" +
+                        "Команда должна состоять из 4 элементов, а у вас их 1\n" +
+                        "Попробуйте еще раз",
                 getActualValue(delete, view, params));
     }
 

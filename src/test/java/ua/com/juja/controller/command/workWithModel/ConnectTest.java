@@ -54,7 +54,9 @@ public class ConnectTest {
     public void testDoWorkWithNotEnoughParams() {
         Command connect = new Connect(view, model);
         connect.doWork(new String[]{"connect", "testforsql", "postgres"});
-        verify(view).write("Недостаточно данных для запуска команды. Попробуйте еще раз");
+        verify(view).write("Введенная команда неполная.\n" +
+                "Команда должна состоять из 4 элементов, а у вас их 3\n" +
+                "Попробуйте еще раз");
     }
 
 }

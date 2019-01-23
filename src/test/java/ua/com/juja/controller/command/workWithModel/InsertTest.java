@@ -45,16 +45,17 @@ public class InsertTest extends ActualValueGetter {
 
     @Test
     public void testDoWorkWithoutTableNameAndParams() {
-        String expected = "Недостаточно данных для запуска команды." +
-                "Недостаточно данных для ее выполнения. Попробуйте еще раз.";
+        String expected = "Введенная команда неполная.\n" +
+                "Команда должна состоять из 4 элементов, а у вас их 1\n" +
+                "Попробуйте еще раз";
         String[] params = new String[]{"insert"};
         assertEquals(expected, getActualValue(insert, view, params));
     }
 
     @Test
     public void testDoWorkWithoutParams() {
-        String expected = "Ошибка в формате команды." +
-                "Проверьте, указали ли вы таблицу, всем ли именам колонок соответствуют значения и наоборот";
+        String expected = "Введенная команда неполная.\n" +
+                "Проверьте, всем ли именам введенных вами колонок соответствуют значения.";
         String[] params = new String[]{"insert", "users", "password", "123", "firstname"};
         assertEquals(expected, getActualValue(insert, view, params));
     }

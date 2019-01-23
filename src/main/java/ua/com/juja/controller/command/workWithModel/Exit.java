@@ -26,14 +26,16 @@ public class Exit implements Command {
     @Override
     public void doWork(String[] command) {
         logger.debug("Запущен метод doWork()");
+        String result = "";
         try {
             model.exit();
             logger.debug("отработал model.exit()");
-            view.write("Всего хорошего, до встречи снова))");
+            result = "Всего хорошего, до встречи снова))";
         } catch (CreatedInModelException e) {
             logger.warn(String.format("поймано исключение из уровня модели\n" +
                     "текст исключения, выведенный пользователю в консоль:\n%s", e.getMessage()));
-            view.write(e.getMessage());
+            result = e.getMessage();
         }
+        view.write(result);
     }
 }

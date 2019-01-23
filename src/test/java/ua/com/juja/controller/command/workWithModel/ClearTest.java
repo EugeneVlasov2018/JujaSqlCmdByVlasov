@@ -48,8 +48,9 @@ public class ClearTest extends ActualValueGetter {
     @Test
     public void testDoWorkWithoutParameters() {
         String[] commandForWork = new String[]{"clear"};
-        assertEquals("Недостаточно данных для запуска команды. Укажите имя таблицы, " +
-                "которое собираетесь очистить", getActualValue(clear, view, commandForWork));
+        assertEquals("Введенная команда неполная.\n" +
+                "Команда должна состоять из 2 элементов, а у вас их 1\n" +
+                "Попробуйте еще раз", getActualValue(clear, view, commandForWork));
     }
 
     @Test
