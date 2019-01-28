@@ -15,8 +15,6 @@ public class CommandChekkerAndFormatter {
 
     protected boolean commandIsRight(int realSize, int minimalExpectedSize) throws CommandIsWrongException {
         if (realSize < minimalExpectedSize) {
-            logger.info("Комманда к выполнению корректно не прошла проверку, " +
-                    "метод doWork() отработал, процесс вернулся в MainController");
             throw new CommandIsWrongException(String.format("Введенная команда неполная.\n" +
                     "Команда должна состоять из %s элементов, а у вас их %s\n" +
                     "Попробуйте еще раз", minimalExpectedSize, realSize));
@@ -26,13 +24,11 @@ public class CommandChekkerAndFormatter {
 
     protected boolean commandIsRight(int realSize, int minimalExpectedSize, int multiplier) throws CommandIsWrongException {
         if (realSize < minimalExpectedSize) {
-            logger.info("Комманда к выполнению корректно не прошла проверку");
             throw new CommandIsWrongException(String.format("Введенная команда неполная.\n" +
                     "Команда должна состоять из %s элементов, а у вас их %s\n" +
                     "Попробуйте еще раз", minimalExpectedSize, realSize));
         }
         if (!(realSize % multiplier == 0)) {
-            logger.info("Комманда к выполнению корректно не прошла проверку");
             throw new CommandIsWrongException("Введенная команда неполная.\n" +
                     "Проверьте, всем ли именам введенных вами колонок соответствуют значения.");
         }
