@@ -33,24 +33,23 @@ public class Find extends CommandChekkerAndFormatter implements Command {
         String result = "";
         try {
             if (commandIsRight(command.length, 2)) {
-                List<String> columnName = new ArrayList();
-                List<String> columnValue = new ArrayList<>();
+                List<String> columnName;
+                List<String> columnValue;
                 try {
                     columnName = model.getColumnNameForFind(command);
-                    logger.debug("ArrayList имен колонок таблицы заполнен");
+                    logger.info("ArrayList имен колонок таблицы заполнен");
                     columnValue = model.getColumnValuesForFind(command);
-                    logger.debug("ArrayList запрашиваемых значений таблицы заполнен");
+                    logger.info("ArrayList запрашиваемых значений таблицы заполнен");
                     result = createTable(columnName, columnValue);
-                    logger.debug("таблица ответа создана и готова к выводу в консоль");
+                    logger.info("таблица ответа создана и готова к выводу в консоль");
                 } catch (CreatedInModelException a) {
                     result = a.getMessage();
-                    logger.warn(String.format("поймано исключение из уровня модели\n" +
-                            "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));
                 }
             }
         } catch (CommandIsWrongException e) {
             result = e.getMessage();
         }
         view.write(result);
+        logger.info(String.format("отработал корректно, инфа в консоли:\n%s", result));
     }
 }

@@ -26,23 +26,22 @@ public class Drop extends CommandChekkerAndFormatter implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
         String result = "";
         try {
             if (commandIsRight(command.length, 2)) {
                 try {
                     model.drop(command);
-                    logger.debug("model.drop отработал, процесс вернулся в MainController");
                     result = String.format("Таблица %s успешно удалена", command[1]);
+                    logger.info("model.drop отработал корректно");
                 } catch (CreatedInModelException a) {
                     result = a.getMessage();
-                    logger.warn(String.format("поймано исключение из уровня модели\n" +
-                            "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));
                 }
             }
         } catch (CommandIsWrongException e) {
             result = e.getMessage();
         }
         view.write(result);
+        logger.info(String.format("Юзер получил результат работы метода.\n" +
+                "Текст сообщения: %s", result));
     }
 }

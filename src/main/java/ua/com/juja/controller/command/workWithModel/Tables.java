@@ -28,17 +28,21 @@ public class Tables implements Command {
     @Override
     public void doWork(String[] command) {
         logger.debug("Запущен метод doWork()");
-        String answer = "";
+        String result = "";
         try {
             List<String> resqponseFromDB = model.tables();
-            logger.debug("метод model.tables() успешно отработал. в коллекцию сохранены названия существующих таблиц");
-            answer = resqponseFromDB.toString();
+            if (resqponseFromDB.size() == 0) {
+                result = "В базе данных нет ни одной таблицы";
+            } else {
+                result = resqponseFromDB.toString();
+            }
         } catch (CreatedInModelException b) {
-            answer = b.getMessage();
+            result = b.getMessage();
             logger.warn(String.format("поймано исключение из уровня модели\n" +
                     "текст исключения, выведенный пользователю в консоль:\n%s", b.getMessage()));
         }
-        view.write(answer);
+        view.write(result);
+        logger.info(String.format("отработал корректно, инфа в консоли:\n%s", result));
     }
 }
 

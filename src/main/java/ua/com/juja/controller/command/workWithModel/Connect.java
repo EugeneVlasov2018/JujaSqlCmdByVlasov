@@ -27,24 +27,19 @@ public class Connect extends CommandChekkerAndFormatter implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
         String result = "";
         try {
             if (commandIsRight(command.length, 4))
                 try {
                     model.connect(command);
                     result = "База успешно подключена";
-                    logger.debug("метод doWork() отработал,\n" +
-                            "ответ о успешном подключении получен пользователем,\n" +
-                            "процесс вернулся в MainController");
                 } catch (CreatedInModelException e) {
                     result = e.getMessage();
-                    logger.warn(String.format("поймано исключение из уровня модели\n" +
-                            "текст исключения:\n%s", e.getMessage()));
                 }
         } catch (CommandIsWrongException e) {
             result = e.getMessage();
         }
         view.write(result);
+        logger.info(String.format("отработал корректно, инфа в консоли:\n%s", result));
     }
 }

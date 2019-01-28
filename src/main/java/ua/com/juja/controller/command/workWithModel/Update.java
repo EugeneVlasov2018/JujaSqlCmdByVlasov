@@ -33,17 +33,15 @@ public class Update extends CommandChekkerAndFormatter implements Command {
         String result = "";
         try {
             if (commandIsRight(command.length, 4, 2)) {
-                List<String> columnName = new ArrayList<>();
-                List<String> columnValue = new ArrayList<>();
+                List<String> columnName;
+                List<String> columnValue;
                 try {
                     columnName = new ArrayList(model.getColumnNameForUpdateOrDelete(command));
-                    logger.debug("ArrayList имен колонок таблицы заполнен");
+                    logger.info("ArrayList имен колонок таблицы заполнен");
                     columnValue = new ArrayList<>(model.getColumnValuesForUpdateOrDelete(command));
-                    logger.debug("ArrayList запрашиваемых значений таблицы заполнен");
+                    logger.info("ArrayList запрашиваемых значений таблицы заполнен");
                     model.update(command);
-                    logger.debug("метод model.update отработал корректно");
                     result = String.format("Были изменены следующие строки:\n%s", createTable(columnName, columnValue));
-                    logger.debug("метод createTable отработал корректно, ответ сформирован");
                 } catch (CreatedInModelException b) {
                     result = b.getMessage();
                     logger.warn(String.format("поймано исключение из уровня модели\n" +
@@ -54,5 +52,6 @@ public class Update extends CommandChekkerAndFormatter implements Command {
             result = e.getMessage();
         }
         view.write(result);
+        logger.info(String.format("отработал корректно, инфа в консоли:\n%s", result));
     }
 }

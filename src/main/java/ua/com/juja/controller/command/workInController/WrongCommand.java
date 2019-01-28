@@ -21,10 +21,9 @@ public class WrongCommand implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
         view.write("Вы ввели неизвестную команду.\n" +
                 "Вызовите команду 'help'");
-        logger.debug("doWork() отработал корректно");
+        logger.info("отработал корректно, пользователь получил сообщение о неизвестной команде");
     }
 }
 

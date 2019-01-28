@@ -28,7 +28,6 @@ public class Delete extends CommandChekkerAndFormatter implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
         String result = "";
         try {
             if (commandIsRight(command.length, 4)) {
@@ -36,21 +35,20 @@ public class Delete extends CommandChekkerAndFormatter implements Command {
                 List<String> columnValue;
                 try {
                     columnName = model.getColumnNameForUpdateOrDelete(command);
-                    logger.debug("ArrayList имен колонок таблицы заполнен");
+                    logger.info("ArrayList имен колонок таблицы заполнен");
                     columnValue = model.getColumnValuesForUpdateOrDelete(command);
-                    logger.debug("ArrayList значений колонок таблицы заполнен");
+                    logger.info("ArrayList значений колонок таблицы заполнен");
                     model.delete(command);
-                    logger.debug("model.delete успешно отработал");
                     result = String.format("Были удалены следующие строки:\n%s", createTable(columnName, columnValue));
                 } catch (CreatedInModelException a) {
                     result = a.getMessage();
-                    logger.warn(String.format("поймано исключение из уровня модели\n" +
-                            "текст исключения, выведенный пользователю в консоль:\n%s", a.getMessage()));
                 }
             }
         } catch (CommandIsWrongException e) {
             result = e.getMessage();
         }
         view.write(result);
+        logger.info(String.format("Юзер получил результат работы метода.\n" +
+                "Текст сообщения: %s", result));
     }
 }

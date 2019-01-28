@@ -25,24 +25,21 @@ public class Create extends CommandChekkerAndFormatter implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
         String result = "";
         try {
             if (commandIsRight(command.length, 3)) {
                 try {
                     model.create(command);
                     result = String.format("Таблица '%s' успешно создана", command[1]);
-                    logger.debug("cформирована таблица в БД согласно запроса юзера");
+                    logger.info("cформирована таблица в БД согласно запроса юзера");
                 } catch (CreatedInModelException a) {
                     result = a.getMessage();
-                    logger.warn(String.format("поймано исключение из уровня модели\n" +
-                            "текст исключения:\n%s", a.getMessage()));
                 }
             }
         } catch (CommandIsWrongException e) {
             result = e.getMessage();
         }
         view.write(result);
-        logger.debug(String.format("сообщение выведено в консоль:\n%s", result));
+        logger.info(String.format("сообщение выведено в консоль:\n%s", result));
     }
 }

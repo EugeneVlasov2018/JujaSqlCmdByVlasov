@@ -37,11 +37,11 @@ public class MainController {
         boolean flag = true;
         while (flag) {
             commandForWork = splitCommandOnArray();
-            logger.debug("Отработал метод commandForWork(), началось распознавание конкретной комманды");
+            logger.info("Отработал метод commandForWork(), началось распознавание конкретной комманды");
             workWithCommand();
-            logger.debug("Отработал метод workWithCommand()");
+            logger.info("Отработал метод workWithCommand()");
             flag = whatCommandIsWork(commandForWork);
-            logger.debug("Проверили состояние флага методом whatCommandIsWork");
+            logger.info("Проверили состояние флага методом whatCommandIsWork");
         }
     }
 
@@ -58,6 +58,7 @@ public class MainController {
     private void workWithCommand() {
         for (Command currentCommand : command) {
             if (currentCommand.canProcess(commandForWork)) {
+                logger.info(String.format("Команда '%s' запускает работу класса %s", commandForWork.toString(), currentCommand.getClass().getName()));
                 currentCommand.doWork(commandForWork);
                 break;
             }

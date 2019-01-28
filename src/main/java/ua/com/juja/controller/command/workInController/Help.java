@@ -26,15 +26,13 @@ public class Help implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
         try (Scanner scanner = new Scanner(new FileReader("src\\main\\resourses\\Help.txt"))) {
-            logger.debug("Создан экземпляр Scanner");
             while (scanner.hasNext()) {
                 view.write(scanner.nextLine());
             }
-            logger.debug("doWork() отработал корректно");
+            logger.info("отработал корректно, пользовотелю выведена информация о командах");
         } catch (IOException x){
-            logger.error(String.format("Поймана ошибка в doWork(). стек-трейс ошибки:\n%s", x.getStackTrace()));
+            logger.warn(String.format("Поймана ошибка в doWork(). стек-трейс ошибки:\n%s", x.getStackTrace()));
             view.write(String.format("Ошибка в процессе выполнения 'help'. Причина:\n%s", x.getMessage()));
         }
     }

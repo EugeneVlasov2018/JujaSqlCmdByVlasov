@@ -26,25 +26,21 @@ public class Clear extends CommandChekkerAndFormatter implements Command {
 
     @Override
     public void doWork(String[] command) {
-        logger.debug("Запущен метод doWork()");
-        String answer = "";
+        String result = "";
         try {
             if (commandIsRight(command.length, 2)) {
                 try {
                     model.clear(command);
-                    logger.debug("метод model.clear() отработал, сформирована строка ответа");
-                    answer = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
+                    result = "Все данные из таблицы ".concat(command[1]).concat(" были удалены");
                 } catch (CreatedInModelException e) {
-                    answer = e.getMessage();
-                    logger.warn("Из модели прилетело исключение. Месседж исключения добавлен в ответ.\n" +
-                            "метод doWork() отработал, процесс вернулся в MainController");
+                    result = e.getMessage();
                 }
             }
         } catch (CommandIsWrongException e) {
-            answer = e.getMessage();
+            result = e.getMessage();
         }
-        view.write(answer);
-        logger.debug("метод doWork() отработал, ответ выведен в консоль");
+        view.write(result);
+        logger.info(String.format("отработал корректно, инфа в консоли:\n%s", result));
     }
 }
 
