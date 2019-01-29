@@ -9,19 +9,7 @@
 - Использует библиотеки Log4j, Mockito, Junit
 
 **<p>------------------------Настройка перед запуском---------------------------------<br>**
-<p>Для правильной работы тестов создайте в Postgre новую базу данных с такими параметрами:</p>
-<p>имя БД - testforsql<br>
-user - postgres<br>
-password - root<br>
-
-<p>Либо впишите ваши параметры в следующие поля:<br>
-В классе PostgreModelTest измените значение массива responceToConnection на:<br>
-
-*private String[] responceToConnection = new String[]{"connect", "Имя БД", "user", "password"};*<br>
-
-В классе IntegrationTest измените значение переменной commandForConnect на:<br>
-
-*private final static String commandForConnect = "connect|Имя БД|user|password";*<br></p>
+<p>Для правильной работы тестов создайте в Postgre новую базу данных и измените значение полей в testDB.properties</p>
 
 <p>Для правильной работы логгера пропишите свой путь для сохранения лог-файлов<br>
 (в log4j.properties, которое находится в JujaSqlCmdByVlasov\src\main\resourses\ измените значение 5й строки)

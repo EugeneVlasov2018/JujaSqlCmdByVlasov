@@ -8,9 +8,8 @@ import ua.com.juja.model.PostgreModel;
 import ua.com.juja.view.ConsoleView;
 import ua.com.juja.view.View;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,7 +20,26 @@ public class IntegrationTest {
     private Model model;
     private View view;
     private MainController mainController;
-    private final static String commandForConnect = "connect|testforsql|postgres|root";
+    private static String commandForConnect;
+
+    @BeforeClass
+    public static void databaseSetUp() {
+        Properties property = new Properties();
+        try (FileInputStream fis = new FileInputStream("" +
+                "src\\test\\resourses\\tetsDB.properties");) {
+            property.load(fis);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ОШИБКА!!! Файл настроек не найден");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = property.getProperty("db.dbname");
+        String user = property.getProperty("db.user");
+        String password = property.getProperty("db.password");
+        commandForConnect = String.format("connect|%s|%s|%s", url, user, password);
+
+    }
 
     @Before
     public void setup() {

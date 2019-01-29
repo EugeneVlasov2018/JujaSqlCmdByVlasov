@@ -1,19 +1,42 @@
 package ua.com.juja.model;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
 public class PostgreModelTest {
     private Model model;
-    private String[] responceToConnection = new String[]{"connect", "testforsql", "postgres", "root"};
+    private static String[] responceToConnection = new String[4];
     private Connection connection;
+
+    @BeforeClass
+    public static void databaseSetUp() {
+        Properties property = new Properties();
+        try (FileInputStream fis = new FileInputStream("" +
+                "src\\test\\resourses\\tetsDB.properties");) {
+            property.load(fis);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ОШИБКА!!! Файл настроек не найден");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        responceToConnection[0] = "connect";
+        responceToConnection[1] = property.getProperty("db.dbname");
+        responceToConnection[2] = property.getProperty("db.user");
+        responceToConnection[3] = property.getProperty("db.password");
+    }
 
 
     @Before
