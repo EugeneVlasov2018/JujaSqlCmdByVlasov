@@ -10,8 +10,8 @@ public class CommandIsWrongException extends Exception {
 
     public CommandIsWrongException(String message) {
         this.message = message;
-        logger.warn(String.format("В процессе работы на уровне контроллера произошла ошибка. Причина возникновения:\n" +
-                "%s\n", message));
+        logger.warn(String.format("В процессе работы на уровне контроллера произошла ошибка. Причина возникновения: %s"
+                , message));
     }
 
     public String getMessage() {

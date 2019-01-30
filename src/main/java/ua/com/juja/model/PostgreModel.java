@@ -212,7 +212,7 @@ public class PostgreModel implements Model {
         String sqlRequest = String.format("SELECT * FROM %s", command[1]);
         logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
         responceWithColumnNames = getColumnNamesFromDB(sqlRequest);
-        logger.debug(String.format("Получены имена колонок таблицы:\n%s", responceWithColumnNames.toArray().toString()));
+        logger.debug(String.format("Получены имена колонок таблицы:\n%s", responceWithColumnNames.toString()));
 
         return responceWithColumnNames;
     }
@@ -224,7 +224,7 @@ public class PostgreModel implements Model {
         logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
         responceWithColumnValues = getColumnValuesFromDB(sqlRequest);
         logger.debug(String.format("Получены значения колонок таблицы:\n%s",
-                responceWithColumnValues.toArray().toString()));
+                responceWithColumnValues.toString()));
 
         return responceWithColumnValues;
     }
@@ -235,7 +235,7 @@ public class PostgreModel implements Model {
         String sqlRequest = String.format("SELECT * FROM %s WHERE %s ='%s'", command[1], command[2], command[3]);
         logger.debug(String.format("Создан SQL-запрос для получения имен колонок из ДБ:\n%s", sqlRequest));
         columnNames = getColumnNamesFromDB(sqlRequest);
-        logger.debug(String.format("Получены имена колонок таблицы:\n%s", columnNames.toArray().toString()));
+        logger.debug(String.format("Получены имена колонок таблицы:\n%s", columnNames.toString()));
         return columnNames;
     }
 
@@ -246,7 +246,7 @@ public class PostgreModel implements Model {
         logger.debug(String.format("Создан SQL-запрос для получения значений колонок из ДБ:\n%s", sqlRequest));
         columnValues = getColumnValuesFromDB(sqlRequest);
         logger.debug(String.format("Получены значения колонок таблицы:\n%s",
-                columnValues.toArray().toString()));
+                columnValues.toString()));
         return columnValues;
     }
 
@@ -274,7 +274,7 @@ public class PostgreModel implements Model {
                     responceWithColumnNames.add(rsmd.getColumnName(i));
                 }
                 logger.debug(String.format("Получены имена колонок таблицы:\n%s",
-                        responceWithColumnNames.toArray().toString()));
+                        responceWithColumnNames.toString()));
 
             } catch (SQLException e) {
                 createExceptionInModel(e);
@@ -297,7 +297,7 @@ public class PostgreModel implements Model {
                     for (int index = 1; index <= columnCount; index++)
                         responceWithColumnValues.add(resultSet.getString(index));
                     logger.debug(String.format("Получены имена колонок таблицы:\n%s",
-                            responceWithColumnValues.toArray().toString()));
+                            responceWithColumnValues.toString()));
                 }
             } catch (SQLException e) {
                 createExceptionInModel(e);

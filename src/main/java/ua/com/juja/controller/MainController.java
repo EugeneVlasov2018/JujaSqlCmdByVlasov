@@ -58,7 +58,7 @@ public class MainController {
     private void workWithCommand() {
         for (Command currentCommand : command) {
             if (currentCommand.canProcess(commandForWork)) {
-                logger.info(String.format("Команда '%s' запускает работу класса %s", commandForWork.toString(), currentCommand.getClass().getName()));
+                logger.info(String.format("Команда '%s' запускает работу класса %s", commandForWork, currentCommand.getClass().getName()));
                 currentCommand.doWork(commandForWork);
                 break;
             }
