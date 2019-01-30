@@ -10,6 +10,8 @@ import ua.com.juja.controller.command.workWithModel.*;
 import ua.com.juja.model.Model;
 import ua.com.juja.view.View;
 
+import java.util.Arrays;
+
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
 public class MainController {
@@ -58,7 +60,8 @@ public class MainController {
     private void workWithCommand() {
         for (Command currentCommand : command) {
             if (currentCommand.canProcess(commandForWork)) {
-                logger.info(String.format("Команда '%s' запускает работу класса %s", commandForWork, currentCommand.getClass().getName()));
+                logger.info(String.format("Команда '%s' запускает работу класса %s",
+                        Arrays.asList(commandForWork).toString(), currentCommand.getClass().getName()));
                 currentCommand.doWork(commandForWork);
                 break;
             }
