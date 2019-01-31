@@ -1,5 +1,6 @@
 package ua.com.juja.model;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,54 +39,59 @@ public class PostgreModelTest {
         responceToConnection[3] = property.getProperty("db.password");
     }
 
-
     @Before
-    public void setUp() {
+    public void setUp() throws CreatedInModelException {
+        connectToDBTest();
         model = new PostgreModel();
+        model.connect(responceToConnection);
     }
-    
+
+    @After
+    public void deleteTableTest() {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("DROP TABLE usertest");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @Test
     public void connect() {
-        Boolean isConnected;
+        boolean allRight = false;
+        model = new PostgreModel();
         try {
             model.connect(responceToConnection);
-            isConnected = true;
+            allRight = true;
         } catch (CreatedInModelException e) {
-            isConnected = false;
+            //do nothing
         }
-        assertTrue(isConnected);
+        assertTrue(allRight);
     }
 
     @Test
     public void create() {
-        boolean theTableIsCreated;
+        boolean theTableIsCreated = false;
         String[] responceToDB = new String[]{"create", "usertest", "firstname", "secondname", "password"};
         try {
-            model.connect(responceToConnection);
             model.create(responceToDB);
             theTableIsCreated = true;
         } catch (CreatedInModelException e) {
-            e.printStackTrace();
-            theTableIsCreated = false;
+            //do nothing;
         }
-        connectToDBTest();
-        deleteTableTest();
-
         assertTrue(theTableIsCreated);
     }
 
     @Test
     public void tables() {
         prepareDataBaseWithoutData();
-        String expected = "usertest";
+        String expected = "[[usertest]]";
         String actual = "";
         try {
-            model.connect(responceToConnection);
-            actual = model.tables().get(0);
+            actual = Arrays.asList(model.tables()).toString();
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
-        deleteTableTest();
         assertEquals(expected, actual);
     }
 
@@ -261,13 +267,6 @@ public class PostgreModelTest {
         }
     }
 
-    private void deleteTableTest() {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE usertest");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void createTableTest() {
         try (Statement statement = connection.createStatement()) {
