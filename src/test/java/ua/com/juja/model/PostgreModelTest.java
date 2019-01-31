@@ -1,9 +1,6 @@
 package ua.com.juja.model;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
 import java.io.FileInputStream;
@@ -19,7 +16,7 @@ import static org.junit.Assert.*;
 public class PostgreModelTest {
     private Model model;
     private static String[] responceToConnection = new String[4];
-    private Connection connection;
+    private static Connection connection;
 
     @BeforeClass
     public static void databaseSetUp() {
@@ -37,13 +34,27 @@ public class PostgreModelTest {
         responceToConnection[1] = property.getProperty("db.dbname");
         responceToConnection[2] = property.getProperty("db.user");
         responceToConnection[3] = property.getProperty("db.password");
+        connectToDBTest();
+    }
+
+    private static void connectToDBTest() {
+        String url = "jdbc:postgresql://localhost:5432/" + responceToConnection[1];
+        String user = responceToConnection[2];
+        String password = responceToConnection[3];
+        String jdbcDriver = "org.postgresql.Driver";
+        try {
+            Class.forName(jdbcDriver);
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Before
     public void setUp() throws CreatedInModelException {
-        connectToDBTest();
-        model = new PostgreModel();
-        model.connect(responceToConnection);
+        model = new PostgreModel(connection);
     }
 
     @After
@@ -51,21 +62,38 @@ public class PostgreModelTest {
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE usertest");
         } catch (SQLException e) {
+            System.err.println("Если вы получили это исключение, протестировав ТОЛЬКО model.exit(), - не страшно.\n" +
+                    "В процессе теста вы и так закрыли коннекшн");
             e.printStackTrace();
         }
     }
 
+    @AfterClass
+    public static void closeConnection(){
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            System.err.println("Если вы получили это исключение, протестировав ТОЛЬКО model.exit(), - не страшно.\n" +
+                    "В процессе теста вы и так закрыли коннекшн");
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void connect() {
+        //Given
         boolean allRight = false;
         model = new PostgreModel();
+
+        //When
         try {
             model.connect(responceToConnection);
             allRight = true;
         } catch (CreatedInModelException e) {
             //do nothing
         }
+
+        //Then
         assertTrue(allRight);
     }
 
@@ -84,7 +112,7 @@ public class PostgreModelTest {
 
     @Test
     public void tables() {
-        prepareDataBaseWithoutData();
+        createTableTest();
         String expected = "[[usertest]]";
         String actual = "";
         try {
@@ -95,69 +123,60 @@ public class PostgreModelTest {
         assertEquals(expected, actual);
     }
 
+    @Ignore
     @Test
     public void clear() {
-        boolean isThisClear;
+        boolean isThisClear = false;
         String[] responceToDB = new String[]{"clear", "usertest"};
-        prepareDataBaseWithoutData();
+        createTableTest();
         try {
-            model.connect(responceToConnection);
             model.clear(responceToDB);
             isThisClear = true;
         } catch (CreatedInModelException e) {
-            isThisClear = false;
             e.printStackTrace();
         }
-        deleteTableTest();
         assertTrue(isThisClear);
     }
 
     @Test
     public void drop() {
-        boolean isThisDroped;
+        boolean isThisDroped=false;
         String[] responceToDB = new String[]{"drop", "usertest"};
-        prepareDataBaseWithoutData();
+        createTableTest();
         try {
-            model.connect(responceToConnection);
             model.drop(responceToDB);
             isThisDroped = true;
         } catch (CreatedInModelException e) {
-            isThisDroped = false;
             e.printStackTrace();
         }
+        createTableTest();
         assertTrue(isThisDroped);
     }
 
     @Test
     public void exit() {
-        boolean modelIsExit;
+        boolean modelIsExit = false;
         try {
-            model.connect(responceToConnection);
             model.exit();
             modelIsExit = true;
         } catch (CreatedInModelException e) {
-            modelIsExit = false;
             e.printStackTrace();
         }
         assertTrue(modelIsExit);
-
     }
 
     @Test
     public void insert() {
         String[] sqlRequest = new String[]
                 {"insert", "usertest", "firstname", "John", "secondname", "Dou", "password", "123"};
-        boolean isInserted;
-        prepareDataBaseWithoutData();
+        boolean isInserted = false;
+        createTableTest();
         try {
-            model.connect(responceToConnection);
             model.insert(sqlRequest);
             isInserted = true;
         } catch (CreatedInModelException e) {
-            isInserted = false;
             e.printStackTrace();
         }
-        deleteTableTest();
         assertTrue(isInserted);
     }
 
@@ -169,34 +188,30 @@ public class PostgreModelTest {
                 "firstname", "John2",
                 "secondname", "Dou2",
                 "password", "123456"};
-        boolean isUpdated;
-        prepareDataBaseWithData();
+        boolean isUpdated = false;
+        createTableTest();
+        insertDataIntoTableTest();
         try {
-            model.connect(responceToConnection);
             model.update(sqlRequest);
             isUpdated = true;
         } catch (CreatedInModelException e) {
-            isUpdated = false;
             e.printStackTrace();
         }
-        deleteTableTest();
         assertTrue(isUpdated);
     }
 
     @Test
     public void delete() {
-        boolean isDeleted;
+        boolean isDeleted = false;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        prepareDataBaseWithData();
+        createTableTest();
+        insertDataIntoTableTest();
         try {
-            model.connect(responceToConnection);
             model.delete(sqlRequest);
             isDeleted = true;
         } catch (CreatedInModelException e) {
-            isDeleted = false;
             e.printStackTrace();
         }
-        deleteTableTest();
         assertTrue(isDeleted);
     }
 
@@ -206,36 +221,35 @@ public class PostgreModelTest {
                 "id", "firstname", "secondname", "password"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"find", "usertest"};
-        prepareDataBaseWithData();
-        model.connect(responceToConnection);
+        createTableTest();
+        insertDataIntoTableTest();
         actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
-        deleteTableTest();
         assertEquals(expected, actual);
     }
 
+    @Ignore
     @Test
     public void getColumnValuesForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
                 "1", "John", "Dou", "123"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"find", "usertest"};
-        prepareDataBaseWithData();
-        model.connect(responceToConnection);
+        createTableTest();
+        insertDataIntoTableTest();
         actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
-        deleteTableTest();
         assertEquals(expected, actual);
     }
 
+    @Ignore
     @Test
     public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
                 "id", "firstname", "secondname", "password"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        prepareDataBaseWithData();
-        model.connect(responceToConnection);
+        createTableTest();
+        insertDataIntoTableTest();
         actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
-        deleteTableTest();
         assertEquals(expected, actual);
     }
 
@@ -245,30 +259,13 @@ public class PostgreModelTest {
                 "1", "John", "Dou", "123"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        prepareDataBaseWithData();
-        model.connect(responceToConnection);
+        createTableTest();
+        insertDataIntoTableTest();
         actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
-        deleteTableTest();
         assertEquals(expected, actual);
     }
 
-    private void connectToDBTest() {
-        String url = "jdbc:postgresql://localhost:5432/" + responceToConnection[1];
-        String user = responceToConnection[2];
-        String password = responceToConnection[3];
-        String jdbcDriver = "org.postgresql.Driver";
-        try {
-            Class.forName(jdbcDriver);
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void createTableTest() {
+    private static void createTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE usertest" +
                     " (id SERIAL, firstname VARCHAR (225), secondname VARCHAR (225), password VARCHAR(225))");
@@ -277,7 +274,7 @@ public class PostgreModelTest {
         }
     }
 
-    private void insertDataIntoTableTest() {
+    private static void insertDataIntoTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute
                     ("INSERT INTO usertest (firstname, secondname, password)" +
@@ -285,17 +282,6 @@ public class PostgreModelTest {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private void prepareDataBaseWithoutData() {
-        connectToDBTest();
-        createTableTest();
-    }
-
-    private void prepareDataBaseWithData() {
-        connectToDBTest();
-        createTableTest();
-        insertDataIntoTableTest();
     }
 }
 

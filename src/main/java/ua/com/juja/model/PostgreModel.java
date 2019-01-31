@@ -12,6 +12,13 @@ import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 public class PostgreModel implements Model {
     private Connection connectionToDatabase;
 
+    public PostgreModel() {
+    }
+
+    public PostgreModel(Connection connectionToDatabase) {
+        this.connectionToDatabase = connectionToDatabase;
+    }
+
     private static final Logger logger = Logger.getLogger(getCurrentClassName());
 
     @Override
