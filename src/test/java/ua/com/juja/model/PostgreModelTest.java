@@ -34,7 +34,6 @@ public class PostgreModelTest {
         responceToConnection[1] = property.getProperty("db.dbname");
         responceToConnection[2] = property.getProperty("db.user");
         responceToConnection[3] = property.getProperty("db.password");
-        connectToDBTest();
     }
 
     private static void connectToDBTest() {
@@ -54,11 +53,11 @@ public class PostgreModelTest {
 
     @Before
     public void setUp() throws CreatedInModelException {
+        connectToDBTest();
         model = new PostgreModel(connection);
     }
 
-    @After
-    public void deleteTableTest() {
+    public static void deleteTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE usertest");
         } catch (SQLException e) {
@@ -81,11 +80,10 @@ public class PostgreModelTest {
 
     @Test
     public void connect() {
-        //Given
         boolean allRight = false;
         model = new PostgreModel();
 
-        //When
+
         try {
             model.connect(responceToConnection);
             allRight = true;
@@ -93,7 +91,7 @@ public class PostgreModelTest {
             //do nothing
         }
 
-        //Then
+
         assertTrue(allRight);
     }
 
@@ -101,13 +99,16 @@ public class PostgreModelTest {
     public void create() {
         boolean theTableIsCreated = false;
         String[] responceToDB = new String[]{"create", "usertest", "firstname", "secondname", "password"};
+
         try {
             model.create(responceToDB);
             theTableIsCreated = true;
         } catch (CreatedInModelException e) {
             //do nothing;
         }
+
         assertTrue(theTableIsCreated);
+        deleteTableTest();
     }
 
     @Test
@@ -115,27 +116,32 @@ public class PostgreModelTest {
         createTableTest();
         String expected = "[[usertest]]";
         String actual = "";
+
         try {
             actual = Arrays.asList(model.tables()).toString();
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+
         assertEquals(expected, actual);
+        deleteTableTest();
     }
 
-    @Ignore
     @Test
     public void clear() {
         boolean isThisClear = false;
         String[] responceToDB = new String[]{"clear", "usertest"};
         createTableTest();
+
         try {
             model.clear(responceToDB);
             isThisClear = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+
         assertTrue(isThisClear);
+        deleteTableTest();
     }
 
     @Test
@@ -143,25 +149,28 @@ public class PostgreModelTest {
         boolean isThisDroped=false;
         String[] responceToDB = new String[]{"drop", "usertest"};
         createTableTest();
+
         try {
             model.drop(responceToDB);
             isThisDroped = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
-        createTableTest();
+
         assertTrue(isThisDroped);
     }
 
     @Test
     public void exit() {
         boolean modelIsExit = false;
+
         try {
             model.exit();
             modelIsExit = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+
         assertTrue(modelIsExit);
     }
 
@@ -171,13 +180,16 @@ public class PostgreModelTest {
                 {"insert", "usertest", "firstname", "John", "secondname", "Dou", "password", "123"};
         boolean isInserted = false;
         createTableTest();
+
         try {
             model.insert(sqlRequest);
             isInserted = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+
         assertTrue(isInserted);
+        deleteTableTest();
     }
 
     @Test
@@ -191,13 +203,16 @@ public class PostgreModelTest {
         boolean isUpdated = false;
         createTableTest();
         insertDataIntoTableTest();
+
         try {
             model.update(sqlRequest);
             isUpdated = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+
         assertTrue(isUpdated);
+        deleteTableTest();
     }
 
     @Test
@@ -206,13 +221,16 @@ public class PostgreModelTest {
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         createTableTest();
         insertDataIntoTableTest();
+
         try {
             model.delete(sqlRequest);
             isDeleted = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+
         assertTrue(isDeleted);
+        deleteTableTest();
     }
 
     @Test
@@ -223,11 +241,14 @@ public class PostgreModelTest {
         String[] sqlRequest = new String[]{"find", "usertest"};
         createTableTest();
         insertDataIntoTableTest();
+
         actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
+
         assertEquals(expected, actual);
+        deleteTableTest();
     }
 
-    @Ignore
+
     @Test
     public void getColumnValuesForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
@@ -236,11 +257,14 @@ public class PostgreModelTest {
         String[] sqlRequest = new String[]{"find", "usertest"};
         createTableTest();
         insertDataIntoTableTest();
+
         actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
+
         assertEquals(expected, actual);
+        deleteTableTest();
     }
 
-    @Ignore
+
     @Test
     public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
@@ -249,8 +273,11 @@ public class PostgreModelTest {
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         createTableTest();
         insertDataIntoTableTest();
+
         actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
+
         assertEquals(expected, actual);
+        deleteTableTest();
     }
 
     @Test
@@ -261,8 +288,11 @@ public class PostgreModelTest {
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         createTableTest();
         insertDataIntoTableTest();
+
         actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
+
         assertEquals(expected, actual);
+        deleteTableTest();
     }
 
     private static void createTableTest() {
