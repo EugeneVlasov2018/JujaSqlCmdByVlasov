@@ -15,32 +15,20 @@ import static org.junit.Assert.*;
 
 public class PostgreModelTest {
     private Model model;
-    private static String[] responceToConnection = new String[4];
+    private static String[] responceToConnection = new String[]{"connent","","",""};
     private static Connection connection;
 
-    @BeforeClass
-    public static void databaseSetUp() {
-        Properties property = new Properties();
-        try (FileInputStream fis = new FileInputStream("" +
-                "src\\test\\resourses\\tetsDB.properties");) {
-            property.load(fis);
-
-        } catch (FileNotFoundException e) {
-            System.err.println("ОШИБКА!!! Файл настроек не найден");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        responceToConnection[0] = "connect";
-        responceToConnection[1] = property.getProperty("db.dbname");
-        responceToConnection[2] = property.getProperty("db.user");
-        responceToConnection[3] = property.getProperty("db.password");
+    @Before
+    public void setUp() throws CreatedInModelException {
+        connectToDBTest();
+        model = new PostgreModel(connection);
     }
 
     private static void connectToDBTest() {
-        String url = "jdbc:postgresql://localhost:5432/" + responceToConnection[1];
-        String user = responceToConnection[2];
-        String password = responceToConnection[3];
-        String jdbcDriver = "org.postgresql.Driver";
+        String url = "jdbc:h2:mem:default";
+        String user = "";
+        String password = "";
+        String jdbcDriver = "org.h2.Driver";
         try {
             Class.forName(jdbcDriver);
             connection = DriverManager.getConnection(url, user, password);
@@ -49,12 +37,6 @@ public class PostgreModelTest {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    @Before
-    public void setUp() throws CreatedInModelException {
-        connectToDBTest();
-        model = new PostgreModel(connection);
     }
 
     public static void deleteTableTest() {
@@ -82,8 +64,6 @@ public class PostgreModelTest {
     public void connect() {
         boolean allRight = false;
         model = new PostgreModel();
-
-
         try {
             model.connect(responceToConnection);
             allRight = true;
@@ -236,7 +216,7 @@ public class PostgreModelTest {
     @Test
     public void getColumnNameForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "id", "firstname", "secondname", "password"));
+                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"find", "usertest"};
         createTableTest();
@@ -268,7 +248,7 @@ public class PostgreModelTest {
     @Test
     public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "id", "firstname", "secondname", "password"));
+                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         createTableTest();
