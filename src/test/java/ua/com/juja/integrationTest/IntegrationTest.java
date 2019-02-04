@@ -26,7 +26,7 @@ public class IntegrationTest {
     public static void databaseSetUp() {
         Properties property = new Properties();
         try (FileInputStream fis = new FileInputStream("" +
-                "src\\test\\resourses\\tetsDB.properties");) {
+                "src\\test\\resourses\\tetsDB.properties")) {
             property.load(fis);
 
         } catch (FileNotFoundException e) {
@@ -34,10 +34,11 @@ public class IntegrationTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String url = property.getProperty("db.dbname");
-        String user = property.getProperty("db.user");
-        String password = property.getProperty("db.password");
-        commandForConnect = String.format("connect|%s|%s|%s", url, user, password);
+
+        commandForConnect = String.format("connect|%s|%s|%s",
+                property.getProperty("db.dbname"),
+                property.getProperty("db.user"),
+                property.getProperty("db.password"));
 
     }
 
