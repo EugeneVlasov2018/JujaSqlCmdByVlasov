@@ -3,36 +3,33 @@ package ua.com.juja.model;
 import org.apache.log4j.Logger;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
 public class PostgreModel implements Model {
     private Connection connectionToDatabase;
-    private Connector connector;
+    private DatabaseSwinger databaseSwinger;
 
     public PostgreModel() {
-        connector = new Connector(new String("src\\main\\resourses\\DB.properties"));
+        databaseSwinger = new DatabaseSwinger(new String("src\\main\\resourses\\DB.properties"));
     }
 
-    public PostgreModel(Connector connector) {
-        this.connector = connector;
+    public PostgreModel(Connection connectionToDatabase, DatabaseSwinger databaseSwinger) {
+        this.databaseSwinger = databaseSwinger;
+        this.connectionToDatabase = connectionToDatabase;
     }
 
     private static final Logger logger = Logger.getLogger(getCurrentClassName());
 
     @Override
     public void connect(String[] responceToDb) throws CreatedInModelException {
-        String url = connector.getUrl()+ responceToDb[1];
-        String user = connector.getUser()+responceToDb[2];
-        String password = connector.getPassword()+responceToDb[3];
-        String jdbcDriver = connector.getDriver();
+        String url = databaseSwinger.getUrl()+ responceToDb[1];
+        String user = responceToDb[2];
+        String password = responceToDb[3];
+        String jdbcDriver = databaseSwinger.getDriver();
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
         logger.info("Соединение с базой установлено");
     }

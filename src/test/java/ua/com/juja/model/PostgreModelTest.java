@@ -3,13 +3,9 @@ package ua.com.juja.model;
 import org.junit.*;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -18,44 +14,29 @@ public class PostgreModelTest {
     private static String[] requestToConnection;
     private static String connectionDriver;
     private static Connection connection;
-    private Connector connector;
+    private static DatabaseSwinger databaseSwinger;
+
 
     @BeforeClass
     public static void databaseSetUp() {
-        Properties property = new Properties();
-        try (FileInputStream fis = new FileInputStream("" +
-                "src\\test\\resourses\\tetsDB.properties")) {
-            property.load(fis);
-
-        } catch (FileNotFoundException e) {
-            System.err.println("ОШИБКА!!! Файл настроек не найден");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        databaseSwinger = new DatabaseSwinger(new String("src\\test\\resourses\\tetsDB.properties"));
         requestToConnection = new String[]{
                 "connect",
-                property.getProperty("db.url")+property.getProperty("db.dbname"),
-                property.getProperty("db.user"),
-                property.getProperty("db.password")};
-        /*requestForConnectTest = new String[]{
-                "connect",
-                property.getProperty("db.integrationtesturl"),
-                property.getProperty("db.integrationtestuser"),
-                property.getProperty("db.integrationtestpassword")};*/
-        connectionDriver = property.getProperty("db.driver");
-
+                databaseSwinger.getUrl(),
+                databaseSwinger.getUser(),
+                databaseSwinger.getPassword()
+        };
+        connectionDriver = databaseSwinger.getDriver();
     }
 
     @Before
     public void setUp() {
-        connector = new Connector(new String("src\\test\\resourses\\tetsDB.properties"));
         connectToDBTest();
-        model = new PostgreModel(connector);
+        model = new PostgreModel(connection, databaseSwinger);
     }
 
-    private static void connectToDBTest() {
-        String url = requestToConnection[1];
+    private void connectToDBTest() {
+        String url = requestToConnection[1]+ databaseSwinger.getDbName();
         String user = requestToConnection[2];
         String password = requestToConnection[3];
         String jdbcDriver = connectionDriver;
@@ -69,7 +50,7 @@ public class PostgreModelTest {
         }
     }
 
-    public static void deleteTableTest() {
+    public void deleteTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE usertest");
         } catch (SQLException e) {
@@ -93,9 +74,9 @@ public class PostgreModelTest {
     @Test
     public void connect() {
         boolean allRight = false;
-        model = new PostgreModel();
+        model = new PostgreModel(null, databaseSwinger);
         try {
-            model.connect(requestForConnectTest);
+            model.connect(requestToConnection);
             allRight = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
@@ -304,7 +285,7 @@ public class PostgreModelTest {
         deleteTableTest();
     }
 
-    private static void createTableTest() {
+    private void createTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE usertest " +
                     " (id SERIAL, firstname VARCHAR (225), secondname VARCHAR (225), password VARCHAR(225))");
@@ -313,7 +294,7 @@ public class PostgreModelTest {
         }
     }
 
-    private static void insertDataIntoTableTest() {
+    private void insertDataIntoTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute
                     ("INSERT INTO usertest (firstname, secondname, password)" +

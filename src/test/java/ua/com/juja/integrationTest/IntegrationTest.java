@@ -3,13 +3,13 @@ package ua.com.juja.integrationTest;
 import org.junit.*;
 import ua.com.juja.controller.Main;
 import ua.com.juja.controller.MainController;
+import ua.com.juja.model.DatabaseSwinger;
 import ua.com.juja.model.Model;
 import ua.com.juja.model.PostgreModel;
 import ua.com.juja.view.ConsoleView;
 import ua.com.juja.view.View;
 
 import java.io.*;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,31 +20,22 @@ public class IntegrationTest {
     private Model model;
     private View view;
     private MainController mainController;
+    private static DatabaseSwinger databaseSwinger;
     private static String commandForConnect;
 
     @BeforeClass
     public static void databaseSetUp() {
-        Properties property = new Properties();
-        try (FileInputStream fis = new FileInputStream("" +
-                "src\\test\\resourses\\tetsDB.properties")) {
-            property.load(fis);
-
-        } catch (FileNotFoundException e) {
-            System.err.println("ОШИБКА!!! Файл настроек не найден");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        databaseSwinger = new DatabaseSwinger(new String("src\\test\\resourses\\tetsDB.properties"));
 
         commandForConnect = String.format("connect|%s|%s|%s",
-                property.getProperty("db.integrationtesturl"),
-                property.getProperty("db.integrationtestuser"),
-                property.getProperty("db.integrationtestpassword"));
-
+                databaseSwinger.getDbName(),
+                databaseSwinger.getUser() ,
+                databaseSwinger.getPassword());
     }
 
     @Before
     public void setup() {
-        model = new PostgreModel();
+        model = new PostgreModel(null, databaseSwinger);
         view = new ConsoleView();
         mainController = new MainController(model, view);
         in = new ConfigurableInputStream();
@@ -391,7 +382,10 @@ public class IntegrationTest {
                 "'connect|database|username|password'\n" +
                 "База успешно подключена\n" +
                 "Таблица 'users' успешно создана\n" +
-                "Ошибка в работе с базой данных. Причина: ERROR: relation \"users\" already exists\n" +
+                "Ошибка в работе с базой данных. Причина: Таблица \"USERS\" уже существует\n" +
+                "Table \"USERS\" already exists; SQL statement:\n" +
+                "CREATE TABLE users (id SERIAL, firstname VARCHAR(255), " +
+                "secondname VARCHAR(255), password VARCHAR(255), PRIMARY KEY (id)) [42101-192]\n" +
                 "Таблица users успешно удалена\n" +
                 "Всего хорошего, до встречи снова))\n",getData());
     }
@@ -423,7 +417,9 @@ public class IntegrationTest {
                 //создание таблицы 'users'
                 "Таблица 'users' успешно создана\n" +
                 //попытка удаления несуществующей таблицы
-                "Ошибка в работе с базой данных. Причина: ERROR: table \"anothertable\" does not exist\n" +
+                "Ошибка в работе с базой данных. Причина: Таблица \"ANOTHERTABLE\" не найдена\n" +
+                "Table \"ANOTHERTABLE\" not found; SQL statement:\n" +
+                "DROP TABLE anotherTable [42102-192]\n" +
                 //успешное удаление таблицы 'users'
                 "Таблица users успешно удалена\n" +
                 //exit
@@ -509,8 +505,9 @@ public class IntegrationTest {
                 //подключаемся к БД
                 "База успешно подключена\n" +
                 //изменение данных в несуществующей таблице (неудача)
-                "Ошибка в работе с базой данных. Причина: ERROR: relation \"users\" does not exist\n" +
-                "  Позиция: 15\n" +
+                "Ошибка в работе с базой данных. Причина: Таблица \"USERS\" не найдена\n" +
+                "Table \"USERS\" not found; SQL statement:\n" +
+                "SELECT * FROM users WHERE password ='123' [42102-192]\n" +
                 //создаем таблицу, в которую добавим данные
                 "Таблица 'users' успешно создана\n" +
                 //добавляем данные
@@ -519,15 +516,16 @@ public class IntegrationTest {
                 //возможно нужно переделать на выброс специальной ошибки, - рыть в AbstractModelWorkWithPostgre
                 "Были изменены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
-                "|id|firstname|secondname|password|\n" +
+                "|ID|FIRSTNAME|SECONDNAME|PASSWORD|\n" +
                 "+--+---------+----------+--------+\n" +
                 //попытка изменения данных с неправильным именем колонки в условии (неудача)
-                "Ошибка в работе с базой данных. Причина: ERROR: column \"wrongcolumnname\" does not exist\n" +
-                "  Позиция: 27\n" +
+                "Ошибка в работе с базой данных. Причина: Столбец \"WRONGCOLUMNNAME\" не найден\n" +
+                "Column \"WRONGCOLUMNNAME\" not found; SQL statement:\n" +
+                "SELECT * FROM users WHERE wrongColumnName ='123' [42122-192]\n" +
                 //правильное изменение данных (успех)
                 "Были изменены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
-                "|id|firstname|secondname|password|\n" +
+                "|ID|FIRSTNAME|SECONDNAME|PASSWORD|\n" +
                 "+--+---------+----------+--------+\n" +
                 "|1 |John     |Dou       |123     |\n" +
                 "+--+---------+----------+--------+\n" +
@@ -572,8 +570,9 @@ public class IntegrationTest {
                 //подключение к БД
                 "База успешно подключена\n" +
                 //удаление данных из несуществующей таблицы (неудача)
-                "Ошибка в работе с базой данных. Причина: ERROR: relation \"users\" does not exist\n" +
-                "  Позиция: 15\n" +
+                "Ошибка в работе с базой данных. Причина: Таблица \"USERS\" не найдена\n" +
+                "Table \"USERS\" not found; SQL statement:\n" +
+                "SELECT * FROM users WHERE password ='123' [42102-192]\n" +
                 //создаем таблицу, в которую добавим данные
                 "Таблица 'users' успешно создана\n" +
                 //добавляем данные
@@ -582,15 +581,16 @@ public class IntegrationTest {
                 //возможно нужно переделать на выброс специальной ошибки, - рыть в AbstractModelWorkWithPostgre
                 "Были удалены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
-                "|id|firstname|secondname|password|\n" +
+                "|ID|FIRSTNAME|SECONDNAME|PASSWORD|\n" +
                 "+--+---------+----------+--------+\n" +
                 //попытка изменения данных с неправильным именем колонки в условии (неудача)
-                "Ошибка в работе с базой данных. Причина: ERROR: column \"wrongcolumnname\" does not exist\n" +
-                "  Позиция: 27\n" +
+                "Ошибка в работе с базой данных. Причина: Столбец \"WRONGCOLUMNNAME\" не найден\n" +
+                "Column \"WRONGCOLUMNNAME\" not found; SQL statement:\n" +
+                "SELECT * FROM users WHERE wrongColumnName ='123' [42122-192]\n" +
                 //правильное изменение данных (успех)
                 "Были удалены следующие строки:\n" +
                 "+--+---------+----------+--------+\n" +
-                "|id|firstname|secondname|password|\n" +
+                "|ID|FIRSTNAME|SECONDNAME|PASSWORD|\n" +
                 "+--+---------+----------+--------+\n" +
                 "|1 |John     |Dou       |123     |\n" +
                 "+--+---------+----------+--------+\n" +
@@ -626,7 +626,9 @@ public class IntegrationTest {
                 //подключаемся к БД
                 "База успешно подключена\n" +
                 //удаление данных из несуществующей таблицы (неудача)
-                "Ошибка в работе с базой данных. Причина: ERROR: table \"users\" does not exist\n" +
+                "Ошибка в работе с базой данных. Причина: Таблица \"USERS\" не найдена\n" +
+                "Table \"USERS\" not found; SQL statement:\n" +
+                "DROP TABLE users [42102-192]\n" +
                 //создаем таблицу, которую потом удалим
                 "Таблица 'users' успешно создана\n" +
                 //удаление таблицы(успех)
@@ -667,8 +669,9 @@ public class IntegrationTest {
                 //подключаемся к БД
                 "База успешно подключена\n" +
                 //очистка несуществующей таблицы (неудача)
-                "Ошибка в работе с базой данных. Причина: ERROR: relation \"users\" does not exist\n" +
-                "  Позиция: 13\n" +
+                "Ошибка в работе с базой данных. Причина: Таблица \"USERS\" не найдена\n" +
+                "Table \"USERS\" not found; SQL statement:\n" +
+                "DELETE FROM users [42102-192]\n" +
                 //создание таблицы, которую удалим
                 "Таблица 'users' успешно создана\n" +
                 //очистка пустой таблицы (успех)
@@ -769,7 +772,7 @@ public class IntegrationTest {
                 //создаем таблицу, которую будем отображать
                 "Таблица 'users' успешно создана\n" +
                 //отображаем таблицу из БД с инфой
-                "[users]\n" +
+                "[USERS]\n" +
                 //грохаем таблицу, чтобы другие тесты норм работали
                 "Таблица users успешно удалена\n" +
                 //выходим

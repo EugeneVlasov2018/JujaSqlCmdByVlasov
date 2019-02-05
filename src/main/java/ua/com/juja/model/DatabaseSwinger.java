@@ -5,14 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-public class Connector {
+public class DatabaseSwinger {
     private String propertiesPath;
     private String url;
+    private String dbName;
     private String user;
     private String password;
     private String driver;
 
-    public Connector(String propertiesPath) {
+    public DatabaseSwinger(String propertiesPath) {
         this.propertiesPath = propertiesPath;
         getParametersFromFile();
     }
@@ -29,6 +30,7 @@ public class Connector {
         }
 
         url = property.getProperty("db.url");
+        dbName = property.getProperty("db.dbname");
         user = property.getProperty("db.user");
         password = property.getProperty("db.password");
         driver = property.getProperty("db.driver");
@@ -36,6 +38,10 @@ public class Connector {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getDbName() {
+        return dbName;
     }
 
     public String getUser() {
