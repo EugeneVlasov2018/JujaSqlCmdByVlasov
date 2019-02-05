@@ -3,9 +3,13 @@ package ua.com.juja.model;
 import org.apache.log4j.Logger;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
@@ -23,10 +27,21 @@ public class PostgreModel implements Model {
 
     @Override
     public void connect(String[] responceToDb) throws CreatedInModelException {
-        String url = "jdbc:postgresql://localhost:5432/" + responceToDb[1];
+        Properties property = new Properties();
+        try (FileInputStream fis = new FileInputStream("" +
+                "src\\main\\resourses\\DB.properties")) {
+            property.load(fis);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ОШИБКА!!! Файл настроек не найден");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String url = property.getProperty("db.dbnamePrefix") + responceToDb[1];
         String user = responceToDb[2];
         String password = responceToDb[3];
-        String jdbcDriver = "org.postgresql.Driver";
+        String jdbcDriver = property.getProperty("db.Driver");
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
         logger.info("Соединение с базой установлено");
     }

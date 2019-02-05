@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 public class PostgreModelTest {
     private Model model;
     private static String[] responceToConnection = new String[4];
+    private static String connectionDriver;
     private static Connection connection;
 
     @BeforeClass
@@ -35,6 +36,7 @@ public class PostgreModelTest {
         responceToConnection[1] = property.getProperty("db.dbname");
         responceToConnection[2] = property.getProperty("db.user");
         responceToConnection[3] = property.getProperty("db.password");
+        connectionDriver = property.getProperty("db.driver");
 
     }
 
@@ -45,10 +47,10 @@ public class PostgreModelTest {
     }
 
     private static void connectToDBTest() {
-        String url = String.format("jdbc:postgresql://localhost:5432/%s",responceToConnection[1]);
+        String url = responceToConnection[1];
         String user = responceToConnection[2];
         String password = responceToConnection[3];
-        String jdbcDriver = "org.postgresql.Driver";
+        String jdbcDriver = connectionDriver;
         try {
             Class.forName(jdbcDriver);
             connection = DriverManager.getConnection(url, user, password);
@@ -85,7 +87,7 @@ public class PostgreModelTest {
         boolean allRight = false;
         model = new PostgreModel();
         try {
-            model.connect(responceToConnection);
+            model.connect(new String[]{"connect","testforsql","postgres","root"});
             allRight = true;
         } catch (CreatedInModelException e) {
             //do nothing
@@ -236,7 +238,7 @@ public class PostgreModelTest {
     @Test
     public void getColumnNameForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "id", "firstname", "secondname", "password"));
+                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"find", "usertest"};
         createTableTest();
@@ -268,7 +270,7 @@ public class PostgreModelTest {
     @Test
     public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "id", "firstname", "secondname", "password"));
+                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
         ArrayList<String> actual;
         String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
         createTableTest();
