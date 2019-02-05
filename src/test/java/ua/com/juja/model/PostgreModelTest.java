@@ -16,9 +16,9 @@ import static org.junit.Assert.*;
 public class PostgreModelTest {
     private Model model;
     private static String[] requestToConnection;
-    private static String[] requestForConnectTest;
     private static String connectionDriver;
     private static Connection connection;
+    private Connector connector;
 
     @BeforeClass
     public static void databaseSetUp() {
@@ -35,22 +35,23 @@ public class PostgreModelTest {
 
         requestToConnection = new String[]{
                 "connect",
-                property.getProperty("db.url"),
+                property.getProperty("db.url")+property.getProperty("db.dbname"),
                 property.getProperty("db.user"),
                 property.getProperty("db.password")};
-        requestForConnectTest = new String[]{
+        /*requestForConnectTest = new String[]{
                 "connect",
                 property.getProperty("db.integrationtesturl"),
                 property.getProperty("db.integrationtestuser"),
-                property.getProperty("db.integrationtestpassword")};
+                property.getProperty("db.integrationtestpassword")};*/
         connectionDriver = property.getProperty("db.driver");
 
     }
 
     @Before
     public void setUp() {
+        connector = new Connector(new String("src\\test\\resourses\\tetsDB.properties"));
         connectToDBTest();
-        model = new PostgreModel(connection);
+        model = new PostgreModel(connector);
     }
 
     private static void connectToDBTest() {

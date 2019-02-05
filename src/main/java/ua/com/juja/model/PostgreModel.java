@@ -15,33 +15,24 @@ import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
 public class PostgreModel implements Model {
     private Connection connectionToDatabase;
+    private Connector connector;
 
     public PostgreModel() {
+        connector = new Connector(new String("src\\main\\resourses\\DB.properties"));
     }
 
-    public PostgreModel(Connection connectionToDatabase) {
-        this.connectionToDatabase = connectionToDatabase;
+    public PostgreModel(Connector connector) {
+        this.connector = connector;
     }
 
     private static final Logger logger = Logger.getLogger(getCurrentClassName());
 
     @Override
     public void connect(String[] responceToDb) throws CreatedInModelException {
-        Properties property = new Properties();
-        try (FileInputStream fis = new FileInputStream("" +
-                "src\\main\\resourses\\DB.properties")) {
-            property.load(fis);
-
-        } catch (FileNotFoundException e) {
-            System.err.println("ОШИБКА!!! Файл настроек не найден");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String url = property.getProperty("db.dbnameprefix") + responceToDb[1];
-        String user = responceToDb[2];
-        String password = responceToDb[3];
-        String jdbcDriver = property.getProperty("db.driver");
+        String url = connector.getUrl()+ responceToDb[1];
+        String user = connector.getUser()+responceToDb[2];
+        String password = connector.getPassword()+responceToDb[3];
+        String jdbcDriver = connector.getDriver();
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
         logger.info("Соединение с базой установлено");
     }
