@@ -36,9 +36,9 @@ public class IntegrationTest {
         }
 
         commandForConnect = String.format("connect|%s|%s|%s",
-                property.getProperty("db.dbname"),
-                property.getProperty("db.user"),
-                property.getProperty("db.password"));
+                property.getProperty("db.integrationtesturl"),
+                property.getProperty("db.integrationtestuser"),
+                property.getProperty("db.integrationtestpassword"));
 
     }
 

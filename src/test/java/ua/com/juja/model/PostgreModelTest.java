@@ -15,7 +15,8 @@ import static org.junit.Assert.*;
 
 public class PostgreModelTest {
     private Model model;
-    private static String[] responceToConnection = new String[4];
+    private static String[] requestToConnection;
+    private static String[] requestForConnectTest;
     private static String connectionDriver;
     private static Connection connection;
 
@@ -32,10 +33,16 @@ public class PostgreModelTest {
             e.printStackTrace();
         }
 
-        responceToConnection[0] = "connect";
-        responceToConnection[1] = property.getProperty("db.dbname");
-        responceToConnection[2] = property.getProperty("db.user");
-        responceToConnection[3] = property.getProperty("db.password");
+        requestToConnection = new String[]{
+                "connect",
+                property.getProperty("db.url"),
+                property.getProperty("db.user"),
+                property.getProperty("db.password")};
+        requestForConnectTest = new String[]{
+                "connect",
+                property.getProperty("db.integrationtesturl"),
+                property.getProperty("db.integrationtestuser"),
+                property.getProperty("db.integrationtestpassword")};
         connectionDriver = property.getProperty("db.driver");
 
     }
@@ -47,9 +54,9 @@ public class PostgreModelTest {
     }
 
     private static void connectToDBTest() {
-        String url = responceToConnection[1];
-        String user = responceToConnection[2];
-        String password = responceToConnection[3];
+        String url = requestToConnection[1];
+        String user = requestToConnection[2];
+        String password = requestToConnection[3];
         String jdbcDriver = connectionDriver;
         try {
             Class.forName(jdbcDriver);
@@ -87,12 +94,11 @@ public class PostgreModelTest {
         boolean allRight = false;
         model = new PostgreModel();
         try {
-            model.connect(new String[]{"connect","testforsql","postgres","root"});
+            model.connect(requestForConnectTest);
             allRight = true;
         } catch (CreatedInModelException e) {
-            //do nothing
+            e.printStackTrace();
         }
-
 
         assertTrue(allRight);
     }
@@ -116,7 +122,7 @@ public class PostgreModelTest {
     @Test
     public void tables() {
         createTableTest();
-        String expected = "[[usertest]]";
+        String expected = "[[USERTEST]]";
         String actual = "";
 
         try {

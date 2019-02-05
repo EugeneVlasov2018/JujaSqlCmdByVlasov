@@ -38,10 +38,10 @@ public class PostgreModel implements Model {
             e.printStackTrace();
         }
 
-        String url = property.getProperty("db.dbnamePrefix") + responceToDb[1];
+        String url = property.getProperty("db.dbnameprefix") + responceToDb[1];
         String user = responceToDb[2];
         String password = responceToDb[3];
-        String jdbcDriver = property.getProperty("db.Driver");
+        String jdbcDriver = property.getProperty("db.driver");
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
         logger.info("Соединение с базой установлено");
     }
@@ -101,14 +101,12 @@ public class PostgreModel implements Model {
     @Override
     public List<String> tables() throws CreatedInModelException {
         ArrayList<String> tablenames = new ArrayList<>();
-        String sql = "SELECT table_name FROM information_schema.tables\n" +
-                "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')\n" +
-                "AND table_schema IN('public');";
         if (isConnected()) {
-            try (Statement statement = connectionToDatabase.createStatement();
-                 ResultSet resultSet = statement.executeQuery(sql)) {
+            try {
+                DatabaseMetaData metaData = connectionToDatabase.getMetaData();
+                ResultSet resultSet = metaData.getTables(null,null,null,new String[]{"TABLE"});
                 while (resultSet.next()) {
-                    tablenames.add(resultSet.getString(1));
+                    tablenames.add(resultSet.getString("TABLE_NAME"));
                 }
             } catch (SQLException e) {
                 createExceptionInModel(e);
