@@ -3,23 +3,22 @@ package ua.com.juja.model;
 import org.apache.log4j.Logger;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
 public class PostgreModel implements Model {
     private Connection connectionToDatabase;
+    private DatabaseSwinger databaseSwinger;
 
     public PostgreModel() {
+        databaseSwinger = new DatabaseSwinger(new String("src\\main\\resourses\\DB.properties"));
     }
 
-    public PostgreModel(Connection connectionToDatabase) {
+    public PostgreModel(Connection connectionToDatabase, DatabaseSwinger databaseSwinger) {
+        this.databaseSwinger = databaseSwinger;
         this.connectionToDatabase = connectionToDatabase;
     }
 
@@ -27,21 +26,10 @@ public class PostgreModel implements Model {
 
     @Override
     public void connect(String[] responceToDb) throws CreatedInModelException {
-        Properties property = new Properties();
-        try (FileInputStream fis = new FileInputStream("" +
-                "src\\main\\resourses\\DB.properties")) {
-            property.load(fis);
-
-        } catch (FileNotFoundException e) {
-            System.err.println("ОШИБКА!!! Файл настроек не найден");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String url = property.getProperty("db.dbnamePrefix") + responceToDb[1];
+        String url = databaseSwinger.getUrl()+ responceToDb[1];
         String user = responceToDb[2];
         String password = responceToDb[3];
-        String jdbcDriver = property.getProperty("db.Driver");
+        String jdbcDriver = databaseSwinger.getDriver();
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
         logger.info("Соединение с базой установлено");
     }
@@ -101,14 +89,12 @@ public class PostgreModel implements Model {
     @Override
     public List<String> tables() throws CreatedInModelException {
         ArrayList<String> tablenames = new ArrayList<>();
-        String sql = "SELECT table_name FROM information_schema.tables\n" +
-                "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')\n" +
-                "AND table_schema IN('public');";
         if (isConnected()) {
-            try (Statement statement = connectionToDatabase.createStatement();
-                 ResultSet resultSet = statement.executeQuery(sql)) {
+            try {
+                DatabaseMetaData metaData = connectionToDatabase.getMetaData();
+                ResultSet resultSet = metaData.getTables(null,null,null,new String[]{"TABLE"});
                 while (resultSet.next()) {
-                    tablenames.add(resultSet.getString(1));
+                    tablenames.add(resultSet.getString("TABLE_NAME"));
                 }
             } catch (SQLException e) {
                 createExceptionInModel(e);

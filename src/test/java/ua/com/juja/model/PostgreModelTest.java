@@ -3,53 +3,42 @@ package ua.com.juja.model;
 import org.junit.*;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
 public class PostgreModelTest {
     private Model model;
-    private static String[] responceToConnection = new String[4];
+    private static String[] requestToConnection;
     private static String connectionDriver;
     private static Connection connection;
+    private static DatabaseSwinger databaseSwinger;
+
 
     @BeforeClass
     public static void databaseSetUp() {
-        Properties property = new Properties();
-        try (FileInputStream fis = new FileInputStream("" +
-                "src\\test\\resourses\\tetsDB.properties")) {
-            property.load(fis);
-
-        } catch (FileNotFoundException e) {
-            System.err.println("ОШИБКА!!! Файл настроек не найден");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        responceToConnection[0] = "connect";
-        responceToConnection[1] = property.getProperty("db.dbname");
-        responceToConnection[2] = property.getProperty("db.user");
-        responceToConnection[3] = property.getProperty("db.password");
-        connectionDriver = property.getProperty("db.driver");
-
+        databaseSwinger = new DatabaseSwinger(new String("src\\test\\resourses\\tetsDB.properties"));
+        requestToConnection = new String[]{
+                "connect",
+                databaseSwinger.getUrl(),
+                databaseSwinger.getUser(),
+                databaseSwinger.getPassword()
+        };
+        connectionDriver = databaseSwinger.getDriver();
     }
 
     @Before
     public void setUp() {
         connectToDBTest();
-        model = new PostgreModel(connection);
+        model = new PostgreModel(connection, databaseSwinger);
     }
 
-    private static void connectToDBTest() {
-        String url = responceToConnection[1];
-        String user = responceToConnection[2];
-        String password = responceToConnection[3];
+    private void connectToDBTest() {
+        String url = requestToConnection[1]+ databaseSwinger.getDbName();
+        String user = requestToConnection[2];
+        String password = requestToConnection[3];
         String jdbcDriver = connectionDriver;
         try {
             Class.forName(jdbcDriver);
@@ -61,7 +50,7 @@ public class PostgreModelTest {
         }
     }
 
-    public static void deleteTableTest() {
+    public void deleteTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE usertest");
         } catch (SQLException e) {
@@ -85,14 +74,13 @@ public class PostgreModelTest {
     @Test
     public void connect() {
         boolean allRight = false;
-        model = new PostgreModel();
+        model = new PostgreModel(null, databaseSwinger);
         try {
-            model.connect(new String[]{"connect","testforsql","postgres","root"});
+            model.connect(requestToConnection);
             allRight = true;
         } catch (CreatedInModelException e) {
-            //do nothing
+            e.printStackTrace();
         }
-
 
         assertTrue(allRight);
     }
@@ -116,7 +104,7 @@ public class PostgreModelTest {
     @Test
     public void tables() {
         createTableTest();
-        String expected = "[[usertest]]";
+        String expected = "[[USERTEST]]";
         String actual = "";
 
         try {
@@ -297,7 +285,7 @@ public class PostgreModelTest {
         deleteTableTest();
     }
 
-    private static void createTableTest() {
+    private void createTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE usertest " +
                     " (id SERIAL, firstname VARCHAR (225), secondname VARCHAR (225), password VARCHAR(225))");
@@ -306,7 +294,7 @@ public class PostgreModelTest {
         }
     }
 
-    private static void insertDataIntoTableTest() {
+    private void insertDataIntoTableTest() {
         try (Statement statement = connection.createStatement()) {
             statement.execute
                     ("INSERT INTO usertest (firstname, secondname, password)" +
