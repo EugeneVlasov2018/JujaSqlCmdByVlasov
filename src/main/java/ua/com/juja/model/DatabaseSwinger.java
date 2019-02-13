@@ -12,6 +12,7 @@ public class DatabaseSwinger {
     private String user;
     private String password;
     private String driver;
+    private String schema;
 
     public DatabaseSwinger(String propertiesPath) {
         this.propertiesPath = propertiesPath;
@@ -34,10 +35,15 @@ public class DatabaseSwinger {
         user = property.getProperty("db.user");
         password = property.getProperty("db.password");
         driver = property.getProperty("db.driver");
+        schema = property.getProperty("db.schema");
     }
 
     public String getUrl() {
         return url;
+    }
+
+    public String getSchema() {
+        return schema;
     }
 
     public String getDbName() {
