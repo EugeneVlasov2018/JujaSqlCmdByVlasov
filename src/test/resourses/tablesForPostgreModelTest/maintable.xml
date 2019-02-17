@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
     <usertest firstname="fn1" secondname="sn1" password="pass1"/>
-    <usertest firstname="fn2" secondname="fn2" password="pass2"/>
+    <usertest firstname="fn2" secondname="sn2" password="pass2"/>
 </dataset>
