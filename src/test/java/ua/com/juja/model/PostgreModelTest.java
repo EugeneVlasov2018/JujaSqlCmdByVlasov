@@ -1,157 +1,230 @@
 package ua.com.juja.model;
 
-import org.junit.*;
+import org.dbunit.Assertion;
+import org.dbunit.DBTestCase;
+import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.filter.DefaultColumnFilter;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.operation.DatabaseOperation;
+import org.junit.Assert;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
-import java.sql.*;
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
-
-public class PostgreModelTest {
-    private Model model;
-    private static String[] requestToConnection;
-    private static String connectionDriver;
-    private static Connection connection;
-    private static DatabaseSwinger databaseSwinger;
 
 
-    @BeforeClass
-    public static void databaseSetUp() {
-        databaseSwinger = new DatabaseSwinger(new String("src\\test\\resourses\\tetsDB.properties"));
-        requestToConnection = new String[]{
+public class PostgreModelTest extends DBTestCase {
+    private PostgreModel model;
+    private String[] requestToConnection;
+    private Connection connection;
+    private DatabaseSwinger swinger;
+
+    public PostgreModelTest(String name) {
+        super(name);
+
+        swinger = new DatabaseSwinger("src\\test\\resourses\\testDBunit.properties");
+        requestToConnection = createRequest();
+        connection = createConnection();
+        createTestTable();
+
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.
+                DBUNIT_DRIVER_CLASS, swinger.getDriver());
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.
+                DBUNIT_CONNECTION_URL, swinger.getUrl() + swinger.getDbName());
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.
+                DBUNIT_USERNAME, swinger.getUser());
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.
+                DBUNIT_PASSWORD, swinger.getPassword());
+        System.setProperty(PropertiesBasedJdbcDatabaseTester.
+                DBUNIT_SCHEMA, swinger.getSchema());
+    }
+
+    private void createTestTable() {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(
+                    "CREATE TABLE public.usertest " +
+                            "(id serial PRIMARY KEY," +
+                            " firstname varchar(225)," +
+                            " secondname varchar(225)," +
+                            " password varchar(225))");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startMethod(String[] command) throws CreatedInModelException {
+        if (command[0].equals("connect"))
+            model.connect(command);
+        else if (command[0].equals("create"))
+            model.create(command);
+        else if (command[0].equals("drop"))
+            model.drop(command);
+        else if (command[0].equals("insert"))
+            model.insert(command);
+        else if (command[0].equals("update"))
+            model.update(command);
+        else if (command[0].equals("clear"))
+            model.clear(command);
+        else if (command[0].equals("delete"))
+            model.delete(command);
+    }
+
+    private String[] getWrongCommand(int indexInCommand, String data) {
+        String[] result = new String[]{
                 "connect",
-                databaseSwinger.getUrl(),
-                databaseSwinger.getUser(),
-                databaseSwinger.getPassword()
+                swinger.getDbName(),
+                swinger.getUser(),
+                swinger.getPassword()
         };
-        connectionDriver = databaseSwinger.getDriver();
+        result[indexInCommand] = data;
+        return result;
     }
 
-    @Before
-    public void setUp() {
-        connectToDBTest();
-        model = new PostgreModel(connection, databaseSwinger);
-    }
+    private Connection createConnection() {
+        Connection resultConnection = null;
+        String url = swinger.getUrl() + swinger.getDbName();
+        String user = swinger.getUser();
+        String password = swinger.getPassword();
+        String JdbcDriver = swinger.getDriver();
 
-    private void connectToDBTest() {
-        String url = requestToConnection[1]+ databaseSwinger.getDbName();
-        String user = requestToConnection[2];
-        String password = requestToConnection[3];
-        String jdbcDriver = connectionDriver;
         try {
-            Class.forName(jdbcDriver);
-            connection = DriverManager.getConnection(url, user, password);
+            Class.forName(JdbcDriver);
+            resultConnection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        return resultConnection;
     }
 
-    public void deleteTableTest() {
+    private String[] createRequest() {
+        String database = swinger.getDbName();
+        String user = swinger.getUser();
+        String password = swinger.getPassword();
+        return new String[]{"connect", database, user, password};
+    }
+
+    private void deleteThisTable() {
         try (Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE usertest");
+            statement.execute("DROP TABLE public.tablefortest");
         } catch (SQLException e) {
-            System.err.println("Если вы получили это исключение, протестировав ТОЛЬКО model.exit(), - не страшно.\n" +
-                    "В процессе теста вы и так закрыли коннекшн");
             e.printStackTrace();
         }
     }
 
-    @AfterClass
-    public static void closeConnection(){
+
+    private void comparsionOfTables(String expectedTablePath) throws Exception {
+        IDataSet actualDataSet = getConnection().createDataSet();
+        ITable actualTable = actualDataSet.getTable("usertest");
+
+        IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(new FileInputStream(expectedTablePath));
+        ITable expectedTable = expectedDataSet.getTable("usertest");
+
+        ITable filteredTable = DefaultColumnFilter.includedColumnsTable(
+                actualTable,
+                expectedTable.getTableMetaData().getColumns());
+
+        Assertion.assertEquals(expectedTable, filteredTable);
+    }
+
+    private void catchingException(String[] command, String expectedMessage) {
         try {
-            connection.close();
-        } catch (SQLException e) {
-            System.err.println("Если вы получили это исключение, протестировав ТОЛЬКО model.exit(), - не страшно.\n" +
-                    "В процессе теста вы и так закрыли коннекшн");
-            e.printStackTrace();
+            startMethod(command);
+            Assert.fail("метод отработал корректно, - такого не должно быть");
+        } catch (CreatedInModelException e) {
+            assertEquals(expectedMessage, e.getMessage());
         }
     }
 
-    @Test
-    public void connect() {
-        boolean allRight = false;
-        model = new PostgreModel(null, databaseSwinger);
+
+    @Override
+    protected IDataSet getDataSet() throws Exception {
+        return new FlatXmlDataSetBuilder().build(new FileInputStream(
+                "src\\test\\resourses\\tablesForPostgreModelTest\\maintable.xml"));
+    }
+
+    @Override
+    protected DatabaseOperation getSetUpOperation() throws Exception {
+        model = new PostgreModel(connection, swinger);
+        return DatabaseOperation.CLEAN_INSERT;
+    }
+
+    @Override
+    protected DatabaseOperation getTearDownOperation() throws Exception {
+        return DatabaseOperation.DELETE_ALL;
+    }
+
+    public void testConnect() {
+        boolean isConnected = false;
+        model = new PostgreModel(null, swinger);
+
         try {
             model.connect(requestToConnection);
-            allRight = true;
+            isConnected = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
 
-        assertTrue(allRight);
+        assertTrue(isConnected);
     }
 
-    @Test
-    public void create() {
-        boolean theTableIsCreated = false;
-        String[] responceToDB = new String[]{"create", "usertest", "firstname", "secondname", "password"};
+
+    public void testCreate() {
+        boolean isCreated = false;
+        String[] command = new String[]{
+                "create",
+                "tablefortest",
+                "firstcolumn"
+        };
 
         try {
-            model.create(responceToDB);
-            theTableIsCreated = true;
-        } catch (CreatedInModelException e) {
-            //do nothing;
-        }
-
-        assertTrue(theTableIsCreated);
-        deleteTableTest();
-    }
-
-    @Test
-    public void tables() {
-        createTableTest();
-        String expected = "[[USERTEST]]";
-        String actual = "";
-
-        try {
-            actual = Arrays.asList(model.tables()).toString();
+            model.create(command);
+            isCreated = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
+        deleteThisTable();
 
-        assertEquals(expected, actual);
-        deleteTableTest();
+        assertTrue(isCreated);
     }
 
-    @Test
-    public void clear() {
-        boolean isThisClear = false;
-        String[] responceToDB = new String[]{"clear", "usertest"};
-        createTableTest();
+    public void testTables() throws CreatedInModelException {
+        String expected = "[[usertest]]";
+        assertEquals(expected, Arrays.asList(model.tables()).toString());
+    }
 
+
+    public void testClear() throws Exception {
+        String[] command = new String[]{"clear", "usertest"};
+        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tableforclear.xml";
+        model.clear(command);
+        comparsionOfTables(expectedTablePath);
+    }
+
+    public void testDdrop() {
+        boolean isDroped = false;
+        String[] command = new String[]{"drop", "usertest"};
         try {
-            model.clear(responceToDB);
-            isThisClear = true;
+            model.drop(command);
+            isDroped = true;
         } catch (CreatedInModelException e) {
             e.printStackTrace();
         }
-
-        assertTrue(isThisClear);
-        deleteTableTest();
+        createTestTable();
+        assertTrue(isDroped);
     }
 
-    @Test
-    public void drop() {
-        boolean isThisDroped=false;
-        String[] responceToDB = new String[]{"drop", "usertest"};
-        createTableTest();
 
-        try {
-            model.drop(responceToDB);
-            isThisDroped = true;
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
-
-        assertTrue(isThisDroped);
-    }
-
-    @Test
-    public void exit() {
+    public void testExit() {
         boolean modelIsExit = false;
 
         try {
@@ -164,144 +237,133 @@ public class PostgreModelTest {
         assertTrue(modelIsExit);
     }
 
-    @Test
-    public void insert() {
-        String[] sqlRequest = new String[]
-                {"insert", "usertest", "firstname", "John", "secondname", "Dou", "password", "123"};
-        boolean isInserted = false;
-        createTableTest();
 
-        try {
-            model.insert(sqlRequest);
-            isInserted = true;
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
-
-        assertTrue(isInserted);
-        deleteTableTest();
+    public void testInsert() throws Exception {
+        String[] command = new String[]
+                {"insert", "usertest", "firstname", "fn3", "secondname", "sn3", "password", "pass3"};
+        model.insert(command);
+        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tableforinsert.xml";
+        comparsionOfTables(expectedTablePath);
     }
 
-    @Test
-    public void update() {
-        String[] sqlRequest = new String[]{
+
+    public void testUpdate() throws Exception {
+        String[] command = new String[]{
                 "update", "usertest",
-                "password", "123",
-                "firstname", "John2",
-                "secondname", "Dou2",
-                "password", "123456"};
-        boolean isUpdated = false;
-        createTableTest();
-        insertDataIntoTableTest();
-
-        try {
-            model.update(sqlRequest);
-            isUpdated = true;
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
-
-        assertTrue(isUpdated);
-        deleteTableTest();
+                "password", "pass1",
+                "firstname", "updated",
+                "secondname", "updated",
+                "password", "updated"};
+        model.update(command);
+        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tableforupdate.xml";
+        comparsionOfTables(expectedTablePath);
     }
 
-    @Test
-    public void delete() {
-        boolean isDeleted = false;
-        String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        createTableTest();
-        insertDataIntoTableTest();
 
-        try {
-            model.delete(sqlRequest);
-            isDeleted = true;
-        } catch (CreatedInModelException e) {
-            e.printStackTrace();
-        }
-
-        assertTrue(isDeleted);
-        deleteTableTest();
+    public void testDelete() throws Exception {
+        String[] command = new String[]{"delete", "usertest", "password", "pass1"};
+        model.delete(command);
+        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tablefordelete.xml";
+        comparsionOfTables(expectedTablePath);
     }
 
-    @Test
-    public void getColumnNameForFind() throws CreatedInModelException {
+
+    public void testGetColumnNameForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
-        ArrayList<String> actual;
-        String[] sqlRequest = new String[]{"find", "usertest"};
-        createTableTest();
-        insertDataIntoTableTest();
-
-        actual = (ArrayList<String>) model.getColumnNameForFind(sqlRequest);
-
+                "id", "firstname", "secondname", "password"));
+        String[] command = new String[]{"find", "usertest"};
+        ArrayList<String> actual = (ArrayList<String>) model.getColumnNameForFind(command);
         assertEquals(expected, actual);
-        deleteTableTest();
     }
 
 
-    @Test
-    public void getColumnValuesForFind() throws CreatedInModelException {
+    public void testGetColumnValuesForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "1", "John", "Dou", "123"));
-        ArrayList<String> actual;
-        String[] sqlRequest = new String[]{"find", "usertest"};
-        createTableTest();
-        insertDataIntoTableTest();
-
-        actual = (ArrayList<String>) model.getColumnValuesForFind(sqlRequest);
-
+                "fn1", "sn1", "pass1", "fn2", "sn2", "pass2"));
+        String[] command = new String[]{"find", "usertest"};
+        ArrayList<String> actual = (ArrayList<String>) model.getColumnValuesForFind(command);
+        //удалил значения id, которые постоянно меняются, т.к autoincrement (костыль)
+        actual.remove(0);
+        actual.remove(3);
         assertEquals(expected, actual);
-        deleteTableTest();
     }
 
 
-    @Test
-    public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
+    public void testGetColumnNameForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
-        ArrayList<String> actual;
-        String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        createTableTest();
-        insertDataIntoTableTest();
-
-        actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(sqlRequest);
-
+                "id", "firstname", "secondname", "password"));
+        String[] command = new String[]{"delete", "usertest", "password", "pass1"};
+        ArrayList<String> actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(command);
         assertEquals(expected, actual);
-        deleteTableTest();
     }
 
-    @Test
-    public void getColumnValuesForUpdateOrDelete() throws CreatedInModelException {
+
+    public void testGetColumnValuesForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "1", "John", "Dou", "123"));
-        ArrayList<String> actual;
-        String[] sqlRequest = new String[]{"delete", "usertest", "password", "123"};
-        createTableTest();
-        insertDataIntoTableTest();
-
-        actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(sqlRequest);
-
+                "fn1", "sn1", "pass1"));
+        String[] command = new String[]{"delete", "usertest", "password", "pass1"};
+        ArrayList<String> actual = (ArrayList<String>) model.getColumnValuesForUpdateOrDelete(command);
+        //удалил значения id, которые постоянно меняются, т.к autoincrement (костыль)
+        actual.remove(0);
         assertEquals(expected, actual);
-        deleteTableTest();
     }
 
-    private void createTableTest() {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE usertest " +
-                    " (id SERIAL, firstname VARCHAR (225), secondname VARCHAR (225), password VARCHAR(225))");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public void testConnectWithWrongCommand() {
+        model = new PostgreModel(null, swinger);
+        String[] command = getWrongCommand(1, "wrondDb");
+        String expectedMessage = "Вы ввели: \n" +
+                "Неверную ссылку на базу\n" +
+                "Попробуйте снова:P";
+        catchingException(command, expectedMessage);
+
     }
 
-    private void insertDataIntoTableTest() {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute
-                    ("INSERT INTO usertest (firstname, secondname, password)" +
-                            " VALUES ('John','Dou','123')");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+    public void testConnectWithWrongUserOrPassword() {
+        model = new PostgreModel(null, swinger);
+        String[] command = getWrongCommand(2, "wrongUser");
+        String expectedMessage = "Вы ввели: \n" +
+                "Неверное имя пользователя или пароль\n" +
+                "Попробуйте снова:P";
+        catchingException(command, expectedMessage);
+    }
+
+    public void testDeleteWrongColumn() {
+        String[] command = new String[]{"delete", "usertest", "wrongColumn", "pass1"};
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: " +
+                "ERROR: column \"wrongcolumn\" does not exist\n" +
+                "  Позиция: 28";
+        catchingException(command, expectedMessage);
+    }
+
+    public void testDeleteWrongTable() {
+        String[] command = new String[]{"delete", "wrongtable", "password", "pass1"};
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: " +
+                "ERROR: relation \"wrongtable\" does not exist\n" +
+                "  Позиция: 13";
+        catchingException(command, expectedMessage);
+    }
+
+    public void testDropNonExistentTable() {
+        String[] command = new String[]{"drop","nonexistentTable"};
+        String expectedMessage = "Ошибка в работе с базой данных. Причина:" +
+                " ERROR: table \"nonexistenttable\" does not exist";
+        catchingException(command,expectedMessage);
+    }
+
+    public void testInsertNonExistentTable(){
+        String[] command = new String[]{"insert","nonexistentTable","password","password3"};
+        String expectedMessage = "Ошибка в работе с базой данных. Причина:" +
+                " ERROR: relation \"nonexistenttable\" does not exist\n" +
+                "  Позиция: 13";
+        catchingException(command,expectedMessage);;
+    }
+
+    public void testInsertNonExistentColumn(){
+        String[] command = new String[]{"insert","usertest","wrongcolumn","password3"};
+        String expectedMessage = "Ошибка в работе с базой данных. Причина:" +
+                " ERROR: column \"wrongcolumn\" of relation \"usertest\" does not exist\n" +
+                "  Позиция: 23";
+        catchingException(command,expectedMessage);;
     }
 }
-
