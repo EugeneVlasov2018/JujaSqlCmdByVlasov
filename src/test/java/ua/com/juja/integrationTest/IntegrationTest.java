@@ -3,13 +3,13 @@ package ua.com.juja.integrationTest;
 import org.junit.*;
 import ua.com.juja.controller.Main;
 import ua.com.juja.controller.MainController;
-import ua.com.juja.model.DatabaseSwinger;
 import ua.com.juja.model.Model;
 import ua.com.juja.model.PostgreModel;
 import ua.com.juja.view.ConsoleView;
 import ua.com.juja.view.View;
 
 import java.io.*;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,22 +20,36 @@ public class IntegrationTest {
     private Model model;
     private View view;
     private MainController mainController;
-    private static DatabaseSwinger databaseSwinger;
+    private static Properties properties;
     private static String commandForConnect;
 
     @BeforeClass
     public static void databaseSetUp() {
-        databaseSwinger = new DatabaseSwinger(new String("src\\test\\resourses\\tetsDB.properties"));
+        properties = getProperties("src\\test\\resourses\\testDB.properties");
 
         commandForConnect = String.format("connect|%s|%s|%s",
-                databaseSwinger.getDbName(),
-                databaseSwinger.getUser() ,
-                databaseSwinger.getPassword());
+                properties.getProperty("db.dbname"),
+                properties.getProperty("db.user"),
+                properties.getProperty("db.password"));
+    }
+
+    private static Properties getProperties(String propertiesPath) {
+        Properties result = new Properties();
+
+        try (FileInputStream fis = new FileInputStream(propertiesPath)) {
+            result.load(fis);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ОШИБКА!!! Файл настроек не найден");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     @Before
     public void setup() {
-        model = new PostgreModel(null, databaseSwinger);
+        model = new PostgreModel(null, properties);
         view = new ConsoleView();
         mainController = new MainController(model, view);
         in = new ConfigurableInputStream();

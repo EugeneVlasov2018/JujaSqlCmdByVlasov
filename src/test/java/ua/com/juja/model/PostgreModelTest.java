@@ -12,26 +12,28 @@ import ua.com.juja.model.exceptions.CreatedInModelException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Properties;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 
 public class PostgreModelTest {
-    private static final DatabaseSwinger swinger = new DatabaseSwinger(
-            "src\\test\\resourses\\testDBunit.properties");
+    private static Properties properties;
     private PostgreModel model;
     private static Connection connection;
     private static IDatabaseTester databaseTester;
 
     @BeforeClass
-    public static void init() throws ClassNotFoundException, FileNotFoundException, DataSetException {
+    public static void init() throws FileNotFoundException, DataSetException {
+        properties = getProperties("src\\test\\resourses\\testDB.properties");
         connection = createConnection();
         databaseTester = getDatabaseTester();
 
@@ -43,16 +45,30 @@ public class PostgreModelTest {
         createTestTable();
     }
 
+    private static Properties getProperties(String propertiesPath) {
+        Properties result = new Properties();
+
+        try (FileInputStream fis = new FileInputStream(propertiesPath)) {
+            result.load(fis);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ОШИБКА!!! Файл настроек не найден");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     private static IDatabaseTester getDatabaseTester(){
         IDatabaseTester result = null;
 
-        String url = swinger.getUrl()+swinger.getDbName();
+        String url = properties.getProperty("db.url") + properties.getProperty("db.dbname");
         try {
             result = new JdbcDatabaseTester(
-                    swinger.getDriver(),
+                    properties.getProperty("db.driver"),
                     url,
-                    swinger.getUser(),
-                    swinger.getPassword());
+                    properties.getProperty("db.user"),
+                    properties.getProperty("db.password"));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -62,14 +78,12 @@ public class PostgreModelTest {
     private static Connection createConnection() {
         Connection resultConnection = null;
 
-        String url = swinger.getUrl() + swinger.getDbName();
-        String user = swinger.getUser();
-        String password = swinger.getPassword();
-        String JdbcDriver = swinger.getDriver();
-
         try {
-            Class.forName(JdbcDriver);
-            resultConnection = DriverManager.getConnection(url, user, password);
+            Class.forName(properties.getProperty("db.driver"));
+            resultConnection = DriverManager.getConnection(
+                    properties.getProperty("db.url") + properties.getProperty("db.dbname"),
+                    properties.getProperty("db.user"),
+                    properties.getProperty("db.password"));
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -93,7 +107,7 @@ public class PostgreModelTest {
 
     @AfterClass
     public static void afterAllTests(){
-        dropTable("usertest");
+        dropTable("USERTEST");
         try {
             connection.close();
         } catch (SQLException e) {
@@ -111,7 +125,7 @@ public class PostgreModelTest {
 
     @Before
     public void setUp() throws Exception {
-        model = new PostgreModel(connection,swinger);
+        model = new PostgreModel(connection, properties);
         databaseTester.onSetup();
     }
 
@@ -123,7 +137,7 @@ public class PostgreModelTest {
     @Test
     public void connect() {
         boolean isConnected = false;
-        model = new PostgreModel(null, swinger);
+        model = new PostgreModel(null, properties);
 
         try {
             model.connect(createRequest());
@@ -136,10 +150,12 @@ public class PostgreModelTest {
     }
 
     private String[] createRequest() {
-        String database = swinger.getDbName();
-        String user = swinger.getUser();
-        String password = swinger.getPassword();
-        return new String[]{"connect", database, user, password};
+
+        return new String[]{
+                "connect",
+                properties.getProperty("db.name"),
+                properties.getProperty("db.user"),
+                properties.getProperty("db.password")};
     }
 
     @Test
@@ -164,7 +180,7 @@ public class PostgreModelTest {
 
     @Test
     public void tables() throws CreatedInModelException {
-        String expected = "[[usertest]]";
+        String expected = "[[USERTEST]]";
         assertEquals(expected, Arrays.asList(model.tables()).toString());
     }
 
@@ -245,7 +261,7 @@ public class PostgreModelTest {
     @Test
     public void getColumnNameForFind() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "id", "firstname", "secondname", "password"));
+                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
         String[] command = new String[]{"find", "usertest"};
 
         ArrayList<String> actual = (ArrayList<String>) model.getColumnNameForFind(command);
@@ -270,7 +286,7 @@ public class PostgreModelTest {
     @Test
     public void getColumnNameForUpdateOrDelete() throws CreatedInModelException {
         ArrayList<String> expected = new ArrayList<>(Arrays.asList(
-                "id", "firstname", "secondname", "password"));
+                "ID", "FIRSTNAME", "SECONDNAME", "PASSWORD"));
         String[] command = new String[]{"delete", "usertest", "password", "pass1"};
 
         ArrayList<String> actual = (ArrayList<String>) model.getColumnNameForUpdateOrDelete(command);
@@ -289,9 +305,12 @@ public class PostgreModelTest {
         assertEquals(expected, actual);
     }
 
+    //Даный тест ВООБЩЕ не отработает в H2 inMemory, - просто создаст новую ДБ
+    //с именем wrongDB, но в связку с другими sql-базами выстрелит на ура
+    @Ignore
     @Test
     public void connectWithWrongCommand() {
-        model = new PostgreModel(null, swinger);
+        model = new PostgreModel(null, properties);
         String[] command = getWrongCommand(1, "wrondDb");
         String expectedMessage = "Вы ввели: \n" +
                 "Неверную ссылку на базу\n" +
@@ -302,10 +321,9 @@ public class PostgreModelTest {
 
     @Test
     public void connectWithWrongUserOrPassword() {
-        model = new PostgreModel(null, swinger);
+        model = new PostgreModel(null, properties);
         String[] command = getWrongCommand(2, "wrongUser");
         String expectedMessage = "Вы ввели: \n" +
-                "Неверное имя пользователя или пароль\n" +
                 "Попробуйте снова:P";
         catchingException(command, expectedMessage);
     }
@@ -313,9 +331,9 @@ public class PostgreModelTest {
     private String[] getWrongCommand(int indexInCommand, String data) {
         String[] result = new String[]{
                 "connect",
-                swinger.getDbName(),
-                swinger.getUser(),
-                swinger.getPassword()
+                properties.getProperty("db.dbname"),
+                properties.getProperty("db.user"),
+                properties.getProperty("db.password")
         };
         result[indexInCommand] = data;
         return result;
@@ -324,45 +342,46 @@ public class PostgreModelTest {
     @Test
     public void deleteWrongColumn() {
         String[] command = new String[]{"delete", "usertest", "wrongColumn", "pass1"};
-        String expectedMessage = "Ошибка в работе с базой данных. Причина: " +
-                "ERROR: column \"wrongcolumn\" does not exist\n" +
-                "  Позиция: 28";
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: Столбец \"WRONGCOLUMN\" не найден\n" +
+                "Column \"WRONGCOLUMN\" not found; SQL statement:\n" +
+                "DELETE FROM usertest WHERE wrongColumn ='pass1' [42122-192]";
         catchingException(command, expectedMessage);
     }
 
     @Test
     public void deleteWrongTable() {
         String[] command = new String[]{"delete", "wrongtable", "password", "pass1"};
-        String expectedMessage = "Ошибка в работе с базой данных. Причина: " +
-                "ERROR: relation \"wrongtable\" does not exist\n" +
-                "  Позиция: 13";
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: Таблица \"WRONGTABLE\" не найдена\n" +
+                "Table \"WRONGTABLE\" not found; SQL statement:\n" +
+                "DELETE FROM wrongtable WHERE password ='pass1' [42102-192]";
         catchingException(command, expectedMessage);
     }
 
     @Test
     public void dropNonExistentTable() {
         String[] command = new String[]{"drop","nonexistentTable"};
-        String expectedMessage = "Ошибка в работе с базой данных. Причина:" +
-                " ERROR: table \"nonexistenttable\" does not exist";
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: Таблица \"NONEXISTENTTABLE\" не найдена\n" +
+                "Table \"NONEXISTENTTABLE\" not found; SQL statement:\n" +
+                "DROP TABLE nonexistentTable [42102-192]";
         catchingException(command,expectedMessage);
     }
 
     @Test
     public void insertNonExistentTable(){
         String[] command = new String[]{"insert","nonexistentTable","password","password3"};
-        String expectedMessage = "Ошибка в работе с базой данных. Причина:" +
-                " ERROR: relation \"nonexistenttable\" does not exist\n" +
-                "  Позиция: 13";
-        catchingException(command,expectedMessage);;
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: Таблица \"NONEXISTENTTABLE\" не найдена\n" +
+                "Table \"NONEXISTENTTABLE\" not found; SQL statement:\n" +
+                "INSERT INTO nonexistentTable (password)VALUES ('password3') [42102-192]";
+        catchingException(command, expectedMessage);
     }
 
     @Test
     public void insertNonExistentColumn(){
         String[] command = new String[]{"insert","usertest","wrongcolumn","password3"};
-        String expectedMessage = "Ошибка в работе с базой данных. Причина:" +
-                " ERROR: column \"wrongcolumn\" of relation \"usertest\" does not exist\n" +
-                "  Позиция: 23";
-        catchingException(command,expectedMessage);;
+        String expectedMessage = "Ошибка в работе с базой данных. Причина: Столбец \"WRONGCOLUMN\" не найден\n" +
+                "Column \"WRONGCOLUMN\" not found; SQL statement:\n" +
+                "INSERT INTO usertest (wrongcolumn)VALUES ('password3') [42122-192]";
+        catchingException(command, expectedMessage);
     }
 
     private void catchingException(String[] command, String expectedMessage) {

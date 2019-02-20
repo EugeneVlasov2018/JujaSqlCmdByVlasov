@@ -3,22 +3,34 @@ package ua.com.juja.model;
 import org.apache.log4j.Logger;
 import ua.com.juja.model.exceptions.CreatedInModelException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static ua.com.juja.logging.ClassNameUtil.getCurrentClassName;
 
 public class PostgreModel implements Model {
     private Connection connectionToDatabase;
-    private DatabaseSwinger databaseSwinger;
+    private Properties properties;
 
     public PostgreModel() {
-        databaseSwinger = new DatabaseSwinger(new String("src\\main\\resourses\\DB.properties"));
+        properties = new Properties();
+        try (FileInputStream fis = new FileInputStream("src\\main\\resourses\\DB.properties")) {
+            properties.load(fis);
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ОШИБКА!!! Файл настроек не найден");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public PostgreModel(Connection connectionToDatabase, DatabaseSwinger databaseSwinger) {
-        this.databaseSwinger = databaseSwinger;
+    public PostgreModel(Connection connectionToDatabase, Properties properties) {
+        this.properties = properties;
         this.connectionToDatabase = connectionToDatabase;
     }
 
@@ -26,10 +38,10 @@ public class PostgreModel implements Model {
 
     @Override
     public void connect(String[] responceToDb) throws CreatedInModelException {
-        String url = databaseSwinger.getUrl()+ responceToDb[1];
+        String url = properties.getProperty("db.url") + responceToDb[1];
         String user = responceToDb[2];
         String password = responceToDb[3];
-        String jdbcDriver = databaseSwinger.getDriver();
+        String jdbcDriver = properties.getProperty("db.driver");
         connectionToDatabase = createConnection(url, user, password, jdbcDriver);
         logger.info("Соединение с базой установлено");
     }
