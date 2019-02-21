@@ -26,19 +26,31 @@ import static org.junit.Assert.assertEquals;
 
 
 public class PostgreModelTest {
-    private static Properties properties;
     private PostgreModel model;
+
+    private static Properties properties;
     private static Connection connection;
     private static IDatabaseTester databaseTester;
 
+    private static final String MAINTABLE = "src\\test\\resourses\\tablesForPostgreModelTest\\maintable.xml";
+    private static final String EXPECTED_TABLE_CLEAR =
+            "src\\test\\resourses\\tablesForPostgreModelTest\\tableforclear.xml";
+    private static final String EXPECTED_TABLE_INSERT =
+            "src\\test\\resourses\\tablesForPostgreModelTest\\tableforinsert.xml";
+    private static final String EXPECTED_TABLE_DELETE =
+            "src\\test\\resourses\\tablesForPostgreModelTest\\tablefordelete.xml";
+    private static final String EXPECTED_TABLE_UPDATE =
+            "src\\test\\resourses\\tablesForPostgreModelTest\\tableforupdate.xml";
+    private static final String TEST_PROPERTIES = "src\\test\\resourses\\testDB.properties";
+
     @BeforeClass
     public static void init() throws FileNotFoundException, DataSetException {
-        properties = getProperties("src\\test\\resourses\\testDB.properties");
+        properties = getProperties(TEST_PROPERTIES);
         connection = createConnection();
         databaseTester = getDatabaseTester();
 
         IDataSet mainDataSet = new FlatXmlDataSetBuilder().build(
-                new FileInputStream("src\\test\\resourses\\tablesForPostgreModelTest\\maintable.xml"));
+                new FileInputStream(MAINTABLE));
 
         databaseTester.setDataSet(mainDataSet);
 
@@ -159,6 +171,13 @@ public class PostgreModelTest {
     }
 
     @Test
+    public void delete() throws Exception {
+        String[] command = new String[]{"delete", "usertest","password","pass1"};
+        model.delete(command);
+        comparsionOfTables(EXPECTED_TABLE_DELETE);
+    }
+
+    @Test
     public void create(){
         boolean isCreated = false;
         String[] command = new String[]{
@@ -217,9 +236,8 @@ public class PostgreModelTest {
     @Test
     public void clear() throws Exception {
         String[] command = new String[]{"clear", "usertest"};
-        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tableforclear.xml";
         model.clear(command);
-        comparsionOfTables(expectedTablePath);
+        comparsionOfTables(EXPECTED_TABLE_CLEAR);
     }
 
     private void comparsionOfTables(String expectedTablePath) throws Exception {
@@ -241,8 +259,7 @@ public class PostgreModelTest {
         String[] command = new String[]
                 {"insert", "usertest", "firstname", "fn3", "secondname", "sn3", "password", "pass3"};
         model.insert(command);
-        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tableforinsert.xml";
-        comparsionOfTables(expectedTablePath);
+        comparsionOfTables(EXPECTED_TABLE_INSERT);
     }
 
     @Test
@@ -254,8 +271,7 @@ public class PostgreModelTest {
                 "secondname", "updated",
                 "password", "updated"};
         model.update(command);
-        String expectedTablePath = "src\\test\\resourses\\tablesForPostgreModelTest\\tableforupdate.xml";
-        comparsionOfTables(expectedTablePath);
+        comparsionOfTables(EXPECTED_TABLE_UPDATE);
     }
 
     @Test
@@ -317,6 +333,16 @@ public class PostgreModelTest {
                 "Попробуйте снова:P";
         catchingException(command, expectedMessage);
 
+    }
+
+    @Test
+    public void workWhithoutConnection(){
+        model = new PostgreModel(null,properties);
+        String[] command = new String[]{"drop", "usertest"};
+        String expectedMessage = "Вы попытались выполнить работу, не подключившись к базе данных.\n" +
+                "Подключитесь к базе данных командой\n" +
+                "'connect|database|username|password'";
+        catchingException(command,expectedMessage);
     }
 
     @Test
@@ -392,7 +418,7 @@ public class PostgreModelTest {
             assertEquals(expectedMessage, e.getMessage());
         }
     }
-    
+
 
     private void startMethod(String[] command) throws CreatedInModelException {
         if (command[0].equals("connect"))

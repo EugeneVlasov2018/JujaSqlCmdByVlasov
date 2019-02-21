@@ -22,10 +22,11 @@ public class IntegrationTest {
     private MainController mainController;
     private static Properties properties;
     private static String commandForConnect;
+    private static final String TEST_PROPERTIES = "src\\test\\resourses\\testDB.properties";
 
     @BeforeClass
     public static void databaseSetUp() {
-        properties = getProperties("src\\test\\resourses\\testDB.properties");
+        properties = getProperties(TEST_PROPERTIES);
 
         commandForConnect = String.format("connect|%s|%s|%s",
                 properties.getProperty("db.dbname"),
